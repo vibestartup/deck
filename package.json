@@ -1,7 +1,8 @@
 {
-  "name": "vibestartup-pitch",
+  "name": "vibestartup-pre-seed-pitch-deck",
   "version": "0.1.0",
   "private": true,
+  "description": "Interactive pitch deck for VibeStartup's pre-seed funding round",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
