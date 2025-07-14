@@ -1,4 +1,10 @@
 import { motion } from 'framer-motion'
+import {
+  baseProjections,
+  formatNumber,
+  formatPercentage,
+  BASE_BUSINESS_PARAMS
+} from '../../lib'
 
 export function SuperAppSlide() {
   const coreFeatures = [
@@ -24,30 +30,36 @@ export function SuperAppSlide() {
     }
   ]
 
+  // Calculate sharing conversion for display
+  const sharingBehavior = 5; // Assumption: each founder shows to 5 people
+  const conversionRate = BASE_BUSINESS_PARAMS.viralCoefficient / sharingBehavior; // Derive conversion rate
+  const month1Companies = baseProjections.cohorts[0].totalCompanies;
+  const month12Companies = baseProjections.cohorts[11].totalCompanies;
+
   const growthMetrics = [
     { 
       metric: "Founder sharing behavior", 
-      value: "5 people shown per company", 
+      value: `${sharingBehavior} people shown per company`, 
       detail: "Nielsen sharing data: positive business experiences shared with 5-9 people. Conservative estimate: 5 per founder.",
-      technical: "Viral coefficient: 5 × 8% conversion = 0.4 k-factor. Exponential growth: companies(n) = initial × (1.4)^n"
+      technical: `Viral coefficient: ${sharingBehavior} × ${formatPercentage(conversionRate)} conversion = ${BASE_BUSINESS_PARAMS.viralCoefficient} k-factor. Exponential growth: companies(n) = initial × (1.${BASE_BUSINESS_PARAMS.viralCoefficient.toString().replace('0.', '')})^n`
     },
     { 
       metric: "Conversion rate", 
-      value: "8% start their own company", 
+      value: `${formatPercentage(conversionRate)} start their own company`, 
       detail: "Industry benchmark for B2B referrals: 5-15%. Our estimate: 8% based on founder peer influence.",
       technical: "Conversion tracking: UTM parameters, referral codes, attribution modeling. A/B testing on sharing mechanisms."
     },
     { 
       metric: "Viral amplification", 
-      value: "K-factor: 0.4 (conservative)", 
+      value: `K-factor: ${BASE_BUSINESS_PARAMS.viralCoefficient} (conservative)`, 
       detail: "Social apps achieve 0.7+ k-factor. Conservative estimate for B2B context.",
-      technical: "Monthly compound: 630 → 882 → 1,235 → 1,729 companies. 70%+ growth becomes viral by month 12."
+      technical: `Monthly compound: ${formatNumber(month1Companies)} → ${formatNumber(baseProjections.cohorts[1].totalCompanies)} → ${formatNumber(baseProjections.cohorts[2].totalCompanies)} → ${formatNumber(baseProjections.cohorts[3].totalCompanies)} companies. 70%+ growth becomes viral by month 12.`
     },
     { 
       metric: "Growth trajectory", 
-      value: "630 → 25,511 companies/month", 
+      value: `${formatNumber(month1Companies)} → ${formatNumber(month12Companies)} companies/month`, 
       detail: "Month 1 to month 12 exponential growth via viral mechanics.",
-      technical: "Monthly growth rate: 40% blended (direct + viral). Cohort retention: 92% monthly. Network effects strengthen with scale."
+      technical: `Monthly growth rate: 40% blended (direct + viral). Cohort retention: ${formatPercentage(1 - BASE_BUSINESS_PARAMS.monthlyChurnRate)} monthly. Network effects strengthen with scale.`
     }
   ]
 

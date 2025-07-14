@@ -1,4 +1,15 @@
 import { motion } from 'framer-motion'
+import {
+  baseProjections,
+  baseCAC,
+  baseLTV,
+  keyMetrics,
+  formatCurrency,
+  formatNumber,
+  formatMultiplier,
+  BASE_BUSINESS_PARAMS,
+  INDUSTRY_BENCHMARKS
+} from '../../lib'
 
 export function MarketSizeSlide() {
   const marketData = [
@@ -36,28 +47,28 @@ export function MarketSizeSlide() {
       metric: 'Viral coefficient', 
       stripeAtlas: '0.0', 
       legalZoom: '0.0', 
-      vibeStartup: '0.4',
+      vibeStartup: BASE_BUSINESS_PARAMS.viralCoefficient.toString(),
       advantage: 'Social sharing mechanics + founder network effects'
     },
     { 
       metric: 'LTV/CAC ratio', 
-      stripeAtlas: '~3x', 
+      stripeAtlas: `~${INDUSTRY_BENCHMARKS.industryLtvCacRatio}x`, 
       legalZoom: '~2x', 
-      vibeStartup: '75.6x',
+      vibeStartup: formatMultiplier(keyMetrics.ltvCacRatio),
       advantage: 'Viral acquisition + multi-company founder lifecycle'
     },
     { 
       metric: 'Annual formations', 
       stripeAtlas: '27k', 
       legalZoom: '2M+', 
-      vibeStartup: '87k (Y1)',
+      vibeStartup: `${formatNumber(baseProjections.companyCount / 1000)}k (Y1)`,
       advantage: 'Exponential growth via viral mechanics'
     },
     { 
       metric: 'Revenue per customer', 
       stripeAtlas: '$500 (one-time)', 
       legalZoom: '$300+ (one-time)', 
-      vibeStartup: '$597 (recurring)',
+      vibeStartup: `${formatCurrency(baseLTV.blendedLTV)} (recurring)`,
       advantage: 'Subscription model + operational services'
     }
   ]
@@ -66,7 +77,7 @@ export function MarketSizeSlide() {
     { 
       factor: 'Network effects', 
       strength: 'High',
-      detail: 'Each founder becomes acquisition channel. 630 founders → 3,150 impressions → 252 signups monthly compound growth.'
+      detail: `Each founder becomes acquisition channel. ${formatNumber(baseCAC.totalCompanies)} founders → ${formatNumber(baseCAC.totalViews)} impressions → ${formatNumber(baseCAC.signups)} signups monthly compound growth.`
     },
     { 
       factor: 'Switching costs', 
@@ -250,7 +261,7 @@ export function MarketSizeSlide() {
             <p><strong>TAM Calculation:</strong> World Bank data: 30M+ annual global business formations. Average lifecycle value: $833 (formation + accounting + legal + operations). 20% growth rate as digital economy expands.</p>
             <p><strong>Competitive Moats:</strong> Stripe Atlas dominates developer market but lacks viral mechanics. LegalZoom has scale but no network effects. We combine both: technical excellence + viral growth + network effects.</p>
             <p><strong>Winner-Take-Most Dynamics:</strong> Network effects create exponential advantage. Each new founder increases platform value for all users. First to reach critical mass (10k+ active founders) captures majority market share.</p>
-            <p><strong>Path to Dominance:</strong> Month 1-12: Prove viral mechanics (630 → 25k companies). Month 13-24: Scale operations (multi-state compliance). Month 25+: International expansion (UK, Canada, EU).</p>
+            <p><strong>Path to Dominance:</strong> Month 1-12: Prove viral mechanics ({formatNumber(baseCAC.totalCompanies)} → {formatNumber(baseProjections.companyCount / 1000)}k companies). Month 13-24: Scale operations (multi-state compliance). Month 25+: International expansion (UK, Canada, EU).</p>
           </div>
         </motion.div>
       </motion.div>

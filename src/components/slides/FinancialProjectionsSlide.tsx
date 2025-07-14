@@ -1,46 +1,65 @@
 import { motion } from 'framer-motion'
+import {
+  baseProjections,
+  baseCAC,
+  baseLTV,
+  keyMetrics,
+  formatCurrency,
+  formatNumber,
+  formatPercentage,
+  calculateInfrastructureCostPerCompany,
+  BASE_BUSINESS_PARAMS,
+  BASE_INFRASTRUCTURE_PARAMS
+} from '../../lib'
 
 export function FinancialProjectionsSlide() {
+  // Get specific month data from projections
+  const month1 = baseProjections.cohorts[0];
+  const month6 = baseProjections.cohorts[5];
+  const month12 = baseProjections.cohorts[11];
+  
   const growthTrajectory = [
     { 
       period: 'Month 1', 
-      companies: 630, 
-      revenue: '$100k', 
-      details: 'Direct: 450 + Viral: 180 = 630 companies. Formation: $75.6k + Subscription: $25.2k = $100.8k total',
-      metrics: 'CAC: $7.94 | LTV: $597 | Payback: 0.4 months'
+      companies: month1.totalCompanies, 
+      revenue: formatCurrency(month1.totalRevenue / 1000) + 'k', 
+      details: `Direct: ${formatNumber(month1.directAcquisition)} + Viral: ${formatNumber(month1.viralContribution)} = ${formatNumber(month1.newCompanies)} companies. Formation: ${formatCurrency(month1.formationRevenue / 1000)}k + Subscription: ${formatCurrency(month1.monthlyRecurringRevenue / 1000)}k = ${formatCurrency(month1.totalRevenue / 1000)}k total`,
+      metrics: `CAC: ${formatCurrency(baseCAC.cacPerCompany)} | LTV: ${formatCurrency(baseLTV.blendedLTV)} | Payback: ${(keyMetrics.paybackPeriod * 30).toFixed(0)} days`
     },
     { 
       period: 'Month 6', 
-      companies: 3388, 
-      revenue: '$411k MRR', 
-      details: 'Viral coefficient accelerating. 70% growth from referrals. Cohort retention: 92% monthly',
+      companies: month6.totalCompanies, 
+      revenue: `${formatCurrency(month6.monthlyRecurringRevenue / 1000)}k MRR`, 
+      details: `Viral coefficient accelerating. 70% growth from referrals. Cohort retention: ${formatPercentage(1 - BASE_BUSINESS_PARAMS.monthlyChurnRate)} monthly`,
       metrics: 'Unit economics stable. AWS credits covering all infrastructure costs'
     },
     { 
       period: 'Month 12', 
-      companies: 25511, 
-      revenue: '$3.5M MRR', 
-      details: '$42M ARR run rate. 87k total companies formed. 75% gross margin maintained',
+      companies: month12.totalCompanies, 
+      revenue: `${formatCurrency(month12.monthlyRecurringRevenue / 1000000, 1)}M MRR`, 
+      details: `${formatCurrency(month12.monthlyRecurringRevenue * 12 / 1000000)}M ARR run rate. ${formatNumber(baseProjections.companyCount / 1000)}k total companies formed. ${formatPercentage(keyMetrics.grossMargin)} gross margin maintained`,
       metrics: 'Market validation complete. Series A fundraising initiation'
     },
     { 
       period: 'Year 1 Total', 
-      companies: 87714, 
-      revenue: '$22M ARR', 
+      companies: baseProjections.companyCount, 
+      revenue: `${formatCurrency(baseProjections.totalRevenue / 1000000)}M ARR`, 
       details: 'Exponential growth proven. Network effects accelerating acquisition efficiency',
       metrics: 'Break-even achieved. Preparing for infrastructure transition'
     }
   ]
+
+  const infrastructureCostPerCompany = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
 
   const infrastructureStages = [
     {
       stage: 'Stage 1: AWS Credits Active',
       timeline: 'Months 1-12',
       details: [
-        'Infrastructure cost: $0 (AWS credits cover $1.6M)',
+        `Infrastructure cost: $0 (AWS credits cover ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.awsCreditsMonthly * 12 / 1000000, 1)}M)`,
         'SaaS gross margin: 94% (payment processing only)',
         'Formation gross margin: 26% (state fees + KYC)',
-        'Monthly burn: $5k marketing + $15k operations = $20k',
+        `Monthly burn: ${formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend)} marketing + ${formatCurrency(15000)} operations = ${formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend + 15000)}`,
         'Break-even: Month 2 at 882 companies'
       ],
       color: 'border-green-500',
@@ -50,10 +69,10 @@ export function FinancialProjectionsSlide() {
       stage: 'Stage 2: Paid Infrastructure',
       timeline: 'Months 13-24',
       details: [
-        'Infrastructure cost: $16.35/company/month',
-        'Pricing increase required: $40 → $60 average',
+        `Infrastructure cost: ${formatCurrency(infrastructureCostPerCompany)}/company/month`,
+        `Pricing increase required: ${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)} → ${formatCurrency((BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) * 1.5)} average`,
         'SaaS gross margin: 73% (post-pricing adjustment)',
-        'Monthly infrastructure spend: $1.6M at 100k companies',
+        `Monthly infrastructure spend: ${formatCurrency(infrastructureCostPerCompany * 100000 / 1000000, 1)}M at 100k companies`,
         'Risk mitigation: Pricing grandfathering for early adopters'
       ],
       color: 'border-yellow-500',
@@ -63,8 +82,8 @@ export function FinancialProjectionsSlide() {
       stage: 'Stage 3: Hybrid Self-Hosted',
       timeline: 'Month 25+',
       details: [
-        'CapEx investment: $2M infrastructure setup',
-        'Monthly savings: $1.4M vs AWS (87% cost reduction)',
+        `CapEx investment: ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.selfHostingSetupCost / 1000000)}M infrastructure setup`,
+        `Monthly savings: ${formatCurrency(infrastructureCostPerCompany * BASE_INFRASTRUCTURE_PARAMS.selfHostingSavingsRate * 100000 / 1000000, 1)}M vs AWS (${formatPercentage(BASE_INFRASTRUCTURE_PARAMS.selfHostingSavingsRate)} cost reduction)`,
         'SaaS gross margin: 95% (optimized infrastructure)',
         'Self-hosted capacity: 1M+ companies',
         'Path to $100M ARR with <1% global market share'
@@ -77,23 +96,23 @@ export function FinancialProjectionsSlide() {
   const financialModeling = [
     { 
       metric: 'Customer Acquisition Cost', 
-      calculation: '$5k marketing ÷ 630 companies = $7.94 per company',
-      assumptions: 'Viral coefficient 0.4 includes organic acquisition. Scales with content quality, not spend.'
+      calculation: `${formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend)} marketing ÷ ${formatNumber(baseCAC.totalCompanies)} companies = ${formatCurrency(baseCAC.cacPerCompany)} per company`,
+      assumptions: `Viral coefficient ${BASE_BUSINESS_PARAMS.viralCoefficient} includes organic acquisition. Scales with content quality, not spend.`
     },
     { 
       metric: 'Monthly Recurring Revenue', 
-      calculation: 'Companies × ($20 basic + $100 pro) weighted avg = $40 blended',
-      assumptions: '30% pro tier adoption. Price elasticity testing shows 40% can bear $60 average.'
+      calculation: `Companies × (${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice)} basic + ${formatCurrency(BASE_BUSINESS_PARAMS.proTierPrice)} pro) weighted avg = ${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)} blended`,
+      assumptions: `${formatPercentage(BASE_BUSINESS_PARAMS.proTierAdoptionRate)} pro tier adoption. Price elasticity testing shows 40% can bear ${formatCurrency((BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) * 1.5)} average.`
     },
     { 
       metric: 'Churn Rate', 
-      calculation: '8% monthly (company failures + competitive switches)',
+      calculation: `${formatPercentage(BASE_BUSINESS_PARAMS.monthlyChurnRate)} monthly (company failures + competitive switches)`,
       assumptions: 'Higher than typical SaaS due to startup mortality. Improves with operational integrations.'
     },
     { 
       metric: 'Infrastructure Scaling', 
-      calculation: 'Per-company monthly cost: $16.35 (Lambda + RDS + S3 + CDN)',
-      assumptions: 'Heavy usage model: 50k API calls, 3k emails, 200 SMS, 600 voice minutes per company.'
+      calculation: `Per-company monthly cost: ${formatCurrency(infrastructureCostPerCompany)} (Lambda + RDS + S3 + CDN)`,
+      assumptions: `Heavy usage model: ${formatNumber(50000)} API calls, ${formatNumber(3000)} emails, ${formatNumber(200)} SMS, ${formatNumber(600)} voice minutes per company.`
     }
   ]
 
@@ -109,7 +128,7 @@ export function FinancialProjectionsSlide() {
           Financial Projections & Infrastructure Strategy
         </h1>
         <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
-          $25k MRR → $3.5M MRR in 12 months
+          {formatCurrency(month1.monthlyRecurringRevenue / 1000)}k MRR → {formatCurrency(month12.monthlyRecurringRevenue / 1000000, 1)}M MRR in 12 months
         </p>
 
         <motion.div
@@ -129,7 +148,7 @@ export function FinancialProjectionsSlide() {
                 className="border-l-2 border-blue-500/30 pl-4"
               >
                 <p className="text-lg font-bold text-blue-400 mb-1">{item.period}</p>
-                <p className="text-sm text-gray-300 mb-2">{item.companies.toLocaleString()} companies</p>
+                <p className="text-sm text-gray-300 mb-2">{formatNumber(item.companies)} companies</p>
                 <p className="text-sm font-semibold text-blue-300 mb-3">{item.revenue}</p>
                 <p className="text-xs text-gray-400 mb-2">{item.details}</p>
                 <p className="text-xs text-gray-500">{item.metrics}</p>
@@ -202,7 +221,7 @@ export function FinancialProjectionsSlide() {
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
           <div className="text-sm text-gray-400 space-y-2">
-            <p><strong>Revenue Model:</strong> Formation fees ($120 avg) + monthly subscriptions ($40 avg) + task marketplace commission (5%) + premium services (legal, accounting). Multiple revenue streams reduce single-point-of-failure risk.</p>
+            <p><strong>Revenue Model:</strong> Formation fees ({formatCurrency(BASE_BUSINESS_PARAMS.formationFee)} avg) + monthly subscriptions ({formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)} avg) + task marketplace commission (5%) + premium services (legal, accounting). Multiple revenue streams reduce single-point-of-failure risk.</p>
             <p><strong>Cost Structure:</strong> Variable costs scale with usage (infrastructure, payment processing). Fixed costs include marketing, operations, compliance team. Gross margin improves with scale due to infrastructure optimization.</p>
             <p><strong>Working Capital:</strong> Monthly receivables cycle. Stripe/payment processing provides immediate settlement. Minimal inventory or physical assets required. Strong cash generation from month 2.</p>
             <p><strong>Funding Strategy:</strong> $50k seed → $1M Series A (month 12) → $10M Series B (month 24). Each round supports 12-18 months runway. Revenue-based financing options available post-profitability.</p>

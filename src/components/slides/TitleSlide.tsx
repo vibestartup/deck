@@ -1,4 +1,10 @@
 import { motion } from 'framer-motion'
+import {
+  keyMetrics,
+  formatMultiplier,
+  formatMonths,
+  formatNumber
+} from '../../lib'
 
 export function TitleSlide() {
   return (
@@ -27,15 +33,15 @@ export function TitleSlide() {
         >
           <div className="grid grid-cols-3 gap-12 text-center">
             <div>
-              <p className="text-3xl font-bold text-blue-400 mb-2">50x</p>
+              <p className="text-3xl font-bold text-blue-400 mb-2">{formatMultiplier(keyMetrics.ltvCacRatio)}</p>
               <p className="text-sm text-gray-400">LTV/CAC Ratio</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-green-400 mb-2">0.4 months</p>
+              <p className="text-3xl font-bold text-green-400 mb-2">{formatMonths(keyMetrics.paybackPeriod)}</p>
               <p className="text-sm text-gray-400">Payback Period</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-purple-400 mb-2">87k</p>
+              <p className="text-3xl font-bold text-purple-400 mb-2">{formatNumber(keyMetrics.companyCount / 1000)}k</p>
               <p className="text-sm text-gray-400">Companies Year 1</p>
             </div>
           </div>

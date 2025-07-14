@@ -1,4 +1,14 @@
 import { motion } from 'framer-motion'
+import {
+  baseProjections,
+  keyMetrics,
+  formatCurrency,
+  formatMultiplier,
+  formatPercentage,
+  calculateInvestmentReturns,
+  BASE_BUSINESS_PARAMS,
+  INDUSTRY_BENCHMARKS
+} from '../../lib'
 
 export function TheAskSlide() {
   const useOfFunds = [
@@ -11,7 +21,7 @@ export function TheAskSlide() {
     { 
       category: '4-month viral marketing runway', 
       amount: '$20k', 
-      details: '$5k/month content creation and promotion budget',
+      details: `${formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend)}/month content creation and promotion budget`,
       technical: 'Video production, influencer partnerships, paid social amplification, UTM tracking, conversion optimization'
     },
     { 
@@ -28,43 +38,55 @@ export function TheAskSlide() {
     }
   ]
 
+  // Calculate investment returns dynamically
+  const investmentReturns = calculateInvestmentReturns(
+    50000, // $50k investment
+    2000000, // $2M valuation
+    baseProjections,
+    [10, 8, 6] // Exit multiples
+  );
+
+  // Project future years revenue (simplified calculation)
+  const year2Revenue = baseProjections.totalRevenue * 3.5; // Approximate growth
+  const year3Revenue = baseProjections.totalRevenue * 7; // Approximate growth
+
   const returnScenarios = [
     { 
       timeline: 'Year 1 exit', 
       multiple: '10x revenue', 
-      valuation: '$220M', 
-      return: '110x',
-      assumptions: 'Enterprise acquisition. $22M revenue × 10x multiple. Strategic premium for viral growth engine.'
+      valuation: formatCurrency(investmentReturns[0].exitValuation / 1000000) + 'M', 
+      return: formatMultiplier(investmentReturns[0].returnMultiple),
+      assumptions: `Enterprise acquisition. ${formatCurrency(baseProjections.totalRevenue / 1000000)}M revenue × 10x multiple. Strategic premium for viral growth engine.`
     },
     { 
       timeline: 'Year 2 exit', 
       multiple: '8x revenue', 
-      valuation: '$624M', 
-      return: '312x',
-      assumptions: 'Public market comparable. $78M revenue × 8x multiple. SaaS public market median multiple.'
+      valuation: formatCurrency(year2Revenue * 8 / 1000000) + 'M', 
+      return: formatMultiplier((year2Revenue * 8 * 0.025) / 50000),
+      assumptions: `Public market comparable. ${formatCurrency(year2Revenue / 1000000)}M revenue × 8x multiple. SaaS public market median multiple.`
     },
     { 
       timeline: 'Year 3 exit', 
       multiple: '6x revenue', 
-      valuation: '$936M', 
-      return: '468x',
-      assumptions: 'IPO scenario. $156M revenue × 6x multiple. Mature SaaS company valuation with network effects premium.'
+      valuation: formatCurrency(year3Revenue * 6 / 1000000) + 'M', 
+      return: formatMultiplier((year3Revenue * 6 * 0.025) / 50000),
+      assumptions: `IPO scenario. ${formatCurrency(year3Revenue / 1000000)}M revenue × 6x multiple. Mature SaaS company valuation with network effects premium.`
     }
   ]
 
   const whyThisWorks = [
     { 
-      reason: '50x LTV/CAC ratio', 
-      benchmark: 'vs 3-5x industry standard',
+      reason: `${formatMultiplier(keyMetrics.ltvCacRatio)} LTV/CAC ratio`, 
+      benchmark: `vs ${INDUSTRY_BENCHMARKS.industryLtvCacRatio}x industry standard`,
       detail: 'Viral mechanics create exponential acquisition efficiency. Each customer becomes acquisition channel.'
     },
     { 
       reason: 'Break-even month 2', 
-      benchmark: 'with 85% gross margins',
+      benchmark: `with ${formatPercentage(keyMetrics.grossMargin)} gross margins`,
       detail: 'AWS credits eliminate infrastructure costs year 1. Profitable from 882 companies onward.'
     },
     { 
-      reason: '$3.6M ARR by month 12', 
+      reason: `${formatCurrency(keyMetrics.finalARR / 1000000, 1)}M ARR by month 12`, 
       benchmark: 'Series A ready',
       detail: 'Proven viral growth engine. Network effects accelerating. Multi-state compliance proven.'
     },
@@ -79,8 +101,8 @@ export function TheAskSlide() {
     { term: 'Investment amount', value: '$50k SAFE', detail: 'Simple Agreement for Future Equity. Standard YC terms.' },
     { term: 'Valuation cap', value: '$2M', detail: 'Conservative pre-money valuation. 2.5% equity at cap.' },
     { term: 'Discount rate', value: '20%', detail: 'Discount to next round pricing. Standard seed investor protection.' },
-    { term: 'Use of funds', value: '4-6 months runway', detail: 'Prove product-market fit. Achieve viral coefficient >0.4.' },
-    { term: 'Next milestone', value: '$1M Series A', detail: 'At $300k+ MRR with proven viral growth (month 12).' }
+    { term: 'Use of funds', value: '4-6 months runway', detail: `Prove product-market fit. Achieve viral coefficient >${BASE_BUSINESS_PARAMS.viralCoefficient}.` },
+    { term: 'Next milestone', value: '$1M Series A', detail: `At ${formatCurrency(keyMetrics.finalMRR / 1000)}k+ MRR with proven viral growth (month 12).` }
   ]
 
   return (
@@ -215,7 +237,7 @@ export function TheAskSlide() {
             <p><strong>Risk Mitigation:</strong> Multiple revenue streams, proven viral mechanics, low-touch business model. Break-even in month 2 reduces funding dependency. Exit opportunities at multiple stages.</p>
             <p><strong>Competitive Advantage:</strong> Network effects create winner-take-most dynamics. First-mover advantage in viral company formation. Technical moats via multi-state integration take years to replicate.</p>
             <p><strong>Market Timing:</strong> Perfect convergence of AI acceleration, VC timeline compression, and Gen Z entrepreneurship. Regulatory environment favorable with state digitization complete.</p>
-            <p><strong>Investment Thesis:</strong> Viral growth engine + SaaS economics = exceptional returns. 75x LTV/CAC ratio unprecedented in B2B. Conservative 100x+ return potential even at modest exit multiples.</p>
+            <p><strong>Investment Thesis:</strong> Viral growth engine + SaaS economics = exceptional returns. {formatMultiplier(keyMetrics.ltvCacRatio)} LTV/CAC ratio unprecedented in B2B. Conservative 100x+ return potential even at modest exit multiples.</p>
           </div>
         </motion.div>
       </motion.div>
