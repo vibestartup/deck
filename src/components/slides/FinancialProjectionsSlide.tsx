@@ -383,7 +383,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           
           {/* Break-even label */}
           {breakEvenDay >= minDay && breakEvenDay <= maxDay && (
-            <div className="absolute text-green-400 font-medium" 
+                            <div className="absolute text-blue-400 font-medium" 
                  style={{ 
                    left: `${scaleX(breakEvenDay)}%`, 
                    top: '15%',
@@ -435,24 +435,24 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               <span className="text-gray-300">Revenue</span>
             </div>
             <div className="flex items-center mb-0.5">
-              <div className="w-2 h-px bg-red-400 mr-1"></div>
-              <span className="text-gray-300">Total Costs</span>
+              <div className="w-2 h-px bg-slate-400 mr-1"></div>
+              <span className="text-slate-300">Total Costs</span>
             </div>
             <div className="flex items-center mb-0.5">
-              <div className="w-2 h-px bg-purple-400 mr-1 border-dashed border-t border-purple-400"></div>
-              <span className="text-gray-300">Employee Costs</span>
+              <div className="w-2 h-px bg-slate-500 mr-1 border-dashed border-t border-slate-500"></div>
+              <span className="text-slate-300">Employee Costs</span>
             </div>
             <div className="flex items-center mb-0.5">
-              <div className="w-2 h-px bg-green-400 mr-1"></div>
-              <span className="text-gray-300">Profit/Loss</span>
+              <div className="w-2 h-px bg-emerald-400 mr-1"></div>
+              <span className="text-slate-300">Profit/Loss</span>
             </div>
             <div className="flex items-center mb-0.5">
-              <div className="w-2 h-1 bg-yellow-400/20 border border-yellow-400/40 mr-1"></div>
-              <span className="text-gray-300">Pareto Frontier</span>
+              <div className="w-2 h-1 bg-slate-400/20 border border-slate-400/40 mr-1"></div>
+              <span className="text-slate-300">Pareto Frontier</span>
             </div>
             <div className="flex items-center">
-              <div className="w-px h-2 bg-green-400 border-dashed mr-1"></div>
-              <span className="text-gray-300">Milestones</span>
+              <div className="w-px h-2 bg-blue-400 border-dashed mr-1"></div>
+              <span className="text-slate-300">Milestones</span>
             </div>
           </div>
         </div>

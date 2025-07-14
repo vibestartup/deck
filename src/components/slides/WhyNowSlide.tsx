@@ -137,9 +137,9 @@ export function WhyNowSlide() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="border-l-4 border-green-500 pl-8"
+            className="border-l-2 border-blue-500 pl-8"
           >
-            <h2 className="text-3xl font-bold mb-8 text-green-400">EXECUTION ADVANTAGES</h2>
+            <h2 className="text-3xl font-bold mb-8 text-blue-400">EXECUTION ADVANTAGES</h2>
             <div className="space-y-6">
               {executionAdvantages.map((item, index) => (
                 <motion.div
@@ -147,11 +147,11 @@ export function WhyNowSlide() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
-                  className="border-l-2 border-green-500/30 pl-4"
+                  className="border-l border-slate-600 pl-4"
                 >
-                  <p className="text-sm font-semibold text-green-400 mb-2">{item.advantage}</p>
-                  <p className="text-xs text-gray-300 mb-2">{item.detail}</p>
-                  <p className="text-xs text-gray-500">{item.technical}</p>
+                  <p className="text-sm font-semibold text-slate-300 mb-2">{item.advantage}</p>
+                  <p className="text-xs text-slate-400 mb-2">{item.detail}</p>
+                  <p className="text-xs text-slate-500">{item.technical}</p>
                 </motion.div>
               ))}
             </div>
@@ -162,9 +162,9 @@ export function WhyNowSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="border-t-4 border-red-500 pt-8 mb-12"
+          className="border-t border-slate-700 pt-8 mb-12"
         >
-          <h2 className="text-3xl font-bold mb-8 text-red-400">WHAT HAPPENS WITHOUT US</h2>
+          <h2 className="text-3xl font-bold mb-8 text-slate-300">WHAT HAPPENS WITHOUT US</h2>
           <div className="grid grid-cols-2 gap-8">
             {withoutUsScenarios.map((item, index) => (
               <motion.div
@@ -172,11 +172,11 @@ export function WhyNowSlide() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
-                className="border-l-2 border-red-500/30 pl-4"
+                className="border-l border-slate-600 pl-4"
               >
-                <p className="text-sm font-semibold text-red-400 mb-2">{item.scenario}</p>
-                <p className="text-xs text-gray-300 mb-2">{item.impact}</p>
-                <p className="text-xs text-gray-500">{item.quantified}</p>
+                <p className="text-sm font-semibold text-slate-300 mb-2">{item.scenario}</p>
+                <p className="text-xs text-slate-400 mb-2">{item.impact}</p>
+                <p className="text-xs text-slate-500">{item.quantified}</p>
               </motion.div>
             ))}
           </div>
@@ -186,9 +186,9 @@ export function WhyNowSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.4 }}
-          className="border-t-4 border-purple-500 pt-8"
+          className="border-t border-slate-700 pt-8"
         >
-          <h2 className="text-3xl font-bold mb-8 text-purple-400">THE INEVITABILITY ARGUMENT</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">THE INEVITABILITY ARGUMENT</h2>
           <div className="grid grid-cols-2 gap-8">
             {inevitabilityPoints.map((item, index) => (
               <motion.div
@@ -196,11 +196,11 @@ export function WhyNowSlide() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 1.6 + index * 0.1 }}
-                className="border-l-2 border-purple-500/30 pl-4"
+                className="border-l border-slate-600 pl-4"
               >
-                <p className="text-sm font-semibold text-purple-400 mb-2">{item.point}</p>
-                <p className="text-xs text-gray-300 mb-2">{item.reasoning}</p>
-                <p className="text-xs text-gray-500">{item.timing}</p>
+                <p className="text-sm font-semibold text-slate-300 mb-2">{item.point}</p>
+                <p className="text-xs text-slate-400 mb-2">{item.reasoning}</p>
+                <p className="text-xs text-slate-500">{item.timing}</p>
               </motion.div>
             ))}
           </div>

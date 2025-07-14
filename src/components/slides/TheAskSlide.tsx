@@ -145,21 +145,21 @@ export function TheAskSlide() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                    className="border-b border-gray-700 pb-3"
+                    className="border-b border-slate-600 pb-3"
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <span className="text-gray-300 text-sm font-medium">{term.term}</span>
-                      <span className="text-purple-400 font-bold">{term.value}</span>
+                      <span className="text-slate-300 text-sm font-medium">{term.term}</span>
+                      <span className="text-blue-400 font-bold">{term.value}</span>
                     </div>
-                    <p className="text-xs text-gray-500">{term.detail}</p>
+                    <p className="text-xs text-slate-500">{term.detail}</p>
                   </motion.div>
                 ))}
               </div>
             </div>
 
             {/* Use of Funds Breakdown */}
-            <div className="bg-gray-900/30 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-purple-300 mb-6">Use of Funds ({COMPUTED_VALUES.investmentAmountFormatted})</h3>
+            <div className="bg-slate-800/30 border border-slate-600 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-blue-300 mb-6">Use of Funds ({COMPUTED_VALUES.investmentAmountFormatted})</h3>
               <div className="space-y-4">
                 {useOfFunds.map((item, index) => (
                   <motion.div
@@ -167,17 +167,17 @@ export function TheAskSlide() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                    className="border-l-4 border-purple-500 pl-4"
+                    className="border-l-2 border-blue-500 pl-4"
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <h4 className="text-purple-300 font-semibold text-sm">{item.category}</h4>
+                      <h4 className="text-blue-300 font-semibold text-sm">{item.category}</h4>
                       <div className="text-right">
-                        <span className="text-purple-400 font-bold">{item.amount}</span>
-                        <span className="text-gray-500 text-xs ml-2">({item.percentage})</span>
+                        <span className="text-blue-400 font-bold">{item.amount}</span>
+                        <span className="text-slate-500 text-xs ml-2">({item.percentage})</span>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-400 mb-1">{item.description}</p>
-                    <p className="text-xs text-gray-500">{item.details}</p>
+                    <p className="text-xs text-slate-400 mb-1">{item.description}</p>
+                    <p className="text-xs text-slate-500">{item.details}</p>
                   </motion.div>
                 ))}
               </div>
@@ -190,9 +190,9 @@ export function TheAskSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="border-t-4 border-green-500 pt-8 mb-16"
+          className="border-t border-slate-700 pt-8 mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-green-400">RETURN ANALYSIS & EXIT SCENARIOS</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">RETURN ANALYSIS & EXIT SCENARIOS</h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {[
@@ -200,22 +200,22 @@ export function TheAskSlide() {
                 scenario: 'Year 6 Exit',
                 multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year3, // 6x multiple
                 revenue: year6ARR, // Proper exponential growth calculation
-                color: 'text-green-400',
-                bgColor: 'bg-green-900/20 border-green-500/30'
+                color: 'text-blue-400',
+                bgColor: 'bg-slate-800/20 border-slate-600'
               },
               {
                 scenario: 'Year 8 Exit',
                 multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year2, // 8x multiple
                 revenue: year8ARR, // Proper exponential growth calculation
                 color: 'text-blue-400',
-                bgColor: 'bg-blue-900/20 border-blue-500/30'
+                bgColor: 'bg-slate-800/20 border-slate-600'
               },
               {
                 scenario: 'Year 10 Exit',
                 multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year1, // 10x multiple
                 revenue: year10ARR, // Proper exponential growth calculation
-                color: 'text-purple-400',
-                bgColor: 'bg-purple-900/20 border-purple-500/30'
+                color: 'text-blue-400',
+                bgColor: 'bg-slate-800/20 border-slate-600'
               }
             ].map((scenario, index) => {
               const returns = calculateReturns(scenario.multiple, scenario.revenue);
@@ -256,9 +256,9 @@ export function TheAskSlide() {
           </div>
 
           {/* Growth Analysis Explanation */}
-          <div className="mt-8 p-6 bg-green-900/20 border border-green-500/30 rounded-lg">
-            <h3 className="text-lg font-semibold text-green-300 mb-4">Exponential Growth Model Validation</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-300">
+          <div className="mt-8 p-6 bg-slate-800/20 border border-slate-600 rounded-lg">
+            <h3 className="text-lg font-semibold text-blue-300 mb-4">Exponential Growth Model Validation</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-300">
               <div>
                 <p><strong>Viral Coefficient Impact:</strong> K-factor of {BASE_BUSINESS_PARAMS.viralCoefficient} compounds over time. Each new company drives additional viral acquisition, creating exponential rather than linear growth curves.</p>
                 <p className="mt-3"><strong>Network Effects:</strong> VibeFund investment loops and VibeMatch collaboration increase platform value exponentially. Later-stage companies have higher retention and viral coefficients.</p>
@@ -276,14 +276,14 @@ export function TheAskSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="border-t-4 border-yellow-500 pt-8 mb-16"
+          className="border-t border-slate-700 pt-8 mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-yellow-400">INVESTMENT DE-RISKING STRATEGY</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">INVESTMENT DE-RISKING STRATEGY</h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Traction Milestones */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold text-yellow-300">Pre-Investment Traction</h3>
+              <h3 className="text-xl font-semibold text-blue-300">Pre-Investment Traction</h3>
               <div className="space-y-4">
                 {[
                   { milestone: `${daysToMonths(developmentPhaseDays)} months bootstrapped development`, status: 'Complete', description: 'Product development proven feasible with minimal capital' },
@@ -298,10 +298,10 @@ export function TheAskSlide() {
                     transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
                     className="flex items-start space-x-3"
                   >
-                    <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
                     <div>
-                      <p className="text-green-300 font-medium text-sm">{item.milestone}</p>
-                      <p className="text-xs text-gray-400">{item.description}</p>
+                      <p className="text-blue-300 font-medium text-sm">{item.milestone}</p>
+                      <p className="text-xs text-slate-400">{item.description}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -310,7 +310,7 @@ export function TheAskSlide() {
 
             {/* Post-Investment Milestones */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold text-yellow-300">Post-Investment Validation</h3>
+              <h3 className="text-xl font-semibold text-blue-300">Post-Investment Validation</h3>
               <div className="space-y-4">
                 {[
                   { milestone: `Month ${daysToMonths(investmentDays)}: Investment deployment`, target: '30 days', description: 'Legal setup, team assembly, launch preparation' },
@@ -325,13 +325,13 @@ export function TheAskSlide() {
                     transition={{ duration: 0.4, delay: 1.2 + index * 0.1 }}
                     className="flex items-start space-x-3"
                   >
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
                     <div>
                       <div className="flex items-center space-x-2 mb-1">
-                        <p className="text-yellow-300 font-medium text-sm">{item.milestone}</p>
-                        <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{item.target}</span>
+                        <p className="text-blue-300 font-medium text-sm">{item.milestone}</p>
+                        <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded">{item.target}</span>
                       </div>
-                      <p className="text-xs text-gray-400">{item.description}</p>
+                      <p className="text-xs text-slate-400">{item.description}</p>
                     </div>
                   </motion.div>
                 ))}

@@ -173,18 +173,15 @@ export function MarketSizeSlide() {
                     className="relative"
                   >
                     <div className="flex items-center mb-2">
-                      <span className="text-sm font-medium text-gray-300 w-32">{item.label}</span>
-                      <span className="text-lg font-bold text-green-400 ml-auto">${item.value}B</span>
+                      <span className="text-sm font-medium text-slate-300 w-32">{item.label}</span>
+                      <span className="text-lg font-bold text-blue-400 ml-auto">${item.value}B</span>
                     </div>
-                    <div className="relative h-6 bg-gray-800 rounded-full overflow-hidden">
+                    <div className="relative h-6 bg-slate-800 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${item.width}%` }}
                         transition={{ duration: 1, delay: 0.5 + index * 0.2 }}
-                        className={`h-full rounded-full ${
-                          item.color === 'green' ? 'bg-green-500' :
-                          item.color === 'blue' ? 'bg-blue-500' : 'bg-purple-500'
-                        }`}
+                        className="h-full rounded-full bg-blue-500"
                       />
                       <div className="absolute inset-0 flex items-center px-3">
                         <span className="text-xs text-white font-medium">{item.description}</span>
@@ -215,13 +212,13 @@ export function MarketSizeSlide() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                  className="border-l-2 border-green-500/30 pl-4"
+                  className="border-l border-slate-600 pl-4"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-medium text-gray-300">{item.label}</p>
-                    <p className="text-lg font-bold text-green-400">{item.value}</p>
+                    <p className="text-sm font-medium text-slate-300">{item.label}</p>
+                    <p className="text-lg font-bold text-blue-400">{item.value}</p>
                   </div>
-                  <p className="text-xs text-gray-500">{item.detail}</p>
+                  <p className="text-xs text-slate-500">{item.detail}</p>
                 </motion.div>
               ))}
             </div>
@@ -231,9 +228,9 @@ export function MarketSizeSlide() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="border-l-4 border-purple-500 pl-8"
+            className="border-l-2 border-blue-500 pl-8"
           >
-            <h2 className="text-3xl font-bold mb-8 text-purple-400">Defensibility Factors</h2>
+            <h2 className="text-3xl font-bold mb-8 text-blue-400">Defensibility Factors</h2>
             <div className="space-y-6">
               {defensibility.map((item, index) => (
                 <motion.div
@@ -241,13 +238,13 @@ export function MarketSizeSlide() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
-                  className="border-l-2 border-purple-500/30 pl-4"
+                  className="border-l border-slate-600 pl-4"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-medium text-gray-300">{item.factor}</p>
-                    <p className="text-sm font-bold text-purple-400">{item.strength}</p>
+                    <p className="text-sm font-medium text-slate-300">{item.factor}</p>
+                    <p className="text-sm font-bold text-blue-400">{item.strength}</p>
                   </div>
-                  <p className="text-xs text-gray-500">{item.detail}</p>
+                  <p className="text-xs text-slate-500">{item.detail}</p>
                 </motion.div>
               ))}
             </div>
@@ -258,9 +255,9 @@ export function MarketSizeSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="border-t-4 border-yellow-500 pt-8 mb-12"
+          className="border-t border-slate-700 pt-8 mb-12"
         >
-          <h2 className="text-3xl font-bold mb-8 text-yellow-400">COMPETITIVE ANALYSIS</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">COMPETITIVE ANALYSIS</h2>
           
           {/* Competitive Comparison Table */}
           <DataTable 
