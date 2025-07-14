@@ -52,7 +52,13 @@ interface AdvancedChartProps {
 function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timelineMarkers, breakEvenDay, height = 400 }: AdvancedChartProps) {
   const maxRevenue = Math.max(...data.map(d => d.revenue));
   const maxCosts = Math.max(...data.map(d => d.costs));
-  const maxValue = Math.max(maxRevenue, maxCosts) * 1.1; // 10% padding
+  const minProfit = Math.min(...data.map(d => d.profit));
+  const maxProfit = Math.max(...data.map(d => d.profit));
+  
+  // Calculate Y-axis range to include all values (revenue, costs, and profit)
+  const maxValue = Math.max(maxRevenue, maxCosts, maxProfit) * 1.1; // 10% padding
+  const minValue = Math.min(0, minProfit) * 1.2; // 20% padding for negative values
+  const valueRange = maxValue - minValue;
   
   // Get the day range
   const minDay = Math.min(...data.map(d => d.day));
@@ -60,7 +66,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
   const dayRange = maxDay - minDay;
   
   // Scale data points for SVG (0-100 range)
-  const scaleY = (value: number) => 90 - (value / maxValue) * 80;
+  const scaleY = (value: number) => 90 - ((value - minValue) / valueRange) * 80;
   const scaleX = (day: number) => ((day - minDay) / dayRange) * 90 + 5;
 
   // Sample data for cleaner paths (every 5 days for smooth lines)
@@ -263,13 +269,13 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
         <div className="absolute inset-0 pointer-events-none">
           {/* Y-axis labels */}
           <div className="absolute left-2 top-4 text-xs text-gray-400">
-            {formatCurrency(maxValue / 1000000, 1)}M
+            {maxValue >= 0 ? formatCurrency(maxValue / 1000000, 1) + 'M' : '-' + formatCurrency(Math.abs(maxValue) / 1000000, 1) + 'M'}
           </div>
           <div className="absolute left-2 top-1/2 text-xs text-gray-400">
-            {formatCurrency(maxValue / 2000000, 1)}M
+            {((maxValue + minValue) / 2) >= 0 ? formatCurrency((maxValue + minValue) / 2000000, 1) + 'M' : '-' + formatCurrency(Math.abs((maxValue + minValue) / 2) / 1000000, 1) + 'M'}
           </div>
           <div className="absolute left-2 bottom-4 text-xs text-gray-400">
-            $0
+            {minValue >= 0 ? formatCurrency(minValue / 1000000, 1) + 'M' : '-' + formatCurrency(Math.abs(minValue) / 1000000, 1) + 'M'}
           </div>
           
           {/* X-axis labels (show key day markers) */}
@@ -379,7 +385,7 @@ export function FinancialProjectionsSlide() {
   
   // Calculate daily financial data including costs and employee costs
   const dailyFinancialData = dailyCohorts.map((cohort) => {
-    const day = cohort.month; // In daily cohorts, 'month' field represents days
+    const day = cohort.daysFromToday; // Use correct property name
     const totalCompanies = cohort.totalCompanies;
     const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
     
@@ -388,7 +394,7 @@ export function FinancialProjectionsSlide() {
     dayDate.setDate(dayDate.getDate() + day);
     
     // Get employee costs for this date
-    const employeeCostsResult = COMPUTED_VALUES.getEmployeeCostAtDate(dayDate, cohort.monthlyRecurringRevenue);
+    const employeeCostsResult = COMPUTED_VALUES.getEmployeeCostAtDate(dayDate, cohort.dailyRecurringRevenue * 30.44); // Convert daily to monthly for the function
     const employeeCosts = employeeCostsResult.totalCost / 30.44; // Convert monthly to daily
     
     // Variable costs only apply after launch (convert to daily)
@@ -467,12 +473,6 @@ export function FinancialProjectionsSlide() {
   day365Date.setDate(day365Date.getDate() + 365);
   const day365Revenue = day365Data?.revenue || 0;
   const day365EmployeeCosts = COMPUTED_VALUES.getEmployeeCostAtDate(day365Date, day365Revenue).totalCost;
-
-  // Convert hire months to days for display
-  const customerSuccessHireMonth = Math.round(customerSuccessHireDays / 30.44);
-  const marketingHireMonth = Math.round(marketingHireDays / 30.44);
-  const seniorDevHireMonth = Math.round(seniorDevHireDays / 30.44);
-  const salesHireMonth = Math.round(salesHireDays / 30.44);
 
   return (
     <div className="w-full flex flex-col px-8 py-8">

@@ -1,4 +1,4 @@
-import { FinancialProjections, MonthlyCohort } from './types';
+import { FinancialProjections } from './types';
 
 // Formatting utilities for pitch deck display
 export const formatCurrency = (amount: number, decimals: number = 0): string => {
@@ -182,7 +182,7 @@ export const createStageComparison = (
 
 // Utility for generating timeline data
 export const generateTimelineData = (
-  cohorts: MonthlyCohort[],
+  cohorts: Array<{ month: number; totalRevenue: number; totalCompanies: number }>,
   milestones: Array<{ month: number; label: string; value: number }>
 ) => {
   return cohorts.map(cohort => {

@@ -249,7 +249,7 @@ export const BURN_RATE_CALCULATIONS: BurnRateCalculations = {
   // Pre-revenue burn calculation
   preRevenueBurnTotal: () => {
     const preLaunchMonths = Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
-    const prepMonths = TIMELINE_MARKER_PARAMS.launchDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime() / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
+    const prepMonths = (TIMELINE_MARKER_PARAMS.launchDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
     
     return (preLaunchMonths * BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn) +
            (prepMonths * BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn);

@@ -69,7 +69,7 @@ export function MarketSizeSlide() {
       metric: 'Revenue per customer', 
       stripeAtlas: '$500 (one-time)', 
       legalZoom: '$300+ (one-time)', 
-      vibeStartup: `${formatCurrency(baseLTV.blendedLTV)} (recurring)`,
+      vibeStartup: `${formatCurrency(baseLTV.blendedLtvPerCompany)} (recurring)`,
       advantage: 'Subscription model + operational services'
     }
   ]
