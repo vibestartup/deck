@@ -3,10 +3,7 @@ import {
   baseProjections,
   baseCAC,
   baseLTV,
-  keyMetrics,
   formatCurrency,
-  formatNumber,
-  formatPercentage,
   calculateInfrastructureCostPerCompany,
   BASE_BUSINESS_PARAMS,
   BASE_INFRASTRUCTURE_PARAMS,
@@ -357,7 +354,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
 
 export function FinancialProjectionsSlide() {
   // Calculate monthly financial data including costs and employee costs
-  const monthlyFinancialData = baseProjections.cohorts.map((cohort, index) => {
+  const monthlyFinancialData = baseProjections.cohorts.map((cohort) => {
     const month = cohort.month;
     const totalCompanies = cohort.totalCompanies;
     const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
@@ -400,13 +397,7 @@ export function FinancialProjectionsSlide() {
       month: 0, 
       label: 'Investment', 
       type: 'investment' as const, 
-      description: '$50k received, founder salary starts' 
-    },
-    { 
-      month: 1, 
-      label: 'Prep Month', 
-      type: 'milestone' as const, 
-      description: 'Launch preparation period' 
+      description: '$50k received, 1-month prep begins' 
     },
     { 
       month: 2, 
@@ -447,7 +438,7 @@ export function FinancialProjectionsSlide() {
       label: 'Pre-Launch Burn',
       value: '$40k',
       color: 'red',
-      description: '$12k contractor + $28k prep'
+      description: '$12k dev + $14k month 0 + $14k month 1'
     },
     {
       label: 'Break-even Month',
@@ -519,12 +510,13 @@ export function FinancialProjectionsSlide() {
             <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-purple-400 mb-4">Investment & Funding Timeline</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Pre-Investment (Month -6 to 0):</strong> $2k/month contractor, bootstrapped development</p>
-                <p><strong>Month 1:</strong> $50k investment received</p>
-                <p><strong>Month 2:</strong> Product launch after 1 month preparation</p>
+                <p><strong>Pre-Investment (Month -6 to -1):</strong> $2k/month contractor, bootstrapped development</p>
+                <p><strong>Month 0:</strong> $50k investment received</p>
+                <p><strong>Month 1:</strong> Full preparation period - infrastructure setup, legal compliance, marketing materials</p>
+                <p><strong>Month 2:</strong> Product launch with revenue generation beginning</p>
                 <p><strong>Post-Investment:</strong> Founder salary $5k/month + legal $3k/month + compliance $4k/month</p>
-                <p><strong>Employee Burn Rate:</strong> $14k/month base after investment</p>
-                <p className="text-xs text-purple-300 mt-2">Investment provides runway for launch preparation and initial scaling. 1-month prep period ensures infrastructure, legal, and go-to-market strategy are fully ready. $50k provides 6-month runway for core team while revenue scales to support additional hires.</p>
+                <p><strong>Employee Burn Rate:</strong> $14k/month during prep, $19k/month after launch (adding marketing)</p>
+                <p className="text-xs text-purple-300 mt-2">Investment provides runway for proper launch preparation. The full month between investment and launch ensures infrastructure, legal, and go-to-market strategy are fully ready. $50k provides 6-month runway for core team while revenue scales to support additional hires.</p>
               </div>
             </div>
             
@@ -544,10 +536,10 @@ export function FinancialProjectionsSlide() {
             <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-green-400 mb-4">Cost Structure Evolution</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Month -6 to -1:</strong> $2k contractor only = $12k total pre-launch</p>
-                <p><strong>Month 0:</strong> $14k (investment received, founder + legal + compliance)</p>
-                <p><strong>Month 1:</strong> $14k employee costs (prep month)</p>
-                <p><strong>Month 2:</strong> $19k employee costs + infrastructure (launch with marketing)</p>
+                <p><strong>Month -6 to -1:</strong> $2k/month contractor only = $12k total pre-investment burn</p>
+                <p><strong>Month 0:</strong> Investment received, costs jump to $14k/month (founder + legal + compliance)</p>
+                <p><strong>Month 1:</strong> Full prep month at $14k/month (entire month dedicated to launch preparation)</p>
+                <p><strong>Month 2:</strong> Launch! Costs increase to $19k/month (adding $5k marketing), revenue begins</p>
                 <p><strong>Month 12:</strong> $27k employee costs + {formatCurrency(infrastructureCostPerCompany * (monthlyFinancialData.find(d => d.month === 12)?.companies || 0) / 1000)}k infrastructure</p>
                 <p><strong>Break-even maintained:</strong> Revenue growth outpaces cost increases</p>
                 <p className="text-xs text-green-300 mt-2">Employee costs scale predictably with revenue milestones. Infrastructure costs managed through three-stage optimization strategy. Overall operating leverage improves throughout timeline.</p>
@@ -701,13 +693,13 @@ export function FinancialProjectionsSlide() {
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
           <div className="text-sm text-gray-400 space-y-3">
-            <p><strong>Investment-First Strategy:</strong> Month 0 investment provides capital after 6 months of bootstrapped development. Pre-launch burn totals $12k (contractor only). The 1-month prep period (Month 0-1) ensures all systems are ready: formation APIs tested, legal compliance verified, marketing materials prepared, and initial content created. This de-risks the launch while providing founder salary to focus full-time on execution.</p>
+            <p><strong>Investment-First Strategy:</strong> Month 0 investment provides capital after 6 months of bootstrapped development. Pre-launch burn totals $12k (contractor only). Month 1 is entirely dedicated to launch preparation, ensuring all systems are ready: formation APIs tested, legal compliance verified, marketing materials prepared, and initial content created. This de-risks the launch while providing founder salary to focus full-time on execution.</p>
             
             <p><strong>Revenue-Driven Hiring Model:</strong> Each hire triggered by specific MRR milestones ensuring affordability: Customer Success at $100k MRR (Month 6), Marketing at $200k MRR (Month 9), Senior Developer at $400k MRR (Month 12). This conservative approach maintains positive cash flow throughout scaling while building capabilities systematically.</p>
             
-            <p><strong>Cost Structure Evolution:</strong> Pre-investment costs limited to $2k/month contractor for 6 months. Post-investment jumps to $14k/month base (founder + legal + compliance), then $19k at launch adding marketing. Revenue starts at $0 on launch day (Month 2) and quickly scales to cover costs. Infrastructure costs optimize through three-stage strategy. Break-even achieved by Month {breakEvenMonth} despite initial burn period.</p>
+            <p><strong>Cost Structure Evolution:</strong> Pre-investment costs limited to $2k/month contractor for 6 months. Post-investment jumps to $14k/month base (founder + legal + compliance) during month 1 prep period, then $19k at launch (month 2) adding marketing. Revenue starts at $0 on launch day (beginning of Month 2) and quickly scales to cover costs. Infrastructure costs optimize through three-stage strategy. Break-even achieved by Month {breakEvenMonth} despite initial burn period.</p>
             
-            <p><strong>Financial Model Validation:</strong> Timeline demonstrates sustainable path to $22M year 1 revenue even with 8 months of pre-revenue burn. Total pre-revenue investment: $40k ($12k pre-investment + $28k prep period). Investment ROI exceeds {formatCurrency((baseProjections.totalRevenue - 50000) / 50000, 0)}x in first year. Conservative hiring and infrastructure transition timing ensures execution risk is minimized while growth potential is maximized.</p>
+            <p><strong>Financial Model Validation:</strong> Timeline demonstrates sustainable path to $22M year 1 revenue even with 8 months of pre-revenue burn. Total pre-revenue investment: $40k ($12k pre-investment + $14k month 0 + $14k month 1 prep). Investment ROI exceeds {formatCurrency((baseProjections.totalRevenue - 50000) / 50000, 0)}x in first year. Conservative hiring and infrastructure transition timing ensures execution risk is minimized while growth potential is maximized.</p>
           </div>
         </motion.div>
       </motion.div>
