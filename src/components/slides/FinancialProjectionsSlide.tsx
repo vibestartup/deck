@@ -330,6 +330,15 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
                     strokeWidth="0.1"
                     strokeDasharray="1,1"
                   />
+                  {/* Y-axis tick mark */}
+                  <line
+                    x1="7.5"
+                    y1={yPos}
+                    x2="8.5"
+                    y2={yPos}
+                    stroke="rgb(156, 163, 175)"
+                    strokeWidth="0.1"
+                  />
                   {/* Y-axis label */}
                   <text
                     x="6"
@@ -345,6 +354,19 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               );
             });
           })()}
+          
+          {/* X-axis tick marks */}
+          {[0, 30, 60, 90, 120, 180, 270, 365].map((day) => (
+            <line
+              key={`x-tick-${day}`}
+              x1={scaleX(day)}
+              y1="55"
+              x2={scaleX(day)}
+              y2="55.5"
+              stroke="rgb(156, 163, 175)"
+              strokeWidth="0.1"
+            />
+          ))}
         </svg>
         
         {/* Chart labels and axis */}
@@ -603,7 +625,7 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
             />
           ))}
 
-          {/* Y-axis grid lines and labels (financial data) */}
+                    {/* Y-axis grid lines and labels (financial data) */}
           {(() => {
             const range = maxValue - minValue;
             const targetTickCount = 6;
@@ -632,29 +654,38 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
                            millions > 0 ? `$${millions.toFixed(millions < 1 ? 1 : 0)}M` :
                            `-$${Math.abs(millions).toFixed(Math.abs(millions) < 1 ? 1 : 0)}M`;
               
-                             return (
-                 <g key={index}>
-                   <line
-                     x1="8"
-                     y1={yPos}
-                     x2="95"
-                     y2={yPos}
-                     stroke="rgba(156, 163, 175, 0.1)"
-                     strokeWidth="0.1"
-                     strokeDasharray="1,1"
-                   />
-                   <text
-                     x="6"
-                     y={yPos + 0.5}
-                     fontSize="1.5"
-                     fill="rgb(156, 163, 175)"
-                     textAnchor="end"
-                     dominantBaseline="middle"
-                   >
-                     {label}
-                   </text>
-                 </g>
-               );
+              return (
+                <g key={index}>
+                  <line
+                    x1="8"
+                    y1={yPos}
+                    x2="95"
+                    y2={yPos}
+                    stroke="rgba(156, 163, 175, 0.1)"
+                    strokeWidth="0.1"
+                    strokeDasharray="1,1"
+                  />
+                  {/* Y-axis tick mark */}
+                  <line
+                    x1="7.5"
+                    y1={yPos}
+                    x2="8.5"
+                    y2={yPos}
+                    stroke="rgb(156, 163, 175)"
+                    strokeWidth="0.1"
+                  />
+                  <text
+                    x="6"
+                    y={yPos + 0.5}
+                    fontSize="1.5"
+                    fill="rgb(156, 163, 175)"
+                    textAnchor="end"
+                    dominantBaseline="middle"
+                  >
+                    {label}
+                  </text>
+                </g>
+              );
             });
           })()}
 
@@ -665,6 +696,15 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
             
             return (
               <g key={`penetration-${index}`}>
+                {/* Y-axis tick mark (right side) */}
+                <line
+                  x1="94.5"
+                  y1={yPos}
+                  x2="95.5"
+                  y2={yPos}
+                  stroke="rgb(147, 51, 234)"
+                  strokeWidth="0.1"
+                />
                 <text
                   x="97"
                   y={yPos + 0.5}
@@ -678,6 +718,19 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
               </g>
             );
           })}
+          
+          {/* X-axis tick marks */}
+          {[0, 365, 730, 1095, 1460, 1825].map((day) => (
+            <line
+              key={`x-tick-${day}`}
+              x1={scaleX(day)}
+              y1="55"
+              x2={scaleX(day)}
+              y2="55.5"
+              stroke="rgb(156, 163, 175)"
+              strokeWidth="0.1"
+            />
+          ))}
         </svg>
         
         {/* Chart labels and axis */}
