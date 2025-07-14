@@ -10,7 +10,7 @@ import {
   BASE_BUSINESS_PARAMS,
   INDUSTRY_BENCHMARKS
 } from '../../lib'
-import { DataTable, BarChart } from '../charts'
+import { DataTable, PieChart } from '../charts'
 
 export function MarketSizeSlide() {
   const marketData = [
@@ -129,12 +129,12 @@ export function MarketSizeSlide() {
     { key: 'advantage', label: 'Our Advantage', align: 'left' as const }
   ];
 
-  // Market size data for bar chart
+  // Market size data for pie chart
   const marketSizeData = [
-    { label: 'Traditional', value: 6, color: 'gray' },
-    { label: 'Expanded TAM', value: 25, color: 'green' },
-    { label: 'SAM', value: 2, color: 'blue' },
-    { label: 'SOM', value: 0.2, color: 'purple' }
+    { label: 'Traditional TAM', value: 6, color: 'gray' },
+    { label: 'Expanded TAM', value: 19, color: 'green' }, // 25 - 6 = 19 additional
+    { label: 'Our SAM', value: 2, color: 'blue' },
+    { label: 'Target SOM', value: 0.2, color: 'purple' }
   ];
 
   return (
@@ -161,12 +161,12 @@ export function MarketSizeSlide() {
           >
             <h2 className="text-3xl font-bold mb-8 text-green-400">Market Opportunity</h2>
             
-            {/* Market Size Bar Chart */}
+            {/* Market Size Pie Chart */}
             <div className="mb-8">
-              <BarChart 
+              <PieChart 
                 data={marketSizeData}
                 title="Total Addressable Market ($B)"
-                height={200}
+                size={280}
               />
             </div>
 

@@ -259,4 +259,42 @@ export interface RiskParameters {
       mitigation: string;
     };
   };
+}
+
+// Infrastructure optimization and stage timing parameters
+export interface InfrastructureOptimization {
+  stageTransitions: {
+    awsToSelfHosted: {
+      breakEvenMonth: number;
+      triggerCompanies: number;
+      capexRequired: number;
+      monthlySavings: number;
+      riskFactors: string[];
+    };
+    pricingAdjustment: {
+      triggerMonth: number;
+      currentPrice: number;
+      newPrice: number;
+      customerChurnRisk: number;
+      revenueImpact: number;
+    };
+  };
+  paretoFrontier: Array<{
+    month: number;
+    companies: number;
+    awsCost: number;
+    selfHostedCost: number;
+    netSavings: number;
+    cumulativeCapex: number;
+    roi: number;
+    riskScore: number;
+  }>;
+  decisionMatrix: Array<{
+    scenario: string;
+    timing: string;
+    pros: string[];
+    cons: string[];
+    netPresentValue: number;
+    riskAdjustedReturn: number;
+  }>;
 } 

@@ -22,6 +22,7 @@ export {
   RISK_PARAMS,
   SHARING_BEHAVIOR,
   TECHNICAL_ARCHITECTURE,
+  INFRASTRUCTURE_OPTIMIZATION,
 } from './parameters';
 
 // Export calculations

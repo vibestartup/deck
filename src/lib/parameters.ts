@@ -12,7 +12,8 @@ import {
   ProductParameters,
   MarketTimingParameters,
   RoadmapParameters,
-  RiskParameters
+  RiskParameters,
+  InfrastructureOptimization
 } from './types';
 
 // Base case business parameters from pitch deck
@@ -362,4 +363,95 @@ export const TECHNICAL_ARCHITECTURE = [
     component: 'Data Pipeline', 
     detail: 'Real-time analytics. Cohort analysis. Predictive modeling.' 
   },
-]; 
+];
+
+// Infrastructure optimization and timing analysis
+export const INFRASTRUCTURE_OPTIMIZATION: InfrastructureOptimization = {
+  stageTransitions: {
+    awsToSelfHosted: {
+      breakEvenMonth: 18, // Optimal transition month based on cost analysis
+      triggerCompanies: 50000, // Company count that triggers transition
+      capexRequired: 2000000, // $2M upfront investment
+      monthlySavings: 1400000, // $1.4M monthly savings after transition
+      riskFactors: [
+        'Technical execution risk',
+        'Talent acquisition (DevOps team)',
+        'Compliance and security setup',
+        'Customer experience disruption'
+      ]
+    },
+    pricingAdjustment: {
+      triggerMonth: 13, // When AWS credits expire
+      currentPrice: 40, // Current average price
+      newPrice: 60, // New average price (50% increase)
+      customerChurnRisk: 0.15, // 15% potential churn from price increase
+      revenueImpact: 1.35 // 35% revenue increase net of churn
+    }
+  },
+  paretoFrontier: [
+    // Early transition scenarios
+    { month: 12, companies: 25000, awsCost: 400000, selfHostedCost: 50000, netSavings: 350000, cumulativeCapex: 2000000, roi: -82.5, riskScore: 8.5 },
+    { month: 15, companies: 40000, awsCost: 640000, selfHostedCost: 80000, netSavings: 560000, cumulativeCapex: 2000000, roi: -72.0, riskScore: 7.8 },
+    { month: 18, companies: 65000, awsCost: 1040000, selfHostedCost: 130000, netSavings: 910000, cumulativeCapex: 2000000, roi: -54.5, riskScore: 6.5 },
+    
+    // Optimal transition window
+    { month: 21, companies: 105000, awsCost: 1680000, selfHostedCost: 210000, netSavings: 1470000, cumulativeCapex: 2000000, roi: -26.5, riskScore: 5.2 },
+    { month: 24, companies: 170000, awsCost: 2720000, selfHostedCost: 340000, netSavings: 2380000, cumulativeCapex: 2000000, roi: 19.0, riskScore: 4.1 },
+    
+    // Late transition scenarios  
+    { month: 30, companies: 350000, awsCost: 5600000, selfHostedCost: 700000, netSavings: 4900000, cumulativeCapex: 2000000, roi: 145.0, riskScore: 3.8 },
+    { month: 36, companies: 720000, awsCost: 11520000, selfHostedCost: 1440000, netSavings: 10080000, cumulativeCapex: 2000000, roi: 404.0, riskScore: 4.5 }
+  ],
+  decisionMatrix: [
+    {
+      scenario: 'Conservative (Month 24)',
+      timing: 'Transition after full AWS credit utilization + 12 months',
+      pros: [
+        'Proven scale and reliability',
+        'Team fully experienced with operations',
+        'Maximum AWS learning benefits',
+        'Reduced technical risk'
+      ],
+      cons: [
+        'Higher cumulative infrastructure costs',
+        'Delayed margin expansion',
+        'Competitive timing disadvantage'
+      ],
+      netPresentValue: 8500000, // NPV over 3 years
+      riskAdjustedReturn: 0.42 // Risk-adjusted ROI
+    },
+    {
+      scenario: 'Optimal (Month 18)', 
+      timing: 'Transition 6 months after AWS credits expire',
+      pros: [
+        'Balance of risk and reward',
+        'Sufficient operational experience',
+        'Strong margin expansion timing',
+        'Competitive infrastructure advantage'
+      ],
+      cons: [
+        'Moderate technical execution risk',
+        'Capital requirements during growth phase'
+      ],
+      netPresentValue: 12300000,
+      riskAdjustedReturn: 0.58
+    },
+    {
+      scenario: 'Aggressive (Month 15)',
+      timing: 'Transition 3 months after AWS credits expire', 
+      pros: [
+        'Maximum long-term savings',
+        'Early competitive moat',
+        'Rapid margin expansion',
+        'Technical innovation advantage'
+      ],
+      cons: [
+        'High technical execution risk',
+        'Operational complexity during rapid growth',
+        'Significant capital requirements'
+      ],
+      netPresentValue: 10800000,
+      riskAdjustedReturn: 0.48
+    }
+  ]
+}; 

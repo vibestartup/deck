@@ -289,4 +289,105 @@ export function Timeline({ stages, title }: TimelineProps) {
       </div>
     </div>
   );
+}
+
+// Pie Chart Component for Market Segmentation
+export interface PieChartProps {
+  data: Array<{
+    label: string;
+    value: number;
+    color?: string;
+    percentage?: number;
+  }>;
+  title?: string;
+  size?: number;
+}
+
+export function PieChart({ data, title, size = 300 }: PieChartProps) {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  let cumulativeAngle = 0;
+
+  const segments = data.map((item, index) => {
+    const percentage = (item.value / total) * 100;
+    const angle = (item.value / total) * 360;
+    const startAngle = cumulativeAngle;
+    const endAngle = cumulativeAngle + angle;
+    
+    cumulativeAngle += angle;
+
+    // Calculate path for the segment
+    const radius = size / 2 - 20;
+    const centerX = size / 2;
+    const centerY = size / 2;
+    
+    const x1 = centerX + radius * Math.cos((startAngle - 90) * Math.PI / 180);
+    const y1 = centerY + radius * Math.sin((startAngle - 90) * Math.PI / 180);
+    const x2 = centerX + radius * Math.cos((endAngle - 90) * Math.PI / 180);
+    const y2 = centerY + radius * Math.sin((endAngle - 90) * Math.PI / 180);
+    
+    const largeArc = angle > 180 ? 1 : 0;
+    
+    const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+    return {
+      ...item,
+      percentage,
+      pathData,
+      color: item.color || `hsl(${index * 60}, 70%, 50%)`,
+      startAngle,
+      endAngle
+    };
+  });
+
+  return (
+    <div className="w-full">
+      {title && <h3 className="text-lg font-semibold mb-4 text-center">{title}</h3>}
+      <div className="flex items-center justify-center">
+        <div className="flex flex-col lg:flex-row items-center gap-8">
+          {/* Pie Chart */}
+          <div className="relative">
+            <svg width={size} height={size} className="transform -rotate-90">
+              {segments.map((segment, index) => (
+                <motion.path
+                  key={index}
+                  d={segment.pathData}
+                  fill={`var(--color-${segment.color}-400)` || segment.color}
+                  stroke="rgb(31 41 55)"
+                  strokeWidth="2"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.8, delay: index * 0.2 }}
+                  className="hover:brightness-110 transition-all duration-300"
+                />
+              ))}
+            </svg>
+          </div>
+
+          {/* Legend */}
+          <div className="flex flex-col space-y-3">
+            {segments.map((segment, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="flex items-center space-x-3"
+              >
+                <div 
+                  className="w-4 h-4 rounded-sm"
+                  style={{ backgroundColor: `var(--color-${segment.color}-400)` || segment.color }}
+                />
+                <div>
+                  <span className="text-sm font-medium text-gray-300">{segment.label}</span>
+                  <div className="text-xs text-gray-500">
+                    ${segment.value}B ({segment.percentage.toFixed(1)}%)
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 } 
