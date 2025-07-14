@@ -22,6 +22,13 @@ import {
   ComputedValues
 } from './types';
 
+// Helper function to create dates relative to today
+const daysFromToday = (days: number): Date => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
 // Base case business parameters from pitch deck
 export const BASE_BUSINESS_PARAMS: BusinessParameters = {
   // Viral growth parameters
@@ -47,41 +54,42 @@ export const BASE_BUSINESS_PARAMS: BusinessParameters = {
   amplificationCost: 500, // $500 amplification
   baseVideoViews: 100000, // 100k base video views
   
-  // Timeline parameters
-  investmentMonth: 0, // Investment received at month 0
-  launchDelayMonths: 1, // Launch happens 1 month after investment
+  // Timeline parameters (relative to today)
+  todaysDate: new Date(), // Today's date as reference point
+  investmentDate: daysFromToday(30), // Investment received in 30 days (1 month from today)
+  launchDate: daysFromToday(60), // Launch in 60 days (2 months from today, 1 month after investment)
 };
 
 // Timeline marker parameters - computed from business params
 export const TIMELINE_MARKER_PARAMS: TimelineMarkerParameters = {
-  developmentStartMonth: -6, // Start development 6 months before investment
-  investmentMonth: BASE_BUSINESS_PARAMS.investmentMonth, // Month 0
-  launchMonth: BASE_BUSINESS_PARAMS.investmentMonth + BASE_BUSINESS_PARAMS.launchDelayMonths + 1, // Month 2
+  developmentStartDate: daysFromToday(-180), // Development started 6 months ago
+  investmentDate: BASE_BUSINESS_PARAMS.investmentDate, // In 30 days
+  launchDate: BASE_BUSINESS_PARAMS.launchDate, // In 60 days
   
-  // Hiring thresholds based on MRR milestones
+  // Hiring thresholds based on MRR milestones and target dates
   customerSuccessHire: {
-    month: 6,
+    targetDate: daysFromToday(180), // ~6 months from launch
     mrrThreshold: 100000, // $100k MRR
     salary: 3500 // $3.5k/month
   },
   marketingHire: {
-    month: 9,
+    targetDate: daysFromToday(270), // ~9 months from launch
     mrrThreshold: 200000, // $200k MRR
     salary: 4500 // $4.5k/month
   },
   seniorDevHire: {
-    month: 12,
+    targetDate: daysFromToday(360), // ~12 months from launch
     mrrThreshold: 400000, // $400k MRR
     salary: 8000 // $8k/month
   },
   salesHire: {
-    month: 18,
+    targetDate: daysFromToday(540), // ~18 months from launch
     mrrThreshold: 600000, // $600k MRR
     salary: 5000 // $5k/month
   }
 };
 
-// Infrastructure cost parameters
+// Infrastructure cost parameters (converted to daily costs)
 export const BASE_INFRASTRUCTURE_PARAMS: InfrastructureParameters = {
   // Formation costs
   stateFilingFee: 80, // $80 average state filing fee
@@ -89,56 +97,56 @@ export const BASE_INFRASTRUCTURE_PARAMS: InfrastructureParameters = {
   infrastructurePerFormation: 3.51, // $3.51 infrastructure per formation
   paymentProcessingRate: 0.03, // 3% payment processing
   
-  // Monthly infrastructure costs per company (heavy usage)
-  computeCostPerCompany: 0.0597, // Lambda/compute costs
-  storageCostPerCompany: 0.118, // S3 storage costs
-  databaseCostPerCompany: 2.05, // RDS/DynamoDB costs
-  cdnCostPerCompany: 1.225, // CloudFront costs
-  communicationCostPerCompany: 8.4, // Email/SMS/voice costs
+  // Daily infrastructure costs per company (monthly costs / 30.44 avg days/month)
+  computeCostPerCompany: 0.0597 / 30.44, // Daily compute costs
+  storageCostPerCompany: 0.118 / 30.44, // Daily storage costs
+  databaseCostPerCompany: 2.05 / 30.44, // Daily database costs
+  cdnCostPerCompany: 1.225 / 30.44, // Daily CDN costs
+  communicationCostPerCompany: 8.4 / 30.44, // Daily email/SMS/voice costs
   
   // Stage-specific parameters
-  awsCreditsMonthly: 8333, // $8,333 monthly AWS credits (year 1)
-  selfHostingSavingsRate: 0.875, // 87.5% cost reduction from self-hosting
-  selfHostingSetupCost: 2000000, // $2M one-time setup cost
+  awsCreditsDaily: 8333 / 30.44, // Daily AWS credits (monthly credits / avg days per month)
+  selfHostingSavingsRate: 0.875, // 87.5% infrastructure cost reduction
+  selfHostingSetupCost: 2000000, // $2M one-time
   
   // Fixed costs
-  monthlyFixedCosts: 135, // $135 fixed third-party services
+  dailyFixedCosts: 135 / 30.44, // Daily fixed costs (third-party services)
 };
 
-// Default usage patterns (heavy usage assumptions)
+// Default usage patterns (heavy usage assumptions - converted to daily)
 export const BASE_USAGE_PATTERNS: UsagePatterns = {
-  dashboardLoginsPerMonth: 2000,
-  apiCallsPerMonth: 50000,
-  documentOperationsPerMonth: 1000,
-  vibeOpsTasksPerMonth: 500,
-  emailsPerMonth: 3000,
-  smsPerMonth: 200,
-  voiceMinutesPerMonth: 600,
-  dataGeneratedGB: 5,
+  dashboardLoginsPerDay: 2000 / 30.44, // Daily sessions (monthly / avg days per month)
+  apiCallsPerDay: 50000 / 30.44, // Daily requests
+  documentOperationsPerDay: 1000 / 30.44, // Daily downloads
+  vibeOpsTasksPerDay: 500 / 30.44, // Daily tasks
+  emailsPerDay: 3000 / 30.44, // Daily emails
+  smsPerDay: 200 / 30.44, // Daily SMS
+  voiceMinutesPerDay: 600 / 30.44, // Daily minutes
+  dataGeneratedGB: 5 / 30.44, // Daily GB
 };
 
-// Growth stage definitions
+// Growth stage definitions (using dates)
 export const GROWTH_STAGES: GrowthStage[] = [
   {
     name: 'Stage 1: AWS Credits',
-    startMonth: 1,
-    endMonth: 12,
+    startDate: BASE_BUSINESS_PARAMS.launchDate,
+    endDate: daysFromToday(365), // 1 year from launch
     awsCreditsActive: true,
     selfHostingActive: false,
     pricingMultiplier: 1.0,
   },
   {
     name: 'Stage 2: Paid AWS',
-    startMonth: 13,
-    endMonth: 24,
+    startDate: daysFromToday(365), // Start of year 2
+    endDate: daysFromToday(730), // End of year 2
     awsCreditsActive: false,
     selfHostingActive: false,
     pricingMultiplier: 1.5, // 50% price increase
   },
   {
     name: 'Stage 3: Self-Hosted',
-    startMonth: 25,
-    endMonth: 36,
+    startDate: daysFromToday(730), // Start of year 3
+    endDate: daysFromToday(1095), // End of year 3
     awsCreditsActive: false,
     selfHostingActive: true,
     pricingMultiplier: 1.5, // Keep higher pricing
@@ -152,83 +160,83 @@ export const BASE_EMPLOYEE_PARAMS: EmployeeParameters = {
     {
       role: 'Technical Contractor',
       monthlyCost: 2000, // $2k/month
-      startMonth: TIMELINE_MARKER_PARAMS.developmentStartMonth, // Month -6
-      endMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Until investment (month 0)
+      startDate: TIMELINE_MARKER_PARAMS.developmentStartDate, // Development start
+      endDate: TIMELINE_MARKER_PARAMS.investmentDate, // Until investment
       investmentRequired: false,
     },
-    // Post-investment employees (investment at month 0, launch at month 2)
+    // Post-investment employees
     {
       role: 'Founder Salary',
       monthlyCost: 5000, // $5k/month
-      startMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Starts when investment received
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.investmentDate, // Starts when investment received
+      endDate: undefined,
       investmentRequired: true,
     },
     {
       role: 'Technical Contractor (Continued)',
       monthlyCost: 2000, // $2k/month
-      startMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Continues after investment
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.investmentDate, // Continues after investment
+      endDate: undefined,
       investmentRequired: false,
     },
     {
       role: 'Legal Counsel',
       monthlyCost: 3000, // $3k/month
-      startMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Starts when investment received
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.investmentDate, // Starts when investment received
+      endDate: undefined,
       investmentRequired: true,
     },
     {
       role: 'Compliance Specialist',
       monthlyCost: 4000, // $4k/month
-      startMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Starts when investment received
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.investmentDate, // Starts when investment received
+      endDate: undefined,
       investmentRequired: true,
     },
     // Marketing spend (not technically an employee but counts as fixed cost)
     {
       role: 'Marketing & Content',
       monthlyCost: BASE_BUSINESS_PARAMS.monthlyMarketingSpend, // $5k/month from business params
-      startMonth: TIMELINE_MARKER_PARAMS.launchMonth, // Starts at launch
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.launchDate, // Starts at launch
+      endDate: undefined,
       investmentRequired: false,
     },
     // Revenue-driven hires
     {
       role: 'Customer Success Manager',
       monthlyCost: TIMELINE_MARKER_PARAMS.customerSuccessHire.salary,
-      startMonth: TIMELINE_MARKER_PARAMS.customerSuccessHire.month,
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate,
+      endDate: undefined,
       investmentRequired: false,
       requiredMRR: TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold,
     },
     {
       role: 'Marketing Manager',
       monthlyCost: TIMELINE_MARKER_PARAMS.marketingHire.salary,
-      startMonth: TIMELINE_MARKER_PARAMS.marketingHire.month,
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.marketingHire.targetDate,
+      endDate: undefined,
       investmentRequired: false,
       requiredMRR: TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold,
     },
     {
       role: 'Senior Developer',
       monthlyCost: TIMELINE_MARKER_PARAMS.seniorDevHire.salary,
-      startMonth: TIMELINE_MARKER_PARAMS.seniorDevHire.month,
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate,
+      endDate: undefined,
       investmentRequired: false,
       requiredMRR: TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold,
     },
     {
       role: 'Sales Manager',
       monthlyCost: TIMELINE_MARKER_PARAMS.salesHire.salary,
-      startMonth: TIMELINE_MARKER_PARAMS.salesHire.month,
-      endMonth: undefined,
+      startDate: TIMELINE_MARKER_PARAMS.salesHire.targetDate,
+      endDate: undefined,
       investmentRequired: false,
       requiredMRR: TIMELINE_MARKER_PARAMS.salesHire.mrrThreshold,
     },
   ],
-  launchMonth: TIMELINE_MARKER_PARAMS.launchMonth, // Launch happens at month 2
-  investmentMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Investment received at month 0
+  launchDate: TIMELINE_MARKER_PARAMS.launchDate, // Launch date
+  investmentDate: TIMELINE_MARKER_PARAMS.investmentDate, // Investment date
   investmentAmount: 50000, // $50k base case investment
 };
 
@@ -240,8 +248,8 @@ export const BURN_RATE_CALCULATIONS: BurnRateCalculations = {
   
   // Pre-revenue burn calculation
   preRevenueBurnTotal: () => {
-    const preLaunchMonths = Math.abs(TIMELINE_MARKER_PARAMS.developmentStartMonth - TIMELINE_MARKER_PARAMS.investmentMonth);
-    const prepMonths = TIMELINE_MARKER_PARAMS.launchMonth - TIMELINE_MARKER_PARAMS.investmentMonth;
+    const preLaunchMonths = Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
+    const prepMonths = TIMELINE_MARKER_PARAMS.launchDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime() / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
     
     return (preLaunchMonths * BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn) +
            (prepMonths * BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn);
@@ -270,11 +278,11 @@ export const BASE_INVESTMENT_PARAMS: InvestmentParameters = {
 export const COMPUTED_VALUES: ComputedValues = {
   // Timeline helpers
   get developmentPhaseMonths() {
-    return Math.abs(TIMELINE_MARKER_PARAMS.developmentStartMonth - TIMELINE_MARKER_PARAMS.investmentMonth);
+    return Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
   },
   
   get prepPhaseMonths() {
-    return TIMELINE_MARKER_PARAMS.launchMonth - TIMELINE_MARKER_PARAMS.investmentMonth;
+    return TIMELINE_MARKER_PARAMS.launchDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime() / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
   },
   
   // Investment and cost helpers
@@ -292,44 +300,44 @@ export const COMPUTED_VALUES: ComputedValues = {
   
   // Employee cost helpers
   getEmployeeCostAtMonth(month: number, mrr: number = 0) {
-    return calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, month, mrr, undefined, month >= TIMELINE_MARKER_PARAMS.investmentMonth);
+    return calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, month, mrr, undefined, month >= TIMELINE_MARKER_PARAMS.investmentDate.getTime() / (1000 * 60 * 60 * 24 * 30.44)); // Convert days to months
   },
   
   // Timeline marker helpers
   getTimelineMarkers() {
     return [
       {
-        month: TIMELINE_MARKER_PARAMS.developmentStartMonth,
+        month: TIMELINE_MARKER_PARAMS.developmentStartDate,
         label: 'Dev Start',
         type: 'milestone' as const,
         description: 'Pre-launch development begins'
       },
       {
-        month: TIMELINE_MARKER_PARAMS.investmentMonth,
+        month: TIMELINE_MARKER_PARAMS.investmentDate,
         label: 'Investment',
         type: 'investment' as const,
         description: `${this.investmentAmountFormatted} received, ${this.prepPhaseMonths}-month prep begins`
       },
       {
-        month: TIMELINE_MARKER_PARAMS.launchMonth,
+        month: TIMELINE_MARKER_PARAMS.launchDate,
         label: 'Launch',
         type: 'launch' as const,
         description: 'Product launch, revenue begins'
       },
       {
-        month: TIMELINE_MARKER_PARAMS.customerSuccessHire.month,
+        month: TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate,
         label: 'CS Hire',
         type: 'hire' as const,
         description: `Customer Success Manager at $${TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000}k MRR`
       },
       {
-        month: TIMELINE_MARKER_PARAMS.marketingHire.month,
+        month: TIMELINE_MARKER_PARAMS.marketingHire.targetDate,
         label: 'Marketing Hire',
         type: 'hire' as const,
         description: `Marketing Manager at $${TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold / 1000}k MRR`
       },
       {
-        month: TIMELINE_MARKER_PARAMS.seniorDevHire.month,
+        month: TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate,
         label: 'Dev Hire',
         type: 'hire' as const,
         description: `Senior Developer at $${TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000}k MRR`

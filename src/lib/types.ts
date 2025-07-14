@@ -23,9 +23,10 @@ export interface BusinessParameters {
   amplificationCost: number; // $500
   baseVideoViews: number; // 100,000 views
   
-  // Timeline parameters
-  investmentMonth: number; // Month when investment is received (0 = investment month)
-  launchDelayMonths: number; // Months after investment before launch
+  // Timeline parameters (now using dates)
+  todaysDate: Date; // Today's date as reference point
+  investmentDate: Date; // Date when investment is received
+  launchDate: Date; // Date when product launches
 }
 
 // Infrastructure cost parameters
@@ -36,51 +37,52 @@ export interface InfrastructureParameters {
   infrastructurePerFormation: number; // $3.51
   paymentProcessingRate: number; // 3%
   
-  // Monthly infrastructure costs per company
-  computeCostPerCompany: number; // $0.0597 (detailed breakdown)
-  storageCostPerCompany: number; // $0.118
-  databaseCostPerCompany: number; // $2.05
-  cdnCostPerCompany: number; // $1.225
-  communicationCostPerCompany: number; // $8.4 (email/SMS/voice)
+  // Daily infrastructure costs per company (converted from monthly)
+  computeCostPerCompany: number; // Daily cost
+  storageCostPerCompany: number; // Daily cost
+  databaseCostPerCompany: number; // Daily cost
+  cdnCostPerCompany: number; // Daily cost
+  communicationCostPerCompany: number; // Daily cost
   
   // Stage-specific multipliers
-  awsCreditsMonthly: number; // $8,333 for year 1
+  awsCreditsDaily: number; // Daily AWS credits for year 1
   selfHostingSavingsRate: number; // 87.5% infrastructure cost reduction
   selfHostingSetupCost: number; // $2M one-time
   
   // Fixed costs
-  monthlyFixedCosts: number; // $135 (third-party services)
+  dailyFixedCosts: number; // Daily fixed costs (third-party services)
 }
 
 // Company usage patterns
 export interface UsagePatterns {
-  dashboardLoginsPerMonth: number; // 2,000
-  apiCallsPerMonth: number; // 50,000
-  documentOperationsPerMonth: number; // 1,000
-  vibeOpsTasksPerMonth: number; // 500
-  emailsPerMonth: number; // 3,000
-  smsPerMonth: number; // 200
-  voiceMinutesPerMonth: number; // 600
-  dataGeneratedGB: number; // 5GB
+  dashboardLoginsPerDay: number; // Daily logins
+  apiCallsPerDay: number; // Daily API calls
+  documentOperationsPerDay: number; // Daily document operations
+  vibeOpsTasksPerDay: number; // Daily tasks
+  emailsPerDay: number; // Daily emails
+  smsPerDay: number; // Daily SMS
+  voiceMinutesPerDay: number; // Daily voice minutes
+  dataGeneratedGB: number; // Daily data generated
 }
 
 // Growth stage definitions
 export interface GrowthStage {
   name: string;
-  startMonth: number;
-  endMonth: number;
+  startDate: Date;
+  endDate: Date;
   awsCreditsActive: boolean;
   selfHostingActive: boolean;
   pricingMultiplier: number; // 1.0 = base pricing, 1.5 = 50% increase
 }
 
-// Monthly cohort data
-export interface MonthlyCohort {
-  month: number;
+// Daily cohort data (replacing monthly)
+export interface DailyCohort {
+  date: Date;
+  daysFromToday: number; // Days relative to today (negative = past, positive = future)
   newCompanies: number;
   totalCompanies: number;
   formationRevenue: number;
-  monthlyRecurringRevenue: number;
+  dailyRecurringRevenue: number; // Daily portion of MRR
   totalRevenue: number;
   grossProfit: number;
   infrastructureCost: number;
@@ -97,15 +99,16 @@ export interface SensitivityParameters {
   marketingEfficiencyRange: [number, number, number];
 }
 
-// Financial projections
+// Financial projections (updated for daily calculations)
 export interface FinancialProjections {
-  timeHorizon: number; // months
-  cohorts: MonthlyCohort[];
+  timeHorizonDays: number; // days instead of months
+  cohorts: DailyCohort[];
   totalRevenue: number;
   totalGrossProfit: number;
   totalInfrastructureCost: number;
-  finalMRR: number;
-  finalARR: number;
+  finalDRR: number; // Daily recurring revenue
+  finalMRR: number; // Monthly recurring revenue (finalDRR * 30.44)
+  finalARR: number; // Annual recurring revenue
   companyCount: number;
   ltv: number;
   cac: number;
@@ -307,8 +310,8 @@ export interface InfrastructureOptimization {
 export interface Employee {
   role: string;
   monthlyCost: number;
-  startMonth: number; // Month when employee starts (relative to launch, negative = pre-launch)
-  endMonth?: number; // Optional end month (undefined = ongoing)
+  startDate: Date; // Date when employee starts
+  endDate?: Date; // Optional end date (undefined = ongoing)
   requiredMRR?: number; // Optional MRR threshold to trigger hire
   investmentRequired?: boolean; // Whether this hire requires investment to be received
 }
@@ -318,8 +321,8 @@ export interface EmployeeParameters {
   employees: Employee[]; // Array of all employees across timeline
   
   // Timeline parameters
-  launchMonth: number; // Month when product launches (0 = launch month)
-  investmentMonth: number; // Month when investment is received (relative to launch)
+  launchDate: Date; // Date when product launches
+  investmentDate: Date; // Date when investment is received
   investmentAmount: number; // Investment amount (parametrized)
 }
 
@@ -333,28 +336,28 @@ export interface EmployeeCostScenario {
 
 // Timeline marker parameters
 export interface TimelineMarkerParameters {
-  developmentStartMonth: number; // Month when development starts (negative = pre-investment)
-  investmentMonth: number; // Month when investment is received
-  launchMonth: number; // Month when product launches
+  developmentStartDate: Date; // Date when development starts
+  investmentDate: Date; // Date when investment is received
+  launchDate: Date; // Date when product launches
   
   // Hiring milestone parameters
   customerSuccessHire: {
-    month: number;
+    targetDate: Date;
     mrrThreshold: number;
     salary: number;
   };
   marketingHire: {
-    month: number;
+    targetDate: Date;
     mrrThreshold: number;
     salary: number;
   };
   seniorDevHire: {
-    month: number;
+    targetDate: Date;
     mrrThreshold: number;
     salary: number;
   };
   salesHire: {
-    month: number;
+    targetDate: Date;
     mrrThreshold: number;
     salary: number;
   };
@@ -371,8 +374,8 @@ export interface BurnRateCalculations {
 // Computed values interface for helper functions
 export interface ComputedValues {
   // Timeline helpers
-  readonly developmentPhaseMonths: number;
-  readonly prepPhaseMonths: number;
+  readonly developmentPhaseDays: number;
+  readonly prepPhaseDays: number;
   
   // Investment and cost helpers
   readonly investmentAmountFormatted: string;
@@ -380,7 +383,7 @@ export interface ComputedValues {
   readonly preLaunchBurnFormatted: string;
   
   // Function helpers
-  getEmployeeCostAtMonth(month: number, mrr?: number): {
+  getEmployeeCostAtDate(date: Date, mrr?: number): {
     totalCost: number;
     phase: 'pre-launch' | 'post-investment';
     breakdown: Record<string, number>;
@@ -388,7 +391,8 @@ export interface ComputedValues {
   };
   
   getTimelineMarkers(): Array<{
-    month: number;
+    date: Date;
+    daysFromToday: number;
     label: string;
     type: 'launch' | 'investment' | 'hire' | 'milestone';
     description: string;
