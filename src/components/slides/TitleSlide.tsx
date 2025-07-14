@@ -19,10 +19,10 @@ export function TitleSlide() {
           VibeStartup
         </h1>
         <p className="text-3xl text-gray-300 mb-8 font-medium">
-          Building an OS for a Vibe-First Economy
+          Autonomous AI Company Platform
         </p>
         <p className="text-xl text-gray-400 mb-12">
-          Making company formation as viral as TikTok
+          Prompt your entire business like you prompt ChatGPT
         </p>
         
         <motion.div
@@ -54,8 +54,8 @@ export function TitleSlide() {
           className="mt-12 text-sm text-gray-500 max-w-4xl mx-auto"
         >
           <p>
-            <strong>The Problem:</strong> 30M+ businesses formed annually, yet formation takes weeks, costs $500+, and has zero viral mechanics. 
-            <strong>The Solution:</strong> Full-stack entrepreneurship platform with viral growth engine that turns every founder into an acquisition channel.
+            <strong>The Problem:</strong> Starting a company requires coding, design, marketing, sales, legal, and operations expertise - an impossible multi-disciplinary requirement for single founders.
+            <strong> The Solution:</strong> AI agents handle everything autonomously. Drop your idea, chat with your AI company, and watch it execute 24/7 while you focus on pure vision, strategy, and vibes!
           </p>
         </motion.div>
       </motion.div>

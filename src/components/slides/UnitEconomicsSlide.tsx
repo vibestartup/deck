@@ -309,100 +309,95 @@ export function UnitEconomicsSlide() {
         >
           <h2 className="text-4xl font-bold mb-8 text-purple-400 text-center">Employee Cost Evolution Timeline</h2>
           
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            {[
-              {
-                phase: 'Pre-Launch',
-                timeline: 'Month -6 to 0',
-                cost: timelineAwareCosts.preLaunch.totalCost,
-                team: timelineAwareCosts.preLaunch.activeEmployees.map(e => e.role).join(', '),
-                color: 'border-purple-500',
-                textColor: 'text-purple-400'
-              },
-              {
-                phase: 'Pre-Investment',
-                timeline: 'Month 0 to 3',
-                cost: timelineAwareCosts.preInvestment.totalCost,
-                team: timelineAwareCosts.preInvestment.activeEmployees.map(e => e.role).join(', '),
-                color: 'border-blue-500',
-                textColor: 'text-blue-400'
-              },
-              {
-                phase: 'Post-Investment',
-                timeline: 'Month 3 to 6',
-                cost: timelineAwareCosts.postInvestment.totalCost,
-                team: timelineAwareCosts.postInvestment.activeEmployees.map(e => e.role).join(', '),
-                color: 'border-green-500',
-                textColor: 'text-green-400'
-              },
-              {
-                phase: 'Scaling Phase',
-                timeline: 'Month 6 to 12',
-                cost: timelineAwareCosts.scaling.totalCost,
-                team: timelineAwareCosts.scaling.activeEmployees.map(e => e.role).join(', '),
-                color: 'border-yellow-500',
-                textColor: 'text-yellow-400'
-              },
-              {
-                phase: 'Mature Operation',
-                timeline: 'Month 12+',
-                cost: timelineAwareCosts.mature.totalCost,
-                team: timelineAwareCosts.mature.activeEmployees.map(e => e.role).join(', '),
-                color: 'border-red-500',
-                textColor: 'text-red-400'
-              }
-            ].slice(0, 3).map((phase, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.7 + index * 0.1 }}
-                className={`border-l-4 ${phase.color} pl-6`}
-              >
-                <h3 className={`text-xl font-bold mb-2 ${phase.textColor}`}>
-                  {phase.phase}
-                </h3>
-                <p className="text-sm text-gray-400 mb-2">{phase.timeline}</p>
-                <p className="text-lg font-semibold text-white mb-2">{formatCurrency(phase.cost)}/month</p>
-                <p className="text-xs text-gray-400">{phase.team}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            {[
-              {
-                phase: 'Scaling Phase',
-                timeline: 'Month 6 to 12',
-                cost: timelineAwareCosts.scaling.totalCost,
-                team: timelineAwareCosts.scaling.activeEmployees.map(e => e.role).join(', '),
-                color: 'border-yellow-500',
-                textColor: 'text-yellow-400'
-              },
-              {
-                phase: 'Mature Operation',
-                timeline: 'Month 12+',
-                cost: timelineAwareCosts.mature.totalCost,
-                team: timelineAwareCosts.mature.activeEmployees.map(e => e.role).join(', '),
-                color: 'border-red-500',
-                textColor: 'text-red-400'
-              }
-            ].map((phase, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
-                className={`border-l-4 ${phase.color} pl-6`}
-              >
-                <h3 className={`text-xl font-bold mb-2 ${phase.textColor}`}>
-                  {phase.phase}
-                </h3>
-                <p className="text-sm text-gray-400 mb-2">{phase.timeline}</p>
-                <p className="text-lg font-semibold text-white mb-2">{formatCurrency(phase.cost)}/month</p>
-                <p className="text-xs text-gray-400">{phase.team}</p>
-              </motion.div>
-            ))}
+          {/* Timeline Container */}
+          <div className="relative">
+            {/* Main timeline line */}
+            <div className="absolute top-20 left-8 right-8 h-1 bg-gradient-to-r from-purple-500 via-blue-500 via-green-500 via-yellow-500 to-red-500"></div>
+            
+            {/* Timeline nodes */}
+            <div className="flex justify-between items-start px-8">
+              {[
+                {
+                  phase: 'Pre-Launch',
+                  timeline: 'Month -6 to 0',
+                  cost: timelineAwareCosts.preLaunch.totalCost,
+                  team: timelineAwareCosts.preLaunch.activeEmployees.map(e => e.role).join(', '),
+                  color: 'border-purple-500 bg-purple-500',
+                  textColor: 'text-purple-400',
+                  description: 'Development with contractor while working SWE job'
+                },
+                {
+                  phase: 'Launch',
+                  timeline: 'Month 0 to 3',
+                  cost: timelineAwareCosts.preInvestment.totalCost,
+                  team: timelineAwareCosts.preInvestment.activeEmployees.map(e => e.role).join(', '),
+                  color: 'border-blue-500 bg-blue-500',
+                  textColor: 'text-blue-400',
+                  description: 'Bootstrapped revenue-first approach'
+                },
+                {
+                  phase: 'Post-Investment',
+                  timeline: 'Month 3 to 6',
+                  cost: timelineAwareCosts.postInvestment.totalCost,
+                  team: timelineAwareCosts.postInvestment.activeEmployees.map(e => e.role).join(', '),
+                  color: 'border-green-500 bg-green-500',
+                  textColor: 'text-green-400',
+                  description: 'Founder quits day job, strategic hires'
+                },
+                {
+                  phase: 'Scaling',
+                  timeline: 'Month 6 to 12',
+                  cost: timelineAwareCosts.scaling.totalCost,
+                  team: timelineAwareCosts.scaling.activeEmployees.map(e => e.role).join(', '),
+                  color: 'border-yellow-500 bg-yellow-500',
+                  textColor: 'text-yellow-400',
+                  description: 'Revenue-driven hiring begins'
+                },
+                {
+                  phase: 'Mature',
+                  timeline: 'Month 12+',
+                  cost: timelineAwareCosts.mature.totalCost,
+                  team: timelineAwareCosts.mature.activeEmployees.map(e => e.role).join(', '),
+                  color: 'border-red-500 bg-red-500',
+                  textColor: 'text-red-400',
+                  description: 'Full team operational'
+                }
+              ].map((phase, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.7 + index * 0.1 }}
+                  className="flex flex-col items-center relative"
+                  style={{ width: '18%' }}
+                >
+                  {/* Timeline node */}
+                  <div className={`w-4 h-4 rounded-full ${phase.color} border-4 border-gray-900 mb-4 z-10 relative`}></div>
+                  
+                  {/* Phase content */}
+                  <div className="text-center">
+                    <h3 className={`text-lg font-bold mb-1 ${phase.textColor}`}>
+                      {phase.phase}
+                    </h3>
+                    <p className="text-xs text-gray-400 mb-2">{phase.timeline}</p>
+                    <p className="text-sm font-semibold text-white mb-2">{formatCurrency(phase.cost)}/month</p>
+                    <p className="text-xs text-gray-400 mb-2 min-h-[2.5rem]">{phase.description}</p>
+                    <div className="bg-gray-800 rounded p-2 min-h-[3rem]">
+                      <p className="text-xs text-gray-500">{phase.team}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            
+            {/* Timeline labels */}
+            <div className="flex justify-between mt-8 px-8 text-xs text-gray-500">
+              <span>Pre-Launch Development</span>
+              <span>Revenue Generation</span>
+              <span>Investment & Growth</span>
+              <span>Market Expansion</span>
+              <span>Full Operations</span>
+            </div>
           </div>
         </motion.div>
 

@@ -3,93 +3,93 @@ import { motion } from 'framer-motion'
 export function WhyNowSlide() {
   const marketTiming = [
     {
-      trend: 'AI acceleration making product building 10x faster',
-      detail: 'GitHub Copilot adoption up 180% YoY. GPT-4 reduces development time by 80%. Technical differentiation window compressed from 2-3 years to 6-12 months.',
-      data: 'Stack Overflow Developer Survey 2024: 76% of developers use AI tools. MVP development time reduced 70% since 2022.'
+      trend: 'AI capabilities now sufficient for autonomous business operation',
+      detail: 'Multi-agent coordination possible. GPT-4 handles complex reasoning. Specialized AI agents can manage coding, design, marketing, and operations autonomously.',
+      data: 'OpenAI API usage up 300% in 2024. 89% of developers report AI significantly improves productivity. Multi-agent frameworks like AutoGPT demonstrating autonomous task completion.'
     },
     {
-      trend: 'Remote work enabling distributed team formation',
-      detail: 'Geographic constraints eliminated. Global talent pool accessible. 42% of workforce now remote-capable vs 5% pre-2020.',
-      data: 'Bureau of Labor Statistics: Remote work participation stabilized at 35% post-pandemic. Distributed teams now standard practice.'
+      trend: 'ChatGPT proves mass market ready for AI conversation interfaces',
+      detail: 'Natural language as primary interface normalized. 180M+ users comfortable chatting with AI. Business management through conversation becomes intuitive.',
+      data: 'ChatGPT reached 100M users in 2 months. 73% of knowledge workers use AI tools daily. Natural language interfaces now expected user experience.'
     },
     {
-      trend: 'VC compression forcing rapid iteration models',
-      detail: 'Median fund life down from 10 to 7 years. Portfolio companies must show traction within 18 months or face down rounds.',
-      data: 'PitchBook 2024: Time to Series A compressed 40% since 2020. Funds targeting 3-5x returns in 24-36 months.'
+      trend: 'Traditional workforce costs becoming prohibitive for startups',
+      detail: 'Median engineering salary $180k+. Marketing specialists $120k+. Operations managers $100k+. AI agents provide equivalent capability at fraction of cost.',
+      data: 'Tech salaries up 40% since 2020. 87% of startups cite talent costs as primary constraint. Remote work increased global competition for talent.'
     },
     {
-      trend: 'Gen Z expecting instant gratification for everything',
-      detail: '47% of Gen Z has started a business vs 24% millennials. Social media native generation expects viral growth mechanics.',
-      data: 'Shopify Global Entrepreneurship Report 2024: Gen Z 2x more likely to start businesses than previous generations at same age.'
+      trend: 'Founder burnout from operational complexity epidemic',
+      detail: 'Solo founders juggling 10+ business functions. 73% report overwhelm as primary failure factor. AI enables focus on vision while agents handle execution.',
+      data: 'Startup Genome Report 2024: Operational complexity cited as #1 failure reason. 68% of founders work 60+ hours/week on non-strategic tasks.'
     }
   ]
 
   const executionAdvantages = [
     {
-      advantage: 'Viral growth expertise from social media background',
-      detail: 'Understanding of viral mechanics, content strategy, and network effects. Experience with TikTok, Instagram, and Twitter growth.',
-      technical: 'K-factor optimization, content virality analysis, social sharing mechanics, influencer partnership strategies.'
+      advantage: 'AI agent orchestration and multi-modal integration expertise',
+      detail: 'Deep understanding of multi-agent coordination, natural language processing, and autonomous task execution systems.',
+      technical: 'GPT-4 API mastery, agent orchestration frameworks, task routing algorithms, real-time decision making, context management.'
     },
     {
-      advantage: 'Legal infrastructure knowledge from compliance experience',
-      detail: 'Deep understanding of incorporation processes, regulatory requirements, and multi-state compliance frameworks.',
-      technical: 'Delaware corporate law, 50-state filing requirements, KYC/AML compliance, regulatory API integrations.'
+      advantage: 'Full-stack platform development for AI-powered systems',
+      detail: 'End-to-end capability to build autonomous company management platforms with real-time AI integration.',
+      technical: 'React/Node.js, WebSocket real-time systems, AI service integration, scalable microservices, database optimization.'
     },
     {
-      advantage: 'Technical capability to build full-stack formation platform',
-      detail: 'End-to-end development expertise. API integrations, payment processing, and scalable infrastructure design.',
-      technical: 'React/Node.js, PostgreSQL, Stripe Connect, AWS/CDN, microservices architecture, real-time systems.'
+      advantage: 'Business operations and startup lifecycle understanding',
+      detail: 'Comprehensive knowledge of company operations, pain points, and automation opportunities across all business functions.',
+      technical: 'Business process modeling, automation workflows, compliance frameworks, financial systems, operational metrics.'
     },
     {
-      advantage: 'Cultural understanding of next-gen entrepreneurship patterns',
-      detail: 'Insight into how Gen Z approaches business formation, social sharing, and community building.',
-      technical: 'User behavior analysis, social media integration, gamification mechanics, community platform design.'
+      advantage: 'AI conversation interface and user experience design',
+      detail: 'Expertise in creating intuitive natural language interfaces for complex business management tasks.',
+      technical: 'Conversational UI/UX, prompt engineering, context preservation, user intent recognition, feedback loop optimization.'
     }
   ]
 
   const inevitabilityPoints = [
     {
-      point: 'Someone will build the viral formation platform',
-      reasoning: 'Market demand clear. Current solutions lack viral mechanics. Network effects create winner-take-most dynamics.',
-      timing: 'First-mover advantage critical. Regulatory environment stabilizing. Technical infrastructure mature.'
+      point: 'Someone will build the autonomous AI company platform',
+      reasoning: 'AI capabilities now sufficient. Market demand clear from founder pain points. Technical infrastructure mature.',
+      timing: 'First-mover advantage critical. AI conversation interfaces normalized. Multi-agent frameworks proven feasible.'
     },
     {
-      point: 'Network effects create winner-take-most dynamics',
-      reasoning: 'Each new founder increases platform value. Viral growth compounds exponentially. Switching costs increase with network size.',
-      timing: 'Critical mass threshold: 10k active founders. Beyond this point, network effects become self-reinforcing.'
+      point: 'AI-operated businesses will replace human-operated businesses',
+      reasoning: '24/7 operation without fatigue. Near-zero marginal costs. Instant scaling without hiring. Superior performance inevitable.',
+      timing: 'Transition beginning now. Early adopters gaining massive advantages. Human-dependent businesses becoming uncompetitive.'
     },
     {
-      point: 'First-mover advantage in viral growth compounds exponentially',
-      reasoning: 'Early adopters become evangelists. Network effects accelerate with scale. Brand recognition in target demographic.',
-      timing: 'Competition window: 18-24 months before copycats. Technical moats take 2+ years to replicate.'
+      point: 'Platform effects create winner-take-most dynamics',
+      reasoning: 'Network effects from successful AI companies. Data advantages improve with scale. Best AI agents attract most founders.',
+      timing: 'Critical mass threshold: 1k autonomous companies. Beyond this point, platform effects become self-reinforcing.'
     },
     {
-             point: 'We&apos;re positioned to capture this with optimal timing',
-       reasoning: 'Team capabilities aligned with market needs. Technical infrastructure ready. Cultural understanding of target market.',
-       timing: 'Market timing perfect: AI mature, remote work normalized, VC timelines compressed, Gen Z entrepreneurship peak.'
+      point: 'We&apos;re positioned to capture this transformation',
+      reasoning: 'Team capabilities aligned with AI orchestration needs. Understanding of business operations. Technical execution capability.',
+      timing: 'Market timing perfect: AI mature, founders desperate for solutions, competition window 18-24 months before copycats.'
     }
   ]
 
   const withoutUsScenarios = [
     {
-      scenario: 'Founders continue struggling with fragmented processes',
-      impact: 'Innovation velocity slowed. Entrepreneurship barriers remain high. Economic potential unrealized.',
-      quantified: '$25B+ market remains fragmented. 30M+ annual formations inefficient. 2-3 week formation times persist.'
+      scenario: 'Founders continue drowning in operational complexity',
+      impact: 'Talented visionaries waste 80% of time on execution details. Innovation velocity slowed. Entrepreneurship remains barrier-heavy.',
+      quantified: '73% of solo founders report overwhelm. 68% spend 60+ hours/week on non-strategic tasks. Operational burden kills great ideas.'
     },
     {
-      scenario: 'Opportunity goes to slower, non-viral competitors',
-      impact: 'Market captured by traditional players. No viral growth mechanics. Network effects unrealized.',
-      quantified: 'Stripe Atlas (27k formations), LegalZoom (2M+ formations) maintain dominance without innovation.'
+      scenario: 'AI autonomous business potential remains unrealized',
+      impact: 'Revolutionary AI capabilities underutilized. Business operations stuck in human-dependent models. Efficiency gains missed.',
+      quantified: 'GPT-4 capabilities demonstrated but not systematically applied to business operations. Multi-agent coordination possible but not commercialized.'
     },
     {
-      scenario: 'Next generation constrained by outdated systems',
-      impact: 'Gen Z entrepreneurship potential limited. Social-native generation forced into legacy processes.',
-      quantified: '47% of Gen Z interested in entrepreneurship. Current tools designed for previous generation.'
+      scenario: 'Traditional business software continues fragmentation',
+      impact: 'Founders forced to manage 50+ different tools. No unified AI orchestration. Operational complexity compounds.',
+      quantified: 'Average startup uses 87 different software tools. No single platform offers autonomous business management. Integration overhead massive.'
     },
     {
-      scenario: 'Coordination potential of rapid formation unrealized',
-      impact: 'Economic reorganization slowed. AI-enabled coordination potential missed. Future of work evolution delayed.',
-      quantified: 'Potential for 10x increase in formation speed. Network effects could reduce CAC by 50x.'
+      scenario: 'Next generation of AI-native businesses delayed',
+      impact: 'Transition to AI-operated companies slowed by years. Competitive advantage lost to early AI adopters. Economic transformation postponed.',
+      quantified: 'AI-native businesses could operate at 10x efficiency. Single founder could manage multiple autonomous companies. Transformation delayed 3-5 years.'
     }
   ]
 
@@ -213,10 +213,10 @@ export function WhyNowSlide() {
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
           <div className="text-sm text-gray-400 space-y-2">
-                         <p><strong>Timing Convergence:</strong> All macro trends aligned. AI democratizes building, remote work enables distributed teams, VC compression rewards speed, Gen Z expects viral mechanics. This window won&apos;t last.</p>
-            <p><strong>Execution Readiness:</strong> Team capabilities perfectly matched to market opportunity. Technical infrastructure mature. Cultural understanding of target demographic. Legal framework knowledge complete.</p>
-                         <p><strong>Competitive Landscape:</strong> Current players (Stripe Atlas, LegalZoom) lack viral mechanics. 18-24 month window before copycat attempts. Technical moats take 2+ years to replicate.</p>
-             <p><strong>Market Inevitability:</strong> Someone will build this. Network effects create winner-take-most dynamics. First-mover advantage compounds exponentially. We&apos;re positioned to capture this with optimal timing.</p>
+            <p><strong>AI Capability Convergence:</strong> Multi-agent coordination now possible. Natural language interfaces normalized. GPT-4 sufficient for complex business reasoning. Technical infrastructure for autonomous companies exists.</p>
+            <p><strong>Execution Readiness:</strong> Team capabilities perfectly matched to AI orchestration requirements. Deep understanding of business operations. Platform development expertise. AI integration mastery.</p>
+            <p><strong>Market Transformation:</strong> Human-operated businesses becoming uncompetitive. AI-operated companies achieve 10x efficiency. Single founders can manage multiple autonomous businesses. Winner-take-most platform dynamics.</p>
+            <p><strong>Inevitable Future:</strong> Transition to AI-operated businesses is happening. Early platform captures entire market. We&apos;re positioned to enable this transformation. Competition window: 18-24 months maximum.</p>
           </div>
         </motion.div>
       </motion.div>

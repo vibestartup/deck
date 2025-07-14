@@ -13,28 +13,28 @@ import {
 export function TheAskSlide() {
   const useOfFunds = [
     { 
-      category: 'Core infrastructure development', 
-      amount: '$15k', 
-      details: 'API development, payment integration, state filing automation, dashboard UI',
-      technical: 'Next.js frontend, Node.js backend, PostgreSQL, Stripe integration, Delaware API, AWS deployment'
-    },
-    { 
-      category: '4-month viral marketing runway', 
+      category: 'AI agent development & orchestration', 
       amount: '$20k', 
-      details: `${formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend)}/month content creation and promotion budget`,
-      technical: 'Video production, influencer partnerships, paid social amplification, UTM tracking, conversion optimization'
+      details: 'Multi-agent coordination, natural language processing, autonomous task execution systems',
+      technical: 'GPT-4 integration, agent orchestration layer, task routing algorithms, real-time decision making, multi-modal AI'
     },
     { 
-      category: 'Multi-state legal compliance', 
+      category: '4-month autonomous showcase runway', 
+      amount: '$15k', 
+      details: `Demonstrate AI companies in action, showcase autonomous operations, viral growth content`,
+      technical: 'Live autonomous company demos, real-time AI decision showcases, founder testimonials, success story amplification'
+    },
+    { 
+      category: 'Core platform infrastructure', 
       amount: '$10k', 
-      details: 'Legal entity setup, compliance frameworks, regulatory research',
-      technical: '50-state incorporation capability, automated compliance monitoring, legal document templates, regulatory database'
+      details: 'Company state management, AI integration APIs, autonomous execution engine',
+      technical: 'Next.js frontend, Node.js backend, PostgreSQL, AI service integrations, real-time WebSocket connections'
     },
     { 
-      category: 'Initial vibefund treasury', 
+      category: 'Initial autonomous company fund', 
       amount: '$5k', 
-      details: 'Seed funding for founder-to-founder investment feature',
-      technical: 'Dogfooding our own platform, proof of concept for peer investment mechanics, regulatory compliance testing'
+      details: 'Seed autonomous companies to demonstrate platform capabilities',
+      technical: 'Proof of concept autonomous businesses, AI agent performance testing, platform capability validation'
     }
   ]
 
@@ -78,22 +78,22 @@ export function TheAskSlide() {
     { 
       reason: `${formatMultiplier(keyMetrics.ltvCacRatio)} LTV/CAC ratio`, 
       benchmark: `vs ${INDUSTRY_BENCHMARKS.industryLtvCacRatio}x industry standard`,
-      detail: 'Viral mechanics create exponential acquisition efficiency. Each customer becomes acquisition channel.'
+      detail: 'Autonomous AI companies operate with near-zero marginal costs. Each successful showcase inspires exponential adoption.'
     },
     { 
       reason: 'Break-even month 2', 
       benchmark: `with ${formatPercentage(keyMetrics.grossMargin)} gross margins`,
-      detail: 'AWS credits eliminate infrastructure costs year 1. Profitable from 882 companies onward.'
+      detail: 'AI agents eliminate human operational costs. Scalable autonomous execution with minimal infrastructure overhead.'
     },
     { 
       reason: `${formatCurrency(keyMetrics.finalARR / 1000000, 1)}M ARR by month 12`, 
       benchmark: 'Series A ready',
-      detail: 'Proven viral growth engine. Network effects accelerating. Multi-state compliance proven.'
+      detail: 'Proven autonomous company model. AI agents demonstrating 24/7 operation. Multiple successful showcases deployed.'
     },
     { 
-      reason: 'Multiple exit paths', 
-      benchmark: 'de-risked investment',
-      detail: 'Strategic acquirers (Stripe, LegalZoom), financial buyers (PE), public markets (IPO) all viable.'
+      reason: 'First-mover in autonomous companies', 
+      benchmark: 'category-defining platform',
+      detail: 'No competitor offers true autonomous AI business operations. Platform effects create winner-take-most dynamics.'
     }
   ]
 
@@ -234,10 +234,10 @@ export function TheAskSlide() {
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
           <div className="text-sm text-gray-400 space-y-2">
-            <p><strong>Risk Mitigation:</strong> Multiple revenue streams, proven viral mechanics, low-touch business model. Break-even in month 2 reduces funding dependency. Exit opportunities at multiple stages.</p>
-            <p><strong>Competitive Advantage:</strong> Network effects create winner-take-most dynamics. First-mover advantage in viral company formation. Technical moats via multi-state integration take years to replicate.</p>
-            <p><strong>Market Timing:</strong> Perfect convergence of AI acceleration, VC timeline compression, and Gen Z entrepreneurship. Regulatory environment favorable with state digitization complete.</p>
-            <p><strong>Investment Thesis:</strong> Viral growth engine + SaaS economics = exceptional returns. {formatMultiplier(keyMetrics.ltvCacRatio)} LTV/CAC ratio unprecedented in B2B. Conservative 100x+ return potential even at modest exit multiples.</p>
+            <p><strong>Risk Mitigation:</strong> AI-powered operations reduce human dependencies. Autonomous execution scales without proportional cost increases. Multiple successful AI companies demonstrate model viability.</p>
+            <p><strong>Competitive Advantage:</strong> First-mover in autonomous AI business operations. No existing platform offers true AI-powered company management. Technical moats via multi-agent coordination take years to replicate.</p>
+            <p><strong>Market Timing:</strong> AI capabilities now sufficient for autonomous business operations. ChatGPT demonstrates mass market AI adoption. Founders ready for AI-powered business management.</p>
+            <p><strong>Investment Thesis:</strong> Autonomous AI companies represent the future of business. {formatMultiplier(keyMetrics.ltvCacRatio)} LTV/CAC ratio from eliminated operational overhead. Revolutionary 100x+ return potential as entire markets transition to AI operation.</p>
           </div>
         </motion.div>
       </motion.div>
