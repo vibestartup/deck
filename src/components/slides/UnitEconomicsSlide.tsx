@@ -49,19 +49,19 @@ export function UnitEconomicsSlide() {
     {
       label: 'LTV per Company',
       value: formatCurrency(baseLTV.blendedLtvPerCompany),
-      color: 'green',
+      color: 'blue',
       description: `${formatCurrency(BASE_BUSINESS_PARAMS.formationFee)} formation + ${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)}/mo × ${(1/BASE_BUSINESS_PARAMS.monthlyChurnRate).toFixed(0)} months`
     },
     {
       label: 'LTV/CAC Ratio',
       value: (baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1) + 'x',
-      color: 'purple',
+      color: 'blue',
       description: 'Industry benchmark: 3-5x'
     },
     {
       label: 'Payback Period',
       value: (baseCAC.cacPerCompany / (BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)).toFixed(1) + ' months',
-      color: 'yellow',
+      color: 'blue',
       description: 'Time to recover customer acquisition cost'
     }
   ];
@@ -105,7 +105,7 @@ export function UnitEconomicsSlide() {
         <h1 className="text-6xl font-bold mb-6 text-center tracking-tight text-white">
           Unit Economics That Break SaaS Norms
         </h1>
-        <p className="text-2xl text-emerald-500 mb-12 text-center font-medium">
+        <p className="text-2xl text-blue-500 mb-12 text-center font-medium">
           {(baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1)}x LTV/CAC ratio (industry standard: 3-5x)
         </p>
 
@@ -158,8 +158,8 @@ export function UnitEconomicsSlide() {
                         item.highlight 
                           ? 'text-blue-400' 
                           : item.positive 
-                            ? 'text-emerald-400' 
-                            : 'text-red-400'
+                            ? 'text-blue-400' 
+                            : 'text-slate-400'
                       }`}>
                         {item.value}
                       </span>
@@ -210,8 +210,8 @@ export function UnitEconomicsSlide() {
                 stage: 'Mature Operations',
                 timeline: `Month ${daysToMonths(seniorDevDays)}+`,
                 costs: employeeCosts.mature,
-                color: 'border-emerald-500',
-                textColor: 'text-emerald-400',
+                color: 'border-blue-500',
+                textColor: 'text-blue-400',
                 description: `At ${formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000)}k MRR milestone`
               }
             ].map((stage, index) => (

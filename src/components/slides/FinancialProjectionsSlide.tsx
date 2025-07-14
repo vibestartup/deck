@@ -161,9 +161,9 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               x2={scaleX(marker.day)}
               y2="55"
               stroke={
-                marker.type === 'launch' ? 'rgb(34, 197, 94)' :
-                marker.type === 'investment' ? 'rgb(147, 51, 234)' :
-                marker.type === 'hire' ? 'rgb(59, 130, 246)' :
+                marker.type === 'launch' ? 'rgb(59, 130, 246)' :
+                marker.type === 'investment' ? 'rgb(100, 116, 139)' :
+                marker.type === 'hire' ? 'rgb(148, 163, 184)' :
                 'rgb(156, 163, 175)'
               }
               strokeWidth="0.1"
@@ -181,7 +181,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               y1="5"
               x2={scaleX(breakEvenDay)}
               y2="55"
-              stroke="rgb(34, 197, 94)"
+              stroke="rgb(59, 130, 246)"
               strokeWidth="0.15"
               strokeDasharray="1.5,1.5"
               initial={{ opacity: 0 }}
@@ -205,7 +205,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           <motion.path
             d={costsPath}
             fill="none"
-            stroke="rgb(239, 68, 68)"
+            stroke="rgb(148, 163, 184)"
             strokeWidth="0.2"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
@@ -216,7 +216,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           <motion.path
             d={employeeCostsPath}
             fill="none"
-            stroke="rgb(168, 85, 247)"
+            stroke="rgb(100, 116, 139)"
             strokeWidth="0.15"
             strokeDasharray="2,1"
             initial={{ pathLength: 0 }}
@@ -256,8 +256,8 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
                 cx={scaleX(threshold.day)}
                 cy={scaleY(data.find(d => d.day === threshold.day)?.revenue || 0)}
                 r="0.5"
-                fill={threshold.type === 'optimal' ? 'rgb(34, 197, 94)' : 
-                      threshold.type === 'conservative' ? 'rgb(59, 130, 246)' : 'rgb(239, 68, 68)'}
+                fill={threshold.type === 'optimal' ? 'rgb(59, 130, 246)' : 
+                      threshold.type === 'conservative' ? 'rgb(100, 116, 139)' : 'rgb(148, 163, 184)'}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.4, delay: 1.5 + index * 0.2 }}
@@ -273,9 +273,9 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               cy={scaleY(data.find(d => d.day === marker.day)?.revenue || data.find(d => d.day === marker.day)?.costs || 0)}
               r="0.4"
               fill={
-                marker.type === 'launch' ? 'rgb(34, 197, 94)' :
-                marker.type === 'investment' ? 'rgb(147, 51, 234)' :
-                marker.type === 'hire' ? 'rgb(59, 130, 246)' :
+                marker.type === 'launch' ? 'rgb(59, 130, 246)' :
+                marker.type === 'investment' ? 'rgb(100, 116, 139)' :
+                marker.type === 'hire' ? 'rgb(148, 163, 184)' :
                 'rgb(156, 163, 175)'
               }
               initial={{ scale: 0 }}
@@ -403,9 +403,9 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
                    top: `${20 + index * 6}%`,
                    transform: 'translateX(-50%)',
                    fontSize: '9px',
-                   color: marker.type === 'launch' ? 'rgb(34, 197, 94)' :
-                          marker.type === 'investment' ? 'rgb(147, 51, 234)' :
-                          marker.type === 'hire' ? 'rgb(59, 130, 246)' :
+                   color: marker.type === 'launch' ? 'rgb(59, 130, 246)' :
+                          marker.type === 'investment' ? 'rgb(100, 116, 139)' :
+                          marker.type === 'hire' ? 'rgb(148, 163, 184)' :
                           'rgb(156, 163, 175)'
                  }}>
               {marker.label}
@@ -421,8 +421,8 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
                    top: `${60 + index * 12}%`,
                    transform: 'translateX(-50%)',
                    fontSize: '9px',
-                   color: threshold.type === 'optimal' ? 'rgb(34, 197, 94)' : 
-                          threshold.type === 'conservative' ? 'rgb(59, 130, 246)' : 'rgb(239, 68, 68)'
+                   color: threshold.type === 'optimal' ? 'rgb(59, 130, 246)' : 
+                          threshold.type === 'conservative' ? 'rgb(100, 116, 139)' : 'rgb(148, 163, 184)'
                  }}>
               {threshold.label}
             </div>
@@ -432,7 +432,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           <div className="absolute top-2 right-2 bg-gray-800/90 border border-gray-600 rounded px-2 py-1" style={{ fontSize: '9px' }}>
             <div className="flex items-center mb-0.5">
               <div className="w-2 h-px bg-blue-400 mr-1"></div>
-              <span className="text-gray-300">Revenue</span>
+              <span className="text-slate-300">Revenue</span>
             </div>
             <div className="flex items-center mb-0.5">
               <div className="w-2 h-px bg-slate-400 mr-1"></div>
@@ -734,11 +734,11 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
               <span className="text-gray-300">Revenue</span>
             </div>
             <div className="flex items-center mb-0.5">
-              <div className="w-2 h-px bg-green-400 mr-1"></div>
+              <div className="w-2 h-px bg-emerald-400 mr-1"></div>
               <span className="text-gray-300">Profit</span>
             </div>
             <div className="flex items-center mb-0.5">
-              <div className="w-2 h-px bg-purple-400 mr-1"></div>
+              <div className="w-2 h-px bg-slate-400 mr-1"></div>
               <span className="text-gray-300">Market Penetration</span>
             </div>
           </div>
@@ -747,7 +747,7 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
           <div className="absolute left-1 top-2 text-gray-400" style={{ fontSize: '10px' }}>
             Revenue/Profit
           </div>
-          <div className="absolute right-1 top-2 text-purple-400" style={{ fontSize: '10px' }}>
+          <div className="absolute right-1 top-2 text-slate-400" style={{ fontSize: '10px' }}>
             Market %
           </div>
         </div>
@@ -870,25 +870,25 @@ export function FinancialProjectionsSlide() {
     {
       label: 'Pre-Launch Burn',
       value: COMPUTED_VALUES.preLaunchBurnFormatted,
-      color: 'red',
+      color: 'blue',
       description: `${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * 2 / 1000).toFixed(0)}k dev + ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * prepPhaseMonths / 1000).toFixed(0)}k prep`
     },
     {
       label: 'Break-even Day',
       value: `Day ${Math.round(breakEvenDay)}`,
-      color: 'green',
+      color: 'blue',
       description: `${Math.round(breakEvenDay - investmentDays)} days after investment`
     },
     {
       label: 'Day 365 MRR',
       value: `$${(day365MRR / 1000000).toFixed(1)}M`,
-      color: 'purple',
+      color: 'blue',
       description: `$${(day365MRR * 12 / 1000000).toFixed(1)}M ARR run rate`
     },
     {
       label: 'First Year ROI',
       value: `${((day365MRR * 12 - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount).toFixed(1)}x`,
-      color: 'yellow',
+      color: 'blue',
       description: `Return on ${COMPUTED_VALUES.investmentAmountFormatted} investment`
     }
   ];
@@ -946,23 +946,23 @@ export function FinancialProjectionsSlide() {
           
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Investment Timeline */}
-            <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-purple-400 mb-4">Investment & Funding Timeline</h3>
-              <div className="space-y-2 text-sm text-gray-300">
+            <div className="bg-slate-900/20 border border-slate-500/30 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-400 mb-4">Investment & Funding Timeline</h3>
+              <div className="space-y-2 text-sm text-slate-300">
                 <p><strong>Pre-Investment (Day {Math.round(developmentStartDays)} to {Math.round(investmentDays - 1)}):</strong> ${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 1000).toFixed(0)}k/month contractor, bootstrapped development</p>
                 <p><strong>Day {Math.round(investmentDays)}:</strong> {COMPUTED_VALUES.investmentAmountFormatted} investment received</p>
                 <p><strong>Days {Math.round(investmentDays)} to {Math.round(launchDays - 1)}:</strong> Full preparation period - infrastructure setup, legal compliance, marketing materials</p>
                 <p><strong>Day {Math.round(launchDays)}:</strong> Product launch with revenue generation beginning</p>
                 <p><strong>Post-Investment:</strong> Founder salary ${((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Founder Salary')?.monthlyCost || 0) / 1000).toFixed(0)}k/month + legal ${((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Legal Counsel')?.monthlyCost || 0) / 1000).toFixed(0)}k/month + compliance ${((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Compliance Specialist')?.monthlyCost || 0) / 1000).toFixed(0)}k/month</p>
                 <p><strong>Daily Burn Rate:</strong> ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day during prep, ${(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 30.44 / 1000).toFixed(1)}k/day after launch</p>
-                <p className="text-xs text-purple-300 mt-2">Investment provides runway for proper launch preparation. The {Math.round(prepPhaseDays)} days between investment and launch ensures infrastructure, legal, and go-to-market strategy are fully ready.</p>
+                <p className="text-xs text-blue-300 mt-2">Investment provides runway for proper launch preparation. The {Math.round(prepPhaseDays)} days between investment and launch ensures infrastructure, legal, and go-to-market strategy are fully ready.</p>
               </div>
             </div>
             
             {/* Hiring Strategy */}
-            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+            <div className="bg-slate-900/20 border border-slate-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-blue-400 mb-4">Revenue-Driven Hiring Strategy</h3>
-              <div className="space-y-2 text-sm text-gray-300">
+              <div className="space-y-2 text-sm text-slate-300">
                 <p><strong>Day {Math.round(customerSuccessHireDays)}:</strong> Customer Success at {formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold)}</p>
                 <p><strong>Day {Math.round(marketingHireDays)}:</strong> Marketing Manager at {formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold)}</p>
                 <p><strong>Day {Math.round(seniorDevHireDays)}:</strong> Senior Developer at {formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold)}</p>
@@ -972,16 +972,16 @@ export function FinancialProjectionsSlide() {
             </div>
             
             {/* Cost Structure Evolution */}
-            <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-green-400 mb-4">Daily Cost Structure Evolution</h3>
-              <div className="space-y-2 text-sm text-gray-300">
+            <div className="bg-slate-900/20 border border-slate-500/30 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-400 mb-4">Daily Cost Structure Evolution</h3>
+              <div className="space-y-2 text-sm text-slate-300">
                 <p><strong>Days -60 to -30:</strong> ${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 30.44 / 1000).toFixed(1)}k/day contractor only = {(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * 2 / 1000).toFixed(0)}k total pre-investment burn</p>
                 <p><strong>Day {Math.round(investmentDays)}:</strong> Investment received, costs jump to ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day</p>
                 <p><strong>Days {Math.round(investmentDays)} to {Math.round(launchDays - 1)}:</strong> Full prep period at ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day ({Math.round(prepPhaseDays)} days dedicated to launch preparation)</p>
                 <p><strong>Day {Math.round(launchDays)}:</strong> Launch! Costs increase to ${(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 30.44 / 1000).toFixed(1)}k/day, revenue begins</p>
                 <p><strong>Day 365:</strong> ${(day365EmployeeCosts / 1000).toFixed(0)}k monthly employee costs + ${(infrastructureCostPerCompany * (day365Data?.companies || 0) / 1000).toFixed(0)}k infrastructure</p>
                 <p><strong>Break-even achieved:</strong> Day {Math.round(breakEvenDay)} (Month {Math.round(breakEvenDay / 30.44)})</p>
-                <p className="text-xs text-green-300 mt-2">Daily tracking shows precise cash flow dynamics. Employee costs scale predictably with revenue milestones.</p>
+                <p className="text-xs text-blue-300 mt-2">Daily tracking shows precise cash flow dynamics. Employee costs scale predictably with revenue milestones.</p>
               </div>
             </div>
           </div>
@@ -1003,9 +1003,9 @@ export function FinancialProjectionsSlide() {
           
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Market Saturation Analysis */}
-            <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-purple-400 mb-4">Market Saturation Dynamics</h3>
-              <div className="space-y-2 text-sm text-gray-300">
+            <div className="bg-slate-900/20 border border-slate-500/30 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-400 mb-4">Market Saturation Dynamics</h3>
+              <div className="space-y-2 text-sm text-slate-300">
                 <p><strong>Total Addressable Market:</strong> 1M+ companies forming annually in US</p>
                 <p><strong>Year 1 Penetration:</strong> {((fiveYearData.find(d => d.day === 365)?.marketPenetration || 0) * 100).toFixed(2)}% market share</p>
                 <p><strong>Year 5 Penetration:</strong> {((fiveYearData[fiveYearData.length - 1]?.marketPenetration || 0) * 100).toFixed(2)}% market share</p>
@@ -1016,9 +1016,9 @@ export function FinancialProjectionsSlide() {
             </div>
             
             {/* 5-Year Financial Metrics */}
-            <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-green-400 mb-4">Long-term Financial Performance</h3>
-              <div className="space-y-2 text-sm text-gray-300">
+            <div className="bg-slate-900/20 border border-slate-500/30 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-400 mb-4">Long-term Financial Performance</h3>
+              <div className="space-y-2 text-sm text-slate-300">
                 <p><strong>Year 5 Revenue:</strong> ${(fiveYearData[fiveYearData.length - 1]?.revenue * 365 / 1000000).toFixed(1)}M annual</p>
                 <p><strong>Year 5 Profit:</strong> ${(fiveYearData[fiveYearData.length - 1]?.profit * 365 / 1000000).toFixed(1)}M annual</p>
                 <p><strong>Year 5 Companies:</strong> {(fiveYearData[fiveYearData.length - 1]?.companies || 0).toLocaleString()} active</p>
@@ -1044,8 +1044,8 @@ export function FinancialProjectionsSlide() {
               {
                 stage: 'Stage 1: AWS Credits Active',
                 timeline: 'Days 1-365',
-                color: 'border-green-500',
-                textColor: 'text-green-400',
+                color: 'border-blue-500',
+                textColor: 'text-blue-400',
                 details: [
                   `Infrastructure cost: $0 (AWS credits cover ${(BASE_INFRASTRUCTURE_PARAMS.awsCreditsDaily * 365 / 1000000).toFixed(1)}M annually)`,
                   'SaaS gross margin: 94% (payment processing only)',
@@ -1057,8 +1057,8 @@ export function FinancialProjectionsSlide() {
               {
                 stage: 'Stage 2: Paid Infrastructure Crisis',
                 timeline: 'Days 366-730',
-                color: 'border-yellow-500',
-                textColor: 'text-yellow-400',
+                color: 'border-slate-500',
+                textColor: 'text-slate-400',
                 details: [
                   `Infrastructure cost: ${formatCurrency(infrastructureCostPerCompany)}/company/month`,
                   `At 100k companies: ${(infrastructureCostPerCompany * 100000 / 1000000).toFixed(1)}M/month AWS spend`,
@@ -1070,8 +1070,8 @@ export function FinancialProjectionsSlide() {
               {
                 stage: 'Stage 3: Hybrid Self-Hosted',
                 timeline: 'Day 731+',
-                color: 'border-purple-500',
-                textColor: 'text-purple-400',
+                color: 'border-blue-500',
+                textColor: 'text-blue-400',
                 details: [
                   `CapEx investment: ${(BASE_INFRASTRUCTURE_PARAMS.selfHostingSetupCost / 1000000).toFixed(1)}M infrastructure setup`,
                   `Monthly savings: ${(infrastructureCostPerCompany * BASE_INFRASTRUCTURE_PARAMS.selfHostingSavingsRate * 100000 / 1000000).toFixed(1)}M vs AWS at 100k companies`,
@@ -1111,14 +1111,14 @@ export function FinancialProjectionsSlide() {
           transition={{ duration: 0.6, delay: 1.2 }}
           className="border-t-4 border-red-500 pt-8"
         >
-          <h2 className="text-3xl font-bold mb-8 text-red-400">FINANCIAL MODELING & MILESTONE ECONOMICS</h2>
+          <h2 className="text-3xl font-bold mb-8 text-slate-400">FINANCIAL MODELING & MILESTONE ECONOMICS</h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Unit Economics Breakdown */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-red-300">Per-Company Daily Economics</h3>
-              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
-                <div className="space-y-2 text-sm text-gray-300">
+              <h3 className="text-xl font-semibold text-slate-300">Per-Company Daily Economics</h3>
+              <div className="bg-slate-900/20 border border-slate-500/30 rounded-lg p-4">
+                <div className="space-y-2 text-sm text-slate-300">
                   <p><strong>Formation Revenue:</strong> {formatCurrency(BASE_BUSINESS_PARAMS.formationFee)} (one-time)</p>
                   <p><strong>Monthly Subscription:</strong> {formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)} blended</p>
                   <p><strong>Daily Subscription:</strong> {formatCurrency((BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) / 30.44)} per company</p>
@@ -1126,38 +1126,38 @@ export function FinancialProjectionsSlide() {
                   <p><strong>Daily COGS:</strong> {formatCurrency(infrastructureCostPerCompany / 30.44)} (Stage 2)</p>
                   <p><strong>CAC per Company:</strong> {formatCurrency(baseCAC.cacPerCompany)}</p>
                   <p><strong>LTV per Company:</strong> {formatCurrency(baseLTV.blendedLtvPerCompany)}</p>
-                  <p><strong>LTV/CAC Ratio:</strong> <span className="text-green-400">{(baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1)}x</span></p>
+                  <p><strong>LTV/CAC Ratio:</strong> <span className="text-blue-400">{(baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1)}x</span></p>
                 </div>
               </div>
             </div>
             
             {/* Investment Timeline Economics */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-red-300">Investment Timeline Economics</h3>
-              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
-                <div className="space-y-2 text-sm text-gray-300">
+              <h3 className="text-xl font-semibold text-slate-300">Investment Timeline Economics</h3>
+              <div className="bg-slate-900/20 border border-slate-500/30 rounded-lg p-4">
+                <div className="space-y-2 text-sm text-slate-300">
                    <p><strong>Pre-Investment:</strong> ${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 30.44 / 1000).toFixed(1)}k/day burn rate</p>
                    <p><strong>Investment Timing:</strong> Day {Math.round(investmentDays)} (after 60 days development)</p>
                    <p><strong>Post-Investment:</strong> ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day base burn + revenue-driven hires</p>
                    <p><strong>Hire Triggers:</strong> MRR milestones ensure affordability</p>
                    <p><strong>Day 365 Burn:</strong> ${(day365EmployeeCosts / 1000).toFixed(0)}k/month total employee costs</p>
                    <p><strong>Cash Flow:</strong> Positive from Day {Math.round(breakEvenDay)} onwards</p>
-                   <p><strong>Investment Efficiency:</strong> <span className="text-green-400">{(((day365Data?.revenue || 0) * 12 - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount).toFixed(0)}x first year return</span></p>
+                   <p><strong>Investment Efficiency:</strong> <span className="text-blue-400">{(((day365Data?.revenue || 0) * 12 - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount).toFixed(0)}x first year return</span></p>
                  </div>
               </div>
             </div>
           </div>
           
           {/* Infrastructure Cost Evolution */}
-          <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-6">
-            <h3 className="text-xl font-semibold text-gray-300 mb-4">Timeline-Based Strategic Planning</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400">
+          <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-6">
+            <h3 className="text-xl font-semibold text-slate-300 mb-4">Timeline-Based Strategic Planning</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-slate-400">
               <div>
-                <p className="font-semibold text-green-300 mb-2">Launch Strategy (Days {Math.round(investmentDays)}-{Math.round(launchDays + 30)})</p>
+                <p className="font-semibold text-blue-300 mb-2">Launch Strategy (Days {Math.round(investmentDays)}-{Math.round(launchDays + 30)})</p>
                 <p>Investment received Day {Math.round(investmentDays)} after 60 days bootstrapped development. Focus on proving product-market fit before major investment. Marketing spend drives viral growth. Break-even achieved Day {Math.round(breakEvenDay)} validates business model before scaling costs.</p>
               </div>
               <div>
-                <p className="font-semibold text-purple-300 mb-2">Investment Strategy (Days {Math.round(launchDays)}-365)</p>
+                <p className="font-semibold text-blue-300 mb-2">Investment Strategy (Days {Math.round(launchDays)}-365)</p>
                 <p>{COMPUTED_VALUES.investmentAmountFormatted} received Day {Math.round(investmentDays)} reduces investor risk. Founder salary allows full-time focus. Legal/compliance hires ensure scalable operations. Revenue-driven hiring ensures each new employee is affordable based on MRR growth.</p>
               </div>
               <div>
@@ -1175,7 +1175,7 @@ export function FinancialProjectionsSlide() {
           transition={{ duration: 0.6, delay: 1.6 }}
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
-          <div className="text-sm text-gray-400 space-y-3">
+          <div className="text-sm text-slate-400 space-y-3">
             <p><strong>Daily Precision Strategy:</strong> Day {Math.round(investmentDays)} investment provides capital after 60 days of bootstrapped development. Pre-launch burn totals {COMPUTED_VALUES.preLaunchBurnFormatted} (contractor only). Days {Math.round(investmentDays)} to {Math.round(launchDays - 1)} are entirely dedicated to launch preparation ({Math.round(prepPhaseDays)} days), ensuring all systems are ready: formation APIs tested, legal compliance verified, marketing materials prepared, and initial content created.</p>
             
             <p><strong>Revenue-Driven Hiring Model:</strong> Each hire triggered by specific MRR milestones ensuring affordability: Customer Success at {formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold)} (Day {Math.round(customerSuccessHireDays)}), Marketing at {formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold)} (Day {Math.round(marketingHireDays)}), Senior Developer at {formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold)} (Day {Math.round(seniorDevHireDays)}). This conservative approach maintains positive cash flow throughout scaling.</p>
