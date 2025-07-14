@@ -27,6 +27,7 @@ export {
   EMPLOYEE_COST_SCENARIOS,
   calculateEmployeeCosts,
   generateEmployeeParamsForInvestment,
+  getEmployeesByPhase,
 } from './parameters';
 
 // Export calculations

@@ -15,7 +15,8 @@ import {
   RiskParameters,
   InfrastructureOptimization,
   EmployeeParameters,
-  EmployeeCostScenario
+  EmployeeCostScenario,
+  Employee
 } from './types';
 
 // Base case business parameters from pitch deck
@@ -110,67 +111,91 @@ export const GROWTH_STAGES: GrowthStage[] = [
 
 // Employee cost parameters with realistic timeline modeling
 export const BASE_EMPLOYEE_PARAMS: EmployeeParameters = {
-  // Pre-launch development phase (current state - you as SWE)
-  preLaunch: {
-    founderSalary: 0, // $0 - working full-time SWE job
-    indonesianContractor: 2000, // $2,000/month (out of pocket cost)
-    legalCounsel: 0, // $0 - no ongoing legal costs during development
-    totalMonthlyCost: 2000, // $2,000/month burn from personal savings
-    durationMonths: 6, // 6 months of pre-launch development
-  },
-  
-  // Post-launch but pre-investment phase (bootstrapping with revenue)
-  postLaunchPreInvestment: {
-    founderSalary: 0, // $0 - still working full-time initially
-    indonesianContractor: 2000, // $2,000/month (continues, now from revenue)
-    legalCounsel: 500, // ~$500/month for formation-related legal work
-    customerSupport: 0, // $0 - founder handles customer support initially
-    totalMonthlyCost: 2500, // $2,500/month operational cost
-  },
-  
-  // Post-investment structure (base case: $50k)
-  postInvestment: {
-    founderSalary: 5000, // $5,000/month (can quit day job)
-    indonesianContractor: 2000, // $2,000/month (continued)
-    legalCounsel: 3000, // $3,000/month (part-time attorney for compliance)
-    complianceSpecialist: 4000, // $4,000/month (regulatory expert)
-    customerSuccess: 0, // $0 initially, added based on revenue
-    marketingManager: 0, // $0 initially, added based on revenue
-    totalBaseMonthlyCost: 14000, // $14,000/month base burn
-  },
+  employees: [
+    // Pre-launch phase employees
+    {
+      role: 'Technical Contractor',
+      monthlyCost: 2000,
+      startMonth: -6, // Starts 6 months before launch
+      investmentRequired: false, // Paid out of pocket initially
+    },
+    
+    // Post-launch pre-investment employees
+    {
+      role: 'Formation Legal',
+      monthlyCost: 500,
+      startMonth: 0, // Starts at launch
+      investmentRequired: false, // Basic legal needs covered by revenue
+    },
+    
+    // Marketing spend (treating as employee for cost modeling)
+    {
+      role: 'Marketing & Content',
+      monthlyCost: 5000,
+      startMonth: 0, // Starts at launch
+      investmentRequired: false, // Essential for viral growth
+    },
+    
+    // Post-investment employees (founder can quit day job)
+    {
+      role: 'Founder Salary',
+      monthlyCost: 5000, // Base amount, adjusted by investment scenario
+      startMonth: 3, // Starts when investment received
+      investmentRequired: true,
+    },
+    
+    {
+      role: 'Legal Counsel',
+      monthlyCost: 3000,
+      startMonth: 3, // Starts when investment received
+      investmentRequired: true,
+    },
+    
+    {
+      role: 'Compliance Specialist',
+      monthlyCost: 4000,
+      startMonth: 3, // Starts when investment received
+      investmentRequired: true,
+    },
+    
+    // Revenue-driven scaling hires
+    {
+      role: 'Customer Success Manager',
+      monthlyCost: 3500,
+      startMonth: 6, // 6 months after investment
+      requiredMRR: 100000, // Only hire when hitting $100k MRR
+      investmentRequired: true,
+    },
+    
+    {
+      role: 'Marketing Manager',
+      monthlyCost: 4500,
+      startMonth: 9, // 9 months after investment
+      requiredMRR: 200000, // Only hire when hitting $200k MRR
+      investmentRequired: true,
+    },
+    
+    {
+      role: 'Senior Developer',
+      monthlyCost: 8000,
+      startMonth: 12, // 12 months after investment
+      requiredMRR: 400000, // Only hire when hitting $400k MRR
+      investmentRequired: true,
+    },
+    
+    {
+      role: 'Sales Manager',
+      monthlyCost: 5000,
+      startMonth: 18, // 18 months after investment
+      requiredMRR: 600000, // Only hire when hitting $600k MRR
+      investmentRequired: true,
+    },
+  ],
   
   // Timeline parameters
   launchMonth: 0, // Month 0 = launch month
   investmentMonth: 3, // Investment received 3 months after launch
   investmentAmount: 50000, // $50,000 base case
-  
-  // Scaling hires based on milestones
-  scalingHires: [
-    { 
-      month: 6, // 6 months after investment
-      role: 'Customer Success Manager', 
-      monthlyCost: 3500,
-      requiredMRR: 100000 // Only hire when hitting $100k MRR
-    },
-    { 
-      month: 9, // 9 months after investment
-      role: 'Marketing Manager', 
-      monthlyCost: 4500,
-      requiredMRR: 200000 // Only hire when hitting $200k MRR
-    },
-    { 
-      month: 12, // 12 months after investment
-      role: 'Senior Developer', 
-      monthlyCost: 8000,
-      requiredMRR: 400000 // Only hire when hitting $400k MRR
-    },
-    { 
-      month: 18, // 18 months after investment
-      role: 'Sales Manager', 
-      monthlyCost: 5000,
-      requiredMRR: 600000 // Only hire when hitting $600k MRR
-    },
-  ],
 };
 
 // Employee cost scenario definitions
@@ -206,74 +231,56 @@ export const calculateEmployeeCosts = (
   employeeParams: EmployeeParameters,
   month: number, // Month relative to launch (negative = pre-launch)
   currentMRR: number = 0,
-  investmentScenario?: EmployeeCostScenario
+  investmentScenario?: EmployeeCostScenario,
+  investmentReceived: boolean = true
 ): {
   totalCost: number;
   phase: 'pre-launch' | 'post-launch-pre-investment' | 'post-investment';
   breakdown: Record<string, number>;
+  activeEmployees: Employee[];
 } => {
-  // Pre-launch phase (negative months)
-  if (month < employeeParams.launchMonth) {
-    return {
-      totalCost: employeeParams.preLaunch.totalMonthlyCost,
-      phase: 'pre-launch',
-      breakdown: {
-        founderSalary: employeeParams.preLaunch.founderSalary,
-        contractor: employeeParams.preLaunch.indonesianContractor,
-        legal: employeeParams.preLaunch.legalCounsel,
-      }
-    };
-  }
-  
-  // Post-launch but pre-investment phase
-  if (month < employeeParams.investmentMonth) {
-    return {
-      totalCost: employeeParams.postLaunchPreInvestment.totalMonthlyCost,
-      phase: 'post-launch-pre-investment',
-      breakdown: {
-        founderSalary: employeeParams.postLaunchPreInvestment.founderSalary,
-        contractor: employeeParams.postLaunchPreInvestment.indonesianContractor,
-        legal: employeeParams.postLaunchPreInvestment.legalCounsel,
-        customerSupport: employeeParams.postLaunchPreInvestment.customerSupport,
-      }
-    };
-  }
-  
-  // Post-investment phase
-  const monthsSinceInvestment = month - employeeParams.investmentMonth;
-  
-  // Apply investment scenario adjustments
   const scenario = investmentScenario || EMPLOYEE_COST_SCENARIOS.find(s => s.amount === employeeParams.investmentAmount) || EMPLOYEE_COST_SCENARIOS[1];
-  const adjustedFounderSalary = employeeParams.postInvestment.founderSalary * scenario.founderSalaryMultiplier;
   
-  // Start with base costs
-  let totalCost = adjustedFounderSalary + 
-                  employeeParams.postInvestment.indonesianContractor + 
-                  employeeParams.postInvestment.legalCounsel + 
-                  employeeParams.postInvestment.complianceSpecialist;
+  // Determine phase
+  let phase: 'pre-launch' | 'post-launch-pre-investment' | 'post-investment';
+  if (month < employeeParams.launchMonth) {
+    phase = 'pre-launch';
+  } else if (month < employeeParams.investmentMonth || !investmentReceived) {
+    phase = 'post-launch-pre-investment';
+  } else {
+    phase = 'post-investment';
+  }
   
-  const breakdown: Record<string, number> = {
-    founderSalary: adjustedFounderSalary,
-    contractor: employeeParams.postInvestment.indonesianContractor,
-    legal: employeeParams.postInvestment.legalCounsel,
-    compliance: employeeParams.postInvestment.complianceSpecialist,
-  };
+  const activeEmployees: Employee[] = [];
+  const breakdown: Record<string, number> = {};
+  let totalCost = 0;
   
-  // Add scaling hires based on timeline and MRR thresholds
-  employeeParams.scalingHires.forEach(hire => {
-    const shouldHire = monthsSinceInvestment >= hire.month && 
-                      (!hire.requiredMRR || currentMRR >= hire.requiredMRR);
+  employeeParams.employees.forEach(employee => {
+    // Check if employee should be active this month
+    const isActive = month >= employee.startMonth && 
+                    (!employee.endMonth || month <= employee.endMonth) &&
+                    (!employee.investmentRequired || (investmentReceived && month >= employeeParams.investmentMonth)) &&
+                    (!employee.requiredMRR || currentMRR >= employee.requiredMRR);
     
-    if (shouldHire) {
-      totalCost += hire.monthlyCost;
-      breakdown[hire.role.toLowerCase().replace(' ', '_')] = hire.monthlyCost;
+    if (isActive) {
+      let employeeCost = employee.monthlyCost;
+      
+      // Apply founder salary multiplier if this is founder
+      if (employee.role === 'Founder Salary') {
+        employeeCost = employee.monthlyCost * scenario.founderSalaryMultiplier;
+      }
+      
+      activeEmployees.push(employee);
+      breakdown[employee.role.toLowerCase().replace(/\s+/g, '_')] = employeeCost;
+      totalCost += employeeCost;
     }
   });
   
   return {
     totalCost,
-    phase: 'post-investment',
-    breakdown
+    phase,
+    breakdown,
+    activeEmployees
   };
 };
 
@@ -283,17 +290,32 @@ export const generateEmployeeParamsForInvestment = (
   investmentAmount: number,
   investmentTimingMonth: number = 3
 ): EmployeeParameters => {
-  const scenario = EMPLOYEE_COST_SCENARIOS.find(s => s.amount >= investmentAmount) || EMPLOYEE_COST_SCENARIOS[EMPLOYEE_COST_SCENARIOS.length - 1];
-  
   return {
     ...baseParams,
     investmentAmount,
     investmentMonth: investmentTimingMonth,
-    postInvestment: {
-      ...baseParams.postInvestment,
-      founderSalary: baseParams.postInvestment.founderSalary * scenario.founderSalaryMultiplier,
-    }
   };
+};
+
+// Helper function to get employees by phase
+export const getEmployeesByPhase = (
+  employeeParams: EmployeeParameters,
+  phase: 'pre-launch' | 'post-launch-pre-investment' | 'post-investment'
+): Employee[] => {
+  return employeeParams.employees.filter(employee => {
+    switch (phase) {
+      case 'pre-launch':
+        return employee.startMonth < employeeParams.launchMonth && !employee.investmentRequired;
+      case 'post-launch-pre-investment':
+        return employee.startMonth >= employeeParams.launchMonth && 
+               employee.startMonth < employeeParams.investmentMonth && 
+               !employee.investmentRequired;
+      case 'post-investment':
+        return employee.investmentRequired || employee.startMonth >= employeeParams.investmentMonth;
+      default:
+        return false;
+    }
+  });
 };
 
 // Sensitivity analysis ranges

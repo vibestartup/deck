@@ -24,6 +24,7 @@ interface AdvancedChartProps {
     costs: number;
     profit: number;
     companies: number;
+    employeeCosts: number;
   }>;
   paretoData: Array<{
     month: number;
@@ -38,10 +39,16 @@ interface AdvancedChartProps {
     label: string;
     type: 'conservative' | 'optimal' | 'aggressive';
   }>;
+  timelineMarkers: Array<{
+    month: number;
+    label: string;
+    type: 'launch' | 'investment' | 'hire' | 'milestone';
+    description: string;
+  }>;
   height?: number;
 }
 
-function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height = 400 }: AdvancedChartProps) {
+function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timelineMarkers, height = 400 }: AdvancedChartProps) {
   const maxRevenue = Math.max(...data.map(d => d.revenue));
   const maxCosts = Math.max(...data.map(d => d.costs));
   const maxValue = Math.max(maxRevenue, maxCosts) * 1.1; // 10% padding
@@ -60,6 +67,10 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
   
   const costsPath = data.map((d, i) => 
     `${i === 0 ? 'M' : 'L'} ${scaleX(d.month)} ${scaleY(d.costs)}`
+  ).join(' ');
+
+  const employeeCostsPath = data.map((d, i) => 
+    `${i === 0 ? 'M' : 'L'} ${scaleX(d.month)} ${scaleY(d.employeeCosts)}`
   ).join(' ');
 
   // Pareto frontier shaded area (months 12-24)
@@ -85,6 +96,28 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
             transition={{ duration: 1.5, delay: 0.5 }}
           />
           
+          {/* Timeline markers - vertical lines */}
+          {timelineMarkers.map((marker, index) => (
+            <motion.line
+              key={`marker-${index}`}
+              x1={scaleX(marker.month)}
+              y1="10"
+              x2={scaleX(marker.month)}
+              y2="90"
+              stroke={
+                marker.type === 'launch' ? 'rgb(34, 197, 94)' :
+                marker.type === 'investment' ? 'rgb(147, 51, 234)' :
+                marker.type === 'hire' ? 'rgb(59, 130, 246)' :
+                'rgb(156, 163, 175)'
+              }
+              strokeWidth="0.3"
+              strokeDasharray={marker.type === 'launch' ? '1,1' : '2,2'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 1.2 + index * 0.1 }}
+            />
+          ))}
+          
           {/* Break-even vertical line */}
           <motion.line
             x1={scaleX(breakEvenMonth)}
@@ -92,8 +125,8 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
             x2={scaleX(breakEvenMonth)}
             y2="90"
             stroke="rgb(34, 197, 94)"
-            strokeWidth="0.3"
-            strokeDasharray="2,2"
+            strokeWidth="0.4"
+            strokeDasharray="3,3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1 }}
@@ -110,7 +143,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
             transition={{ duration: 2, ease: "easeInOut" }}
           />
           
-          {/* Costs line */}
+          {/* Total costs line */}
           <motion.path
             d={costsPath}
             fill="none"
@@ -119,6 +152,18 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 2, ease: "easeInOut", delay: 0.3 }}
+          />
+
+          {/* Employee costs line */}
+          <motion.path
+            d={employeeCostsPath}
+            fill="none"
+            stroke="rgb(168, 85, 247)"
+            strokeWidth="0.6"
+            strokeDasharray="4,2"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 2, ease: "easeInOut", delay: 0.6 }}
           />
           
           {/* Revenue data points */}
@@ -149,6 +194,25 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
                 transition={{ duration: 0.4, delay: 1.5 + index * 0.2 }}
               />
             </motion.g>
+          ))}
+
+          {/* Timeline marker points */}
+          {timelineMarkers.map((marker, index) => (
+            <motion.circle
+              key={`marker-point-${index}`}
+              cx={scaleX(marker.month)}
+              cy={scaleY(data.find(d => d.month === marker.month)?.revenue || data.find(d => d.month === marker.month)?.costs || 0)}
+              r="1.2"
+              fill={
+                marker.type === 'launch' ? 'rgb(34, 197, 94)' :
+                marker.type === 'investment' ? 'rgb(147, 51, 234)' :
+                marker.type === 'hire' ? 'rgb(59, 130, 246)' :
+                'rgb(156, 163, 175)'
+              }
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.4, delay: 2 + index * 0.15 }}
+            />
           ))}
         </svg>
         
@@ -182,13 +246,30 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
             Break-even<br/>Month {breakEvenMonth}
           </div>
           
+          {/* Timeline marker labels */}
+          {timelineMarkers.map((marker, index) => (
+            <div key={index} 
+                 className="absolute text-xs font-semibold" 
+                 style={{ 
+                   left: `${scaleX(marker.month)}%`, 
+                   top: `${20 + index * 8}%`,
+                   transform: 'translateX(-50%)',
+                   color: marker.type === 'launch' ? 'rgb(34, 197, 94)' :
+                          marker.type === 'investment' ? 'rgb(147, 51, 234)' :
+                          marker.type === 'hire' ? 'rgb(59, 130, 246)' :
+                          'rgb(156, 163, 175)'
+                 }}>
+              {marker.label}
+            </div>
+          ))}
+          
           {/* Strategic thresholds labels */}
           {decisionThresholds.map((threshold, index) => (
             <div key={index} 
                  className="absolute text-xs font-semibold" 
                  style={{ 
                    left: `${scaleX(threshold.month)}%`, 
-                   top: `${30 + index * 15}%`,
+                   top: `${60 + index * 15}%`,
                    transform: 'translateX(-50%)',
                    color: threshold.type === 'optimal' ? 'rgb(34, 197, 94)' : 
                           threshold.type === 'conservative' ? 'rgb(59, 130, 246)' : 'rgb(239, 68, 68)'
@@ -205,7 +286,11 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
             </div>
             <div className="flex items-center mb-1">
               <div className="w-3 h-0.5 bg-red-400 mr-2"></div>
-              <span className="text-gray-300">Costs</span>
+              <span className="text-gray-300">Total Costs</span>
+            </div>
+            <div className="flex items-center mb-1">
+              <div className="w-3 h-0.5 bg-purple-400 mr-2 border-dashed border border-purple-400"></div>
+              <span className="text-gray-300">Employee Costs</span>
             </div>
             <div className="flex items-center mb-1">
               <div className="w-3 h-2 bg-yellow-400/20 border border-yellow-400/40 mr-2"></div>
@@ -213,7 +298,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
             </div>
             <div className="flex items-center">
               <div className="w-0.5 h-3 bg-green-400 border-dashed mr-2"></div>
-              <span className="text-gray-300">Break-even</span>
+              <span className="text-gray-300">Milestones</span>
             </div>
           </div>
         </div>
@@ -223,12 +308,12 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, height =
 }
 
 export function FinancialProjectionsSlide() {
-  // Calculate monthly financial data including costs
+  // Calculate monthly financial data including costs and employee costs
   const monthlyFinancialData = baseProjections.cohorts.map((cohort, index) => {
     const month = index + 1;
     const totalCompanies = cohort.totalCompanies;
     const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
-    const employeeCostsResult = calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, month, cohort.monthlyRecurringRevenue);
+    const employeeCostsResult = calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, month, cohort.monthlyRecurringRevenue, undefined, true);
     const employeeCosts = employeeCostsResult.totalCost;
     const variableCosts = totalCompanies * infrastructureCost;
     const totalCosts = employeeCosts + variableCosts;
@@ -238,9 +323,44 @@ export function FinancialProjectionsSlide() {
       revenue: cohort.totalRevenue,
       costs: totalCosts,
       profit: cohort.totalRevenue - totalCosts,
-      companies: totalCompanies
+      companies: totalCompanies,
+      employeeCosts: employeeCosts
     };
   });
+
+  // Timeline markers for key business milestones
+  const timelineMarkers = [
+    { 
+      month: 1, 
+      label: 'Launch', 
+      type: 'launch' as const, 
+      description: 'Product launch with $2k/month contractor' 
+    },
+    { 
+      month: 3, 
+      label: 'Investment', 
+      type: 'investment' as const, 
+      description: '$50k received, founder salary starts' 
+    },
+    { 
+      month: 6, 
+      label: 'CS Hire', 
+      type: 'hire' as const, 
+      description: 'Customer Success Manager at $100k MRR' 
+    },
+    { 
+      month: 9, 
+      label: 'Marketing Hire', 
+      type: 'hire' as const, 
+      description: 'Marketing Manager at $200k MRR' 
+    },
+    { 
+      month: 12, 
+      label: 'Dev Hire', 
+      type: 'hire' as const, 
+      description: 'Senior Developer at $400k MRR' 
+    }
+  ];
 
   // Strategic decision thresholds
   const decisionThresholds = [
@@ -270,10 +390,10 @@ export function FinancialProjectionsSlide() {
       description: formatCurrency(monthlyFinancialData[11].revenue * 12 / 1000000, 1) + 'M ARR run rate'
     },
     {
-      label: 'Optimal Transition',
-      value: 'Month 18',
+      label: 'Investment ROI',
+      value: formatCurrency((monthlyFinancialData[11].revenue * 12 - 50000) / 50000, 0) + 'x',
       color: 'yellow',
-      description: formatCurrency(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[1].netPresentValue / 1000000, 1) + 'M NPV'
+      description: 'First year return on $50k'
     }
   ];
 
@@ -288,7 +408,7 @@ export function FinancialProjectionsSlide() {
         className="max-w-7xl mx-auto"
       >
         <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
-          Financial Projections & Infrastructure Strategy
+          Financial Projections & Milestone Timeline
         </h1>
         <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
           {formatCurrency(monthlyFinancialData[0].revenue / 1000)}k MRR → {formatCurrency(monthlyFinancialData[11].revenue / 1000000, 1)}M MRR in 12 months
@@ -304,55 +424,57 @@ export function FinancialProjectionsSlide() {
           <MetricCards metrics={keyMetricsCards} />
         </motion.div>
 
-        {/* Advanced Financial Chart */}
+        {/* Advanced Financial Chart with Timeline */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="border-t-4 border-blue-500 pt-8 mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-blue-400">MONTHLY FINANCIAL TRAJECTORY WITH INFRASTRUCTURE OPTIMIZATION</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">REVENUE TRAJECTORY WITH INVESTMENT & HIRING MILESTONES</h2>
           
           <AdvancedFinancialChart 
             data={monthlyFinancialData}
             paretoData={INFRASTRUCTURE_OPTIMIZATION.paretoFrontier}
             decisionThresholds={decisionThresholds}
+            timelineMarkers={timelineMarkers}
             height={500}
           />
           
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Break-even Analysis */}
-            <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-green-400 mb-4">Break-even Analysis</h3>
-              <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Month 2:</strong> First profitable month at 882 companies</p>
-                <p><strong>Revenue:</strong> {formatCurrency(monthlyFinancialData[1].revenue)} total</p>
-                <p><strong>Costs:</strong> {formatCurrency(monthlyFinancialData[1].costs)} (fixed + variable)</p>
-                <p><strong>Profit:</strong> {formatCurrency(monthlyFinancialData[1].profit)}</p>
-                <p className="text-xs text-green-300 mt-2">85% gross margins sustained throughout Stage 1 due to AWS credits covering all infrastructure costs. Break-even achieved despite conservative viral coefficients and churn assumptions.</p>
-              </div>
-            </div>
-            
-            {/* Pareto Frontier Explanation */}
-            <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-yellow-400 mb-4">Pareto Frontier (Shaded Area)</h3>
-              <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Shows:</strong> AWS vs Self-hosted cost difference</p>
-                <p><strong>Optimal Window:</strong> Months 15-24 for transition</p>
-                <p><strong>Risk vs Reward:</strong> Earlier = higher savings, higher risk</p>
-                <p><strong>Month 18:</strong> Sweet spot with {formatCurrency(910000 / 1000)}k monthly savings</p>
-                <p className="text-xs text-yellow-300 mt-2">Shaded area represents the cost arbitrage opportunity. Upper bound shows AWS costs at scale, lower bound shows self-hosted equivalent. Width indicates optimal transition timing window.</p>
-              </div>
-            </div>
-            
-            {/* Strategic Decision Points */}
+            {/* Investment Timeline */}
             <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-purple-400 mb-4">Strategic Decision Thresholds</h3>
+              <h3 className="text-lg font-semibold text-purple-400 mb-4">Investment & Funding Timeline</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><span className="text-red-400">◆</span> <strong>Aggressive (Month 15):</strong> {formatCurrency(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[2].netPresentValue / 1000000, 1)}M NPV</p>
-                <p><span className="text-green-400">◆</span> <strong>Optimal (Month 18):</strong> {formatCurrency(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[1].netPresentValue / 1000000, 1)}M NPV</p>
-                <p><span className="text-blue-400">◆</span> <strong>Conservative (Month 24):</strong> {formatCurrency(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[0].netPresentValue / 1000000, 1)}M NPV</p>
-                <p className="text-xs text-purple-300 mt-2">Each threshold represents 3-year NPV scenarios. Optimal timing balances execution risk with cost savings. Risk-adjusted returns favor Month 18 transition with {formatPercentage(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[1].riskAdjustedReturn)} expected ROI.</p>
+                <p><strong>Pre-Launch (Month -6 to 0):</strong> $2k/month contractor, bootstrapped development</p>
+                <p><strong>Month 3:</strong> $50k investment received</p>
+                <p><strong>Post-Investment:</strong> Founder salary $5k/month + legal $3k/month + compliance $4k/month</p>
+                <p><strong>Employee Burn Rate:</strong> $14k/month base after investment</p>
+                <p className="text-xs text-purple-300 mt-2">Investment timing optimized for break-even achieved (Month 2) before major hiring costs begin. $50k provides 6-month runway for core team while revenue scales to support additional hires.</p>
+              </div>
+            </div>
+            
+            {/* Hiring Strategy */}
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-400 mb-4">Revenue-Driven Hiring Strategy</h3>
+              <div className="space-y-2 text-sm text-gray-300">
+                <p><strong>Month 6:</strong> Customer Success at $100k MRR</p>
+                <p><strong>Month 9:</strong> Marketing Manager at $200k MRR</p>
+                <p><strong>Month 12:</strong> Senior Developer at $400k MRR</p>
+                <p><strong>Month 18:</strong> Sales Manager at $600k MRR</p>
+                <p className="text-xs text-blue-300 mt-2">Each hire triggered by MRR milestones ensuring revenue can support increased payroll. Conservative hiring approach maintains cash flow positive operations throughout growth phase.</p>
+              </div>
+            </div>
+            
+            {/* Cost Structure Evolution */}
+            <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-green-400 mb-4">Cost Structure Evolution</h3>
+              <div className="space-y-2 text-sm text-gray-300">
+                <p><strong>Month 1:</strong> $2k contractor + $5k marketing = $7k total</p>
+                <p><strong>Month 3:</strong> $14k employee costs + infrastructure</p>
+                <p><strong>Month 12:</strong> $25k employee costs + {formatCurrency(infrastructureCostPerCompany * monthlyFinancialData[11].companies / 1000)}k infrastructure</p>
+                <p><strong>Break-even maintained:</strong> Revenue growth outpaces cost increases</p>
+                <p className="text-xs text-green-300 mt-2">Employee costs scale predictably with revenue milestones. Infrastructure costs managed through three-stage optimization strategy. Overall operating leverage improves throughout timeline.</p>
               </div>
             </div>
           </div>
@@ -439,7 +561,7 @@ export function FinancialProjectionsSlide() {
           transition={{ duration: 0.6, delay: 1.0 }}
           className="border-t-4 border-red-500 pt-8"
         >
-          <h2 className="text-3xl font-bold mb-8 text-red-400">FINANCIAL MODELING & UNIT ECONOMICS</h2>
+          <h2 className="text-3xl font-bold mb-8 text-red-400">FINANCIAL MODELING & MILESTONE ECONOMICS</h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Unit Economics Breakdown */}
@@ -458,18 +580,18 @@ export function FinancialProjectionsSlide() {
               </div>
             </div>
             
-            {/* Viral Growth Economics */}
+            {/* Investment Timeline Economics */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-red-300">Viral Growth Economics</h3>
+              <h3 className="text-xl font-semibold text-red-300">Investment Timeline Economics</h3>
               <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
                 <div className="space-y-2 text-sm text-gray-300">
-                   <p><strong>Marketing Spend:</strong> {formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend)}/month</p>
-                   <p><strong>Direct Acquisitions:</strong> {formatNumber(baseCAC.directCompanies)} companies/month</p>
-                   <p><strong>Viral Coefficient:</strong> {BASE_BUSINESS_PARAMS.viralCoefficient} (conservative)</p>
-                   <p><strong>Viral Additions:</strong> {formatNumber(baseCAC.viralCompanies)} companies/month</p>
-                   <p><strong>Total New Companies:</strong> {formatNumber(baseCAC.totalCompanies)}/month</p>
-                   <p><strong>Blended CAC:</strong> {formatCurrency(baseCAC.cacPerCompany)} per company</p>
-                   <p><strong>Viral Multiplier:</strong> <span className="text-green-400">{(baseCAC.totalCompanies / baseCAC.directCompanies).toFixed(1)}x</span></p>
+                   <p><strong>Pre-Investment (M1-3):</strong> $7k/month burn rate</p>
+                   <p><strong>Investment Timing:</strong> Month 3 (after break-even proven)</p>
+                   <p><strong>Post-Investment:</strong> $14k/month base burn + revenue-driven hires</p>
+                   <p><strong>Hire Triggers:</strong> MRR milestones ensure affordability</p>
+                   <p><strong>Month 12 Burn:</strong> $25k/month total employee costs</p>
+                   <p><strong>Cash Flow:</strong> Positive throughout (revenue &gt; costs)</p>
+                   <p><strong>Investment Efficiency:</strong> <span className="text-green-400">{formatCurrency((monthlyFinancialData[11].revenue * 12 - 50000) / 50000, 0)}x first year return</span></p>
                  </div>
               </div>
             </div>
@@ -477,19 +599,19 @@ export function FinancialProjectionsSlide() {
           
           {/* Infrastructure Cost Evolution */}
           <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-6">
-            <h3 className="text-xl font-semibold text-gray-300 mb-4">Infrastructure Cost Evolution Strategy</h3>
+            <h3 className="text-xl font-semibold text-gray-300 mb-4">Timeline-Based Strategic Planning</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400">
               <div>
-                <p className="font-semibold text-green-300 mb-2">Stage 1 Advantage (Months 1-12)</p>
-                <p>AWS provides $100k/month in credits for startups, covering our entire infrastructure spend. This creates an artificial profit margin of 94% that won't scale, but provides 12 months of incredible unit economics to prove product-market fit and build war chest.</p>
+                <p className="font-semibold text-green-300 mb-2">Launch Strategy (Month 0-3)</p>
+                <p>Bootstrapped launch with minimal team (contractor + founder). Focus on proving product-market fit before major investment. Marketing spend drives viral growth. Break-even achieved Month 2 validates business model before scaling costs.</p>
               </div>
               <div>
-                <p className="font-semibold text-yellow-300 mb-2">Stage 2 Challenge (Months 13-24)</p>
-                <p>AWS credits expire and infrastructure costs hit {formatCurrency(infrastructureCostPerCompany)}/company/month. At 100k companies, that's {formatCurrency(infrastructureCostPerCompany * 100000 / 1000000, 1)}M/month. Pricing increase to $60 average required to maintain 73% margins. Critical transition planning window.</p>
+                <p className="font-semibold text-purple-300 mb-2">Investment Strategy (Month 3-12)</p>
+                <p>$50k received after break-even proven reduces investor risk. Founder salary allows full-time focus. Legal/compliance hires ensure scalable operations. Revenue-driven hiring ensures each new employee is affordable based on MRR growth.</p>
               </div>
               <div>
-                <p className="font-semibold text-purple-300 mb-2">Stage 3 Optimization (Month 25+)</p>
-                <p>Self-hosted infrastructure reduces per-company costs to ~$2/month while increasing reliability and control. {formatCurrency(BASE_INFRASTRUCTURE_PARAMS.selfHostingSetupCost / 1000000)}M upfront investment pays for itself in 6 months through cost savings alone.</p>
+                <p className="font-semibold text-blue-300 mb-2">Scaling Strategy (Month 12+)</p>
+                <p>Infrastructure transition planning begins Month 15. Each hire adds specific capabilities tied to revenue milestones. Operating leverage improves as fixed costs are spread across growing revenue base. Path to profitability at scale demonstrated.</p>
               </div>
             </div>
           </div>
@@ -503,13 +625,13 @@ export function FinancialProjectionsSlide() {
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
           <div className="text-sm text-gray-400 space-y-3">
-            <p><strong>Break-even Achievement:</strong> Month 2 break-even demonstrates exceptional unit economics driven by viral growth mechanics and AWS credit subsidy. Even with conservative assumptions (30% formation rate, 8% monthly churn, 0.4 viral coefficient), the business generates positive cash flow within 60 days of launch.</p>
+            <p><strong>Investment Timing Strategy:</strong> Month 3 investment optimally timed after break-even proven (Month 2) but before major scaling costs begin. This de-risks the investment while providing capital for growth phase. $50k provides 6-month runway at post-investment burn rate, with revenue growth ensuring self-sustaining operations.</p>
             
-            <p><strong>Infrastructure Transition Strategy:</strong> The Pareto frontier analysis (shaded area in chart) shows the optimal window for transitioning from AWS to self-hosted infrastructure. Month 18 represents the sweet spot balancing execution risk with cost savings - early enough to capture {formatCurrency(910000 / 1000)}k monthly savings, late enough to have operational experience and capital reserves.</p>
+            <p><strong>Revenue-Driven Hiring Model:</strong> Each hire triggered by specific MRR milestones ensuring affordability: Customer Success at $100k MRR (Month 6), Marketing at $200k MRR (Month 9), Senior Developer at $400k MRR (Month 12). This conservative approach maintains positive cash flow throughout scaling while building capabilities systematically.</p>
             
-            <p><strong>Strategic Decision Modeling:</strong> Three scenarios modeled with 3-year NPV analysis: Aggressive (Month 15, {formatCurrency(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[2].netPresentValue / 1000000, 1)}M NPV), Optimal (Month 18, {formatCurrency(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[1].netPresentValue / 1000000, 1)}M NPV), Conservative (Month 24, {formatCurrency(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[0].netPresentValue / 1000000, 1)}M NPV). Risk-adjusted returns favor the optimal scenario with {formatPercentage(INFRASTRUCTURE_OPTIMIZATION.decisionMatrix[1].riskAdjustedReturn)} expected ROI.</p>
+            <p><strong>Cost Structure Evolution:</strong> Employee costs grow from $7k pre-investment to $25k post-scaling, but revenue scales faster maintaining operating leverage. Infrastructure costs optimize through three-stage strategy. Break-even maintained throughout growth phases due to viral coefficient creating exponential customer acquisition.</p>
             
-            <p><strong>Scalability Validation:</strong> Financial model stress-tested with heavy usage assumptions: {formatNumber(50000)} API calls, {formatNumber(3000)} emails, {formatNumber(200)} SMS, and {formatNumber(600)} voice minutes per company monthly. Even with 100x baseline infrastructure usage plus extensive AI services, unit economics remain compelling across all three stages with sustained gross margins above 70%.</p>
+            <p><strong>Financial Model Validation:</strong> Timeline demonstrates sustainable path to $22M year 1 revenue with positive cash flow maintained throughout. Investment ROI exceeds {formatCurrency((monthlyFinancialData[11].revenue * 12 - 50000) / 50000, 0)}x in first year. Conservative hiring and infrastructure transition timing ensures execution risk is minimized while growth potential is maximized.</p>
           </div>
         </motion.div>
       </motion.div>

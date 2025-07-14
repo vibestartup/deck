@@ -234,7 +234,7 @@ export const calculateGrowthProjections = (
     const infraCosts = calculateInfrastructureCost(totalCompaniesRunning, infraParams, currentStage);
     
     // Calculate employee costs for this month
-    const employeeCostsResult = employeeParams ? calculateEmployeeCosts(employeeParams, month, saasRevenue.totalRevenue) : null;
+    const employeeCostsResult = employeeParams ? calculateEmployeeCosts(employeeParams, month, saasRevenue.totalRevenue, undefined, true) : null;
     const employeeCosts = employeeCostsResult ? employeeCostsResult.totalCost : 0;
     
     const totalRevenue = formationRevenue + saasRevenue.totalRevenue;
