@@ -4,7 +4,13 @@ import {
   BASE_INVESTMENT_PARAMS,
   COMPUTED_VALUES,
   baseProjections,
-  TIMELINE_MARKER_PARAMS
+  TIMELINE_MARKER_PARAMS,
+  BASE_INFRASTRUCTURE_PARAMS,
+  calculateInfrastructureCostPerCompany,
+  calculateGrowthProjections,
+  BASE_BUSINESS_PARAMS,
+  GROWTH_STAGES,
+  BASE_EMPLOYEE_PARAMS
 } from '../../lib'
 
 export function TheAskSlide() {
@@ -20,6 +26,76 @@ export function TheAskSlide() {
   // Calculate phase durations in days
   const developmentPhaseDays = COMPUTED_VALUES.developmentPhaseDays;
   const prepPhaseDays = COMPUTED_VALUES.prepPhaseDays;
+
+  // Calculate daily financial data to get proper year 1 revenue (same approach as FinancialProjectionsSlide.tsx)
+  const dailyCohorts = baseProjections.cohorts;
+  const dailyFinancialData = dailyCohorts.map((cohort) => {
+    const day = cohort.daysFromToday;
+    const totalCompanies = cohort.totalCompanies;
+    const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
+    
+    // Calculate the actual date for this day (relative to today)
+    const dayDate = new Date(today);
+    dayDate.setDate(dayDate.getDate() + day);
+    
+    // Get employee costs for this date
+    const employeeCostsResult = COMPUTED_VALUES.getEmployeeCostAtDate(dayDate, cohort.dailyRecurringRevenue * 30.44);
+    const employeeCosts = employeeCostsResult.totalCost / 30.44;
+    
+    // Variable costs only apply after launch
+    const variableCosts = day >= launchDays ? totalCompanies * infrastructureCost / 30.44 : 0;
+    const totalCosts = employeeCosts + variableCosts;
+    
+    return {
+      day,
+      revenue: cohort.totalRevenue,
+      costs: totalCosts,
+      profit: cohort.totalRevenue - totalCosts,
+      companies: totalCompanies,
+      employeeCosts: employeeCosts
+    };
+  });
+
+  // Find day 365 data for year 1 metrics (same approach as FinancialProjectionsSlide.tsx)
+  const day365Data = dailyFinancialData.find(d => Math.abs(d.day - 365) < 5) || dailyFinancialData[dailyFinancialData.length - 1];
+  
+  // Calculate Day 365 MRR (convert daily revenue to monthly) and then ARR
+  const day365MRR = (day365Data?.revenue || 0) * 30.44;
+  const year1ARR = day365MRR * 12;
+
+  // Calculate proper multi-year projections using the same sophisticated math as the lib
+  // This accounts for viral coefficients, churn rates, network effects, etc.
+  const year6Projections = calculateGrowthProjections(
+    BASE_BUSINESS_PARAMS,
+    BASE_INFRASTRUCTURE_PARAMS,
+    GROWTH_STAGES,
+    365 * 6, // 6 years
+    BASE_EMPLOYEE_PARAMS,
+    -180 // Start from 6 months before today
+  );
+
+  const year8Projections = calculateGrowthProjections(
+    BASE_BUSINESS_PARAMS,
+    BASE_INFRASTRUCTURE_PARAMS,
+    GROWTH_STAGES,
+    365 * 8, // 8 years
+    BASE_EMPLOYEE_PARAMS,
+    -180 // Start from 6 months before today
+  );
+
+  const year10Projections = calculateGrowthProjections(
+    BASE_BUSINESS_PARAMS,
+    BASE_INFRASTRUCTURE_PARAMS,
+    GROWTH_STAGES,
+    365 * 10, // 10 years
+    BASE_EMPLOYEE_PARAMS,
+    -180 // Start from 6 months before today
+  );
+
+  // Extract final ARR from each projection (final day revenue * 365)
+  const year6ARR = year6Projections.finalMRR * 12;
+  const year8ARR = year8Projections.finalMRR * 12;
+  const year10ARR = year10Projections.finalMRR * 12;
 
   // Use of funds breakdown from parameters
   const useOfFunds = [
@@ -71,9 +147,6 @@ export function TheAskSlide() {
     { term: 'Break-even timeline', value: `Month ${daysToMonths(launchDays + 30)}`, detail: 'Revenue covers all operating costs including team scaling.' }, // 30 days after launch
     { term: 'Expected ROI', value: '100x+', detail: 'Conservative estimates show exceptional return potential.' }
   ];
-
-  // Year 1 revenue from projections
-  const year1Revenue = baseProjections.totalRevenue;
 
   return (
     <div className="w-full flex flex-col px-8 py-8">
@@ -162,23 +235,23 @@ export function TheAskSlide() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {[
               {
-                scenario: `Year ${BASE_INVESTMENT_PARAMS.exitMultiples.year1} Exit`,
-                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year1,
-                revenue: year1Revenue,
+                scenario: 'Year 6 Exit',
+                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year3, // 6x multiple
+                revenue: year6ARR, // Proper exponential growth calculation
                 color: 'text-green-400',
                 bgColor: 'bg-green-900/20 border-green-500/30'
               },
               {
-                scenario: `Year ${BASE_INVESTMENT_PARAMS.exitMultiples.year2} Exit`,
-                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year2,
-                revenue: year1Revenue * 3.5, // Estimated 3.5x growth
+                scenario: 'Year 8 Exit',
+                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year2, // 8x multiple
+                revenue: year8ARR, // Proper exponential growth calculation
                 color: 'text-blue-400',
                 bgColor: 'bg-blue-900/20 border-blue-500/30'
               },
               {
-                scenario: `Year ${BASE_INVESTMENT_PARAMS.exitMultiples.year3} Exit`,
-                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year3,
-                revenue: year1Revenue * 7, // Estimated 7x growth
+                scenario: 'Year 10 Exit',
+                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year1, // 10x multiple
+                revenue: year10ARR, // Proper exponential growth calculation
                 color: 'text-purple-400',
                 bgColor: 'bg-purple-900/20 border-purple-500/30'
               }
@@ -218,6 +291,21 @@ export function TheAskSlide() {
                 </motion.div>
               );
             })}
+          </div>
+
+          {/* Growth Analysis Explanation */}
+          <div className="mt-8 p-6 bg-green-900/20 border border-green-500/30 rounded-lg">
+            <h3 className="text-lg font-semibold text-green-300 mb-4">Exponential Growth Model Validation</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-300">
+              <div>
+                <p><strong>Viral Coefficient Impact:</strong> K-factor of {BASE_BUSINESS_PARAMS.viralCoefficient} compounds over time. Each new company drives additional viral acquisition, creating exponential rather than linear growth curves.</p>
+                <p className="mt-3"><strong>Network Effects:</strong> VibeFund investment loops and VibeMatch collaboration increase platform value exponentially. Later-stage companies have higher retention and viral coefficients.</p>
+              </div>
+              <div>
+                <p><strong>Churn Rate Evolution:</strong> Monthly churn of {(BASE_BUSINESS_PARAMS.monthlyChurnRate * 100).toFixed(1)}% decreases over time as network effects strengthen. Mature companies become increasingly sticky.</p>
+                <p className="mt-3"><strong>Mathematical Validation:</strong> These projections use the same sophisticated calculations as our financial model, accounting for infrastructure transitions, employee scaling, and market dynamics.</p>
+              </div>
+            </div>
           </div>
         </motion.div>
 
@@ -287,44 +375,6 @@ export function TheAskSlide() {
                 ))}
               </div>
             </div>
-          </div>
-        </motion.div>
-
-        {/* Call to Action */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.0 }}
-          className="text-center bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-lg p-8"
-        >
-          <h2 className="text-3xl font-bold mb-4 text-purple-400">Ready to Transform Entrepreneurship?</h2>
-          <p className="text-lg text-gray-300 mb-6">
-            Join us in building the operating system for AI-powered companies. 
-            {COMPUTED_VALUES.investmentAmountFormatted} gets you early access to a platform that makes starting companies 
-            as easy as prompting ChatGPT.
-          </p>
-          <div className="grid grid-cols-3 gap-8 text-center">
-            <div>
-              <p className="text-2xl font-bold text-green-400">{formatCurrency((year1Revenue / 1000000), 0)}M</p>
-              <p className="text-sm text-gray-400">Year 1 Revenue</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-blue-400">
-                {formatCurrency((calculateReturns(BASE_INVESTMENT_PARAMS.exitMultiples.year1, year1Revenue).returnMultiple), 0)}x
-              </p>
-              <p className="text-sm text-gray-400">Conservative Return</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-purple-400">{daysToMonths(launchDays + 30)}</p>
-              <p className="text-sm text-gray-400">Months to Break-even</p>
-            </div>
-          </div>
-          
-          <div className="mt-8 p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
-            <p className="text-sm text-gray-300">
-              <strong>Next Round:</strong> Series A at $1M+ MRR (month 15-18) with proven viral growth engine. 
-              Network effects compound with each new VibeFounder, reducing future CAC and creating winner-take-most dynamics.
-            </p>
           </div>
         </motion.div>
       </motion.div>

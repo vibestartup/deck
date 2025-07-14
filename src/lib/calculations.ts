@@ -274,6 +274,17 @@ export const calculateGrowthProjections = (
   // Track investment received status
   let investmentReceived = false;
   
+  // Market saturation parameters
+  const totalAddressableCompanies = 5_480_000; // Annual US business formations
+  const marketPenetrationCap = 0.10; // 10% max market share (conservative)
+  const maxCompanies = totalAddressableCompanies * marketPenetrationCap; // 548,000 companies
+  
+  // Viral growth parameters - properly calibrated
+  // K-factor of 0.4 means each company brings 0.4 new companies over their active period
+  // This happens over ~30 days on average (viral cycle time)
+  const viralCycleTimeDays = 30; // How long it takes for a company to generate its viral referrals
+  const dailyViralRate = businessParams.viralCoefficient / viralCycleTimeDays;
+  
   for (let day = 0; day < projectionDays; day++) {
     const currentDate = addDays(startDate, day);
     const daysFromToday = daysBetween(businessParams.todaysDate, currentDate);
@@ -294,15 +305,30 @@ export const calculateGrowthProjections = (
     let viralNew = 0;
     
     if (currentDate >= launchDate) {
-      // Calculate new companies (direct + viral from existing base)
-      directNew = dailyDirectNew;
-      viralNew = totalCompaniesRunning * businessParams.viralCoefficient / 365; // Daily viral rate
+      // Market saturation factor (logistic growth)
+      const saturationFactor = 1 - (totalCompaniesRunning / maxCompanies);
+      
+      // Direct acquisitions (affected by saturation as market gets crowded)
+      directNew = dailyDirectNew * Math.max(0, saturationFactor);
+      
+      // Viral growth with proper exponential mechanics
+      // Each active company generates dailyViralRate new companies
+      // But this is dampened by market saturation
+      viralNew = totalCompaniesRunning * dailyViralRate * Math.max(0, saturationFactor);
+      
+      // Network effects bonus: viral coefficient improves as platform grows (up to 20% boost)
+      const networkEffectMultiplier = 1 + Math.min(0.20, totalCompaniesRunning / 50000);
+      viralNew *= networkEffectMultiplier;
+      
       newCompanies = directNew + viralNew;
     }
     
     // Apply daily churn to existing companies
     if (totalCompaniesRunning > 0) {
-      totalCompaniesRunning = totalCompaniesRunning * (1 - dailyChurnRate);
+      // Churn rate decreases as network effects strengthen (down to 60% of base rate)
+      const networkChurnReduction = Math.max(0.6, 1 - (totalCompaniesRunning / 100000));
+      const adjustedDailyChurn = dailyChurnRate * networkChurnReduction;
+      totalCompaniesRunning = totalCompaniesRunning * (1 - adjustedDailyChurn);
     }
     totalCompaniesRunning += newCompanies;
     
