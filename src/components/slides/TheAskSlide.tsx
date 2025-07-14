@@ -1,109 +1,66 @@
 import { motion } from 'framer-motion'
-import {
-  baseProjections,
-  keyMetrics,
+import { 
   formatCurrency,
-  formatMultiplier,
-  formatPercentage,
-  calculateInvestmentReturns,
-  BASE_BUSINESS_PARAMS,
-  INDUSTRY_BENCHMARKS
+  BASE_INVESTMENT_PARAMS,
+  COMPUTED_VALUES,
+  baseProjections,
+  TIMELINE_MARKER_PARAMS
 } from '../../lib'
 
 export function TheAskSlide() {
+  // Use of funds breakdown from parameters
   const useOfFunds = [
-    { 
-      category: 'AI agent development & orchestration', 
-      amount: '$20k', 
-      details: 'Multi-agent coordination, natural language processing, autonomous task execution systems',
-      technical: 'GPT-4 integration, agent orchestration layer, task routing algorithms, real-time decision making, multi-modal AI'
+    {
+      category: 'Founder Salary Runway',
+      amount: formatCurrency(BASE_INVESTMENT_PARAMS.useOfFunds.marketing / 1000) + 'k',
+      percentage: (BASE_INVESTMENT_PARAMS.useOfFunds.marketing / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount * 100).toFixed(0) + '%',
+      description: `${COMPUTED_VALUES.prepPhaseMonths + 3} months × $5k/month post-investment`,
+      details: 'Enables founder to quit day job and focus full-time on execution'
     },
-    { 
-      category: '4-month autonomous showcase runway', 
-      amount: '$15k', 
-      details: `Demonstrate AI companies in action, showcase autonomous operations, viral growth content`,
-      technical: 'Live autonomous company demos, real-time AI decision showcases, founder testimonials, success story amplification'
+    {
+      category: 'Marketing Acceleration',
+      amount: formatCurrency(BASE_INVESTMENT_PARAMS.useOfFunds.infrastructure / 1000) + 'k',
+      percentage: (BASE_INVESTMENT_PARAMS.useOfFunds.infrastructure / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount * 100).toFixed(0) + '%',
+      description: `3 months viral scaling runway`,
+      details: 'Video creation, content promotion, and paid amplification'
     },
-    { 
-      category: 'Core platform infrastructure', 
-      amount: '$10k', 
-      details: 'Company state management, AI integration APIs, autonomous execution engine',
-      technical: 'Next.js frontend, Node.js backend, PostgreSQL, AI service integrations, real-time WebSocket connections'
+    {
+      category: 'Legal & Compliance',
+      amount: formatCurrency(BASE_INVESTMENT_PARAMS.useOfFunds.legal / 1000) + 'k',
+      percentage: (BASE_INVESTMENT_PARAMS.useOfFunds.legal / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount * 100).toFixed(0) + '%',
+      description: 'Multi-state formation infrastructure',
+      details: 'Legal counsel, compliance specialist, regulatory setup'
     },
-    { 
-      category: 'Initial autonomous company fund', 
-      amount: '$5k', 
-      details: 'Seed autonomous companies to demonstrate platform capabilities',
-      technical: 'Proof of concept autonomous businesses, AI agent performance testing, platform capability validation'
+    {
+      category: 'VibeFund Treasury',
+      amount: formatCurrency(BASE_INVESTMENT_PARAMS.useOfFunds.vibefundTreasury / 1000) + 'k',
+      percentage: (BASE_INVESTMENT_PARAMS.useOfFunds.vibefundTreasury / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount * 100).toFixed(0) + '%',
+      description: 'Founder investment dogfooding',
+      details: 'Initial capital for VibeFund to invest in early VibeCompanies'
     }
-  ]
+  ];
 
-  // Calculate investment returns dynamically
-  const investmentReturns = calculateInvestmentReturns(
-    50000, // $50k investment
-    2000000, // $2M valuation
-    baseProjections,
-    [10, 8, 6] // Exit multiples
-  );
+  // Calculate return scenarios using computed values
+  const calculateReturns = (exitMultiple: number, yearRevenue: number) => {
+    const exitValuation = yearRevenue * exitMultiple;
+    const investmentEquity = BASE_INVESTMENT_PARAMS.equityPercentage / 100;
+    const returnValue = exitValuation * investmentEquity;
+    const returnMultiple = returnValue / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount;
+    return { exitValuation, returnValue, returnMultiple };
+  };
 
-  // Project future years revenue (simplified calculation)
-  const year2Revenue = baseProjections.totalRevenue * 3.5; // Approximate growth
-  const year3Revenue = baseProjections.totalRevenue * 7; // Approximate growth
-
-  const returnScenarios = [
-    { 
-      timeline: 'Year 1 exit', 
-      multiple: '10x revenue', 
-      valuation: formatCurrency(investmentReturns[0].exitValuation / 1000000) + 'M', 
-      return: formatMultiplier(investmentReturns[0].returnMultiple),
-      assumptions: `Enterprise acquisition. ${formatCurrency(baseProjections.totalRevenue / 1000000)}M revenue × 10x multiple. Strategic premium for viral growth engine.`
-    },
-    { 
-      timeline: 'Year 2 exit', 
-      multiple: '8x revenue', 
-      valuation: formatCurrency(year2Revenue * 8 / 1000000) + 'M', 
-      return: formatMultiplier((year2Revenue * 8 * 0.025) / 50000),
-      assumptions: `Public market comparable. ${formatCurrency(year2Revenue / 1000000)}M revenue × 8x multiple. SaaS public market median multiple.`
-    },
-    { 
-      timeline: 'Year 3 exit', 
-      multiple: '6x revenue', 
-      valuation: formatCurrency(year3Revenue * 6 / 1000000) + 'M', 
-      return: formatMultiplier((year3Revenue * 6 * 0.025) / 50000),
-      assumptions: `IPO scenario. ${formatCurrency(year3Revenue / 1000000)}M revenue × 6x multiple. Mature SaaS company valuation with network effects premium.`
-    }
-  ]
-
-  const whyThisWorks = [
-    { 
-      reason: `${formatMultiplier(keyMetrics.ltvCacRatio)} LTV/CAC ratio`, 
-      benchmark: `vs ${INDUSTRY_BENCHMARKS.industryLtvCacRatio}x industry standard`,
-      detail: 'Autonomous AI companies operate with near-zero marginal costs. Each successful showcase inspires exponential adoption.'
-    },
-    { 
-      reason: 'Break-even month 2', 
-      benchmark: `with ${formatPercentage(keyMetrics.grossMargin)} gross margins`,
-      detail: 'AI agents eliminate human operational costs. Scalable autonomous execution with minimal infrastructure overhead.'
-    },
-    { 
-      reason: `${formatCurrency(keyMetrics.finalARR / 1000000, 1)}M ARR by month 12`, 
-      benchmark: 'Series A ready',
-      detail: 'Proven autonomous company model. AI agents demonstrating 24/7 operation. Multiple successful showcases deployed.'
-    },
-    { 
-      reason: 'First-mover in autonomous companies', 
-      benchmark: 'category-defining platform',
-      detail: 'No competitor offers true autonomous AI business operations. Platform effects create winner-take-most dynamics.'
-    }
-  ]
-
+  // Investment terms using computed values
   const investmentTerms = [
-    { term: 'Investment amount', value: '$50k SAFE', detail: 'Simple Agreement for Future Equity. Standard YC terms.' },
-    { term: 'Valuation cap', value: '$2M', detail: 'Conservative pre-money valuation. 2.5% equity at cap.' },
-    { term: 'Discount rate', value: '20%', detail: 'Discount to next round pricing. Standard seed investor protection.' },
-    { term: 'Use of funds', value: '4-6 months runway', detail: `Prove product-market fit. Achieve viral coefficient >${BASE_BUSINESS_PARAMS.viralCoefficient}.` },
-    { term: 'Next milestone', value: '$1M Series A', detail: `At ${formatCurrency(keyMetrics.finalMRR / 1000)}k+ MRR with proven viral growth (month 12).` }
-  ]
+    { term: 'Investment amount', value: COMPUTED_VALUES.investmentAmountFormatted + ' SAFE', detail: 'Simple Agreement for Future Equity. Standard YC terms.' },
+    { term: 'Pre-money valuation', value: formatCurrency(BASE_INVESTMENT_PARAMS.premoneyValuation / 1000000, 1) + 'M', detail: 'Conservative valuation based on proven traction and viral metrics.' },
+    { term: 'Equity percentage', value: BASE_INVESTMENT_PARAMS.equityPercentage + '%', detail: 'Fair equity stake for early-stage risk and growth capital.' },
+    { term: 'Use of funds', value: `${COMPUTED_VALUES.prepPhaseMonths + 3}-month runway`, detail: 'Focused on achieving break-even and proving scalability.' },
+    { term: 'Break-even timeline', value: `Month ${TIMELINE_MARKER_PARAMS.launchMonth + 1}`, detail: 'Revenue covers all operating costs including team scaling.' },
+    { term: 'Expected ROI', value: '100x+', detail: 'Conservative estimates show exceptional return potential.' }
+  ];
+
+  // Year 1 revenue from projections
+  const year1Revenue = baseProjections.totalRevenue;
 
   return (
     <div className="w-full flex flex-col px-8 py-8">
@@ -116,128 +73,245 @@ export function TheAskSlide() {
         <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
           The Ask & Return Potential
         </h1>
-        <p className="text-2xl text-green-400 mb-12 text-center font-medium">
-          $50k SAFE → $100M+ valuation (conservative)
+        <p className="text-2xl text-purple-400 mb-12 text-center font-medium">
+          {COMPUTED_VALUES.investmentAmountFormatted} SAFE → $100M+ valuation (conservative)
         </p>
 
-        <div className="grid grid-cols-2 gap-16 mb-16">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="border-l-4 border-blue-500 pl-8"
-          >
-            <h2 className="text-3xl font-bold mb-8 text-blue-400">USE OF FUNDS</h2>
-            <div className="space-y-6">
-              {useOfFunds.map((item, index) => (
+        {/* Investment Terms */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-16"
+        >
+          <h2 className="text-3xl font-bold mb-8 text-purple-400">INVESTMENT TERMS & STRUCTURE</h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Terms Table */}
+            <div className="bg-gray-900/30 border border-gray-700 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-purple-300 mb-6">Term Sheet Overview</h3>
+              <div className="space-y-4">
+                {investmentTerms.map((term, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                    className="border-b border-gray-700 pb-3"
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-gray-300 text-sm font-medium">{term.term}</span>
+                      <span className="text-purple-400 font-bold">{term.value}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">{term.detail}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Use of Funds Breakdown */}
+            <div className="bg-gray-900/30 border border-gray-700 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-purple-300 mb-6">Use of Funds ({COMPUTED_VALUES.investmentAmountFormatted})</h3>
+              <div className="space-y-4">
+                {useOfFunds.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
+                    className="border-l-4 border-purple-500 pl-4"
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className="text-purple-300 font-semibold text-sm">{item.category}</h4>
+                      <div className="text-right">
+                        <span className="text-purple-400 font-bold">{item.amount}</span>
+                        <span className="text-gray-500 text-xs ml-2">({item.percentage})</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mb-1">{item.description}</p>
+                    <p className="text-xs text-gray-500">{item.details}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Return Analysis */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="border-t-4 border-green-500 pt-8 mb-16"
+        >
+          <h2 className="text-3xl font-bold mb-8 text-green-400">RETURN ANALYSIS & EXIT SCENARIOS</h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            {[
+              {
+                scenario: `Year ${BASE_INVESTMENT_PARAMS.exitMultiples.year1} Exit`,
+                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year1,
+                revenue: year1Revenue,
+                color: 'text-green-400',
+                bgColor: 'bg-green-900/20 border-green-500/30'
+              },
+              {
+                scenario: `Year ${BASE_INVESTMENT_PARAMS.exitMultiples.year2} Exit`,
+                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year2,
+                revenue: year1Revenue * 3.5, // Estimated 3.5x growth
+                color: 'text-blue-400',
+                bgColor: 'bg-blue-900/20 border-blue-500/30'
+              },
+              {
+                scenario: `Year ${BASE_INVESTMENT_PARAMS.exitMultiples.year3} Exit`,
+                multiple: BASE_INVESTMENT_PARAMS.exitMultiples.year3,
+                revenue: year1Revenue * 7, // Estimated 7x growth
+                color: 'text-purple-400',
+                bgColor: 'bg-purple-900/20 border-purple-500/30'
+              }
+            ].map((scenario, index) => {
+              const returns = calculateReturns(scenario.multiple, scenario.revenue);
+              return (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                  className="border-l-2 border-blue-500/30 pl-4"
+                  transition={{ duration: 0.4, delay: 0.6 + index * 0.2 }}
+                  className={`${scenario.bgColor} border rounded-lg p-6`}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-medium text-gray-300">{item.category}</p>
-                    <p className="text-lg font-bold text-blue-400">{item.amount}</p>
+                  <h3 className={`text-xl font-bold mb-4 ${scenario.color}`}>{scenario.scenario}</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Revenue:</span>
+                      <span className="text-gray-300">{formatCurrency(scenario.revenue / 1000000, 0)}M</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Exit Multiple:</span>
+                      <span className="text-gray-300">{scenario.multiple}x</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Valuation:</span>
+                      <span className="text-gray-300">{formatCurrency(returns.exitValuation / 1000000, 0)}M</span>
+                    </div>
+                    <div className="flex justify-between border-t border-gray-600 pt-2">
+                      <span className="text-gray-400">Return Value:</span>
+                      <span className={`font-bold ${scenario.color}`}>{formatCurrency(returns.returnValue / 1000000, 1)}M</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Return Multiple:</span>
+                      <span className={`font-bold ${scenario.color}`}>{formatCurrency(returns.returnMultiple, 0)}x</span>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-400 mb-2">{item.details}</p>
-                  <p className="text-xs text-gray-500">{item.technical}</p>
                 </motion.div>
-              ))}
-            </div>
-          </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="border-l-4 border-green-500 pl-8"
-          >
-            <h2 className="text-3xl font-bold mb-8 text-green-400">WHY THIS WORKS</h2>
-            <div className="space-y-6">
-              {whyThisWorks.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
-                  className="border-l-2 border-green-500/30 pl-4"
-                >
-                  <div className="mb-2">
-                    <p className="text-sm font-semibold text-green-400 mb-1">{item.reason}</p>
-                    <p className="text-xs text-gray-400 mb-2">{item.benchmark}</p>
-                  </div>
-                  <p className="text-xs text-gray-500">{item.detail}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-
+        {/* Risk Mitigation */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="border-t-4 border-purple-500 pt-8 mb-12"
+          className="border-t-4 border-yellow-500 pt-8 mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-purple-400">RETURN SCENARIOS (at typical SaaS multiples)</h2>
-          <div className="grid grid-cols-3 gap-8">
-            {returnScenarios.map((scenario, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
-                className="border-l-2 border-purple-500/30 pl-4"
-              >
-                <p className="text-lg font-bold text-purple-400 mb-2">{scenario.timeline}</p>
-                <p className="text-sm text-gray-300 mb-2">{scenario.multiple}</p>
-                <p className="text-2xl font-bold text-purple-300 mb-1">{scenario.valuation}</p>
-                <p className="text-sm text-gray-400 mb-3">valuation</p>
-                <p className="text-3xl font-bold text-green-400 mb-2">{scenario.return}</p>
-                <p className="text-sm text-gray-400 mb-3">return</p>
-                <p className="text-xs text-gray-500">{scenario.assumptions}</p>
-              </motion.div>
-            ))}
+          <h2 className="text-3xl font-bold mb-8 text-yellow-400">INVESTMENT DE-RISKING STRATEGY</h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Traction Milestones */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold text-yellow-300">Pre-Investment Traction</h3>
+              <div className="space-y-4">
+                {[
+                  { milestone: `${COMPUTED_VALUES.developmentPhaseMonths} months bootstrapped development`, status: 'Complete', description: 'Product development proven feasible with minimal capital' },
+                  { milestone: 'Break-even model validated', status: 'Complete', description: `Financial projections show profitability by month ${TIMELINE_MARKER_PARAMS.launchMonth + 1}` },
+                  { milestone: 'Viral mechanics tested', status: 'Complete', description: 'K-factor of 0.4+ demonstrated through early content experiments' },
+                  { milestone: `${COMPUTED_VALUES.preLaunchBurnFormatted} total pre-revenue burn`, status: 'Complete', description: 'Minimal capital risk demonstrated through efficient development' }
+                ].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
+                    className="flex items-start space-x-3"
+                  >
+                    <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                    <div>
+                      <p className="text-green-300 font-medium text-sm">{item.milestone}</p>
+                      <p className="text-xs text-gray-400">{item.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Post-Investment Milestones */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold text-yellow-300">Post-Investment Validation</h3>
+              <div className="space-y-4">
+                {[
+                  { milestone: `Month ${TIMELINE_MARKER_PARAMS.investmentMonth}: Investment deployment`, target: '30 days', description: 'Legal setup, team assembly, launch preparation' },
+                  { milestone: `Month ${TIMELINE_MARKER_PARAMS.launchMonth}: Product launch`, target: '60 days', description: 'First customers, revenue generation begins' },
+                  { milestone: `Month ${TIMELINE_MARKER_PARAMS.launchMonth + 1}: Break-even achieved`, target: '90 days', description: 'Revenue covers all operating costs including team' },
+                  { milestone: `Month ${TIMELINE_MARKER_PARAMS.customerSuccessHire.month}: First revenue hire`, target: '180 days', description: `Customer Success Manager at ${formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000)}k MRR milestone` }
+                ].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: 1.2 + index * 0.1 }}
+                    className="flex items-start space-x-3"
+                  >
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                    <div>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <p className="text-yellow-300 font-medium text-sm">{item.milestone}</p>
+                        <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{item.target}</span>
+                      </div>
+                      <p className="text-xs text-gray-400">{item.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
         </motion.div>
 
+        {/* Call to Action */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.4 }}
-          className="border-t-4 border-yellow-500 pt-8"
+          transition={{ duration: 0.6, delay: 1.0 }}
+          className="text-center bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-lg p-8"
         >
-          <h2 className="text-3xl font-bold mb-8 text-yellow-400">INVESTMENT TERMS</h2>
-          <div className="grid grid-cols-5 gap-6">
-            {investmentTerms.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 1.6 + index * 0.1 }}
-                className="border-l-2 border-yellow-500/30 pl-4"
-              >
-                <p className="text-sm font-semibold text-yellow-400 mb-1">{item.term}</p>
-                <p className="text-sm text-gray-300 mb-2">{item.value}</p>
-                <p className="text-xs text-gray-500">{item.detail}</p>
-              </motion.div>
-            ))}
+          <h2 className="text-3xl font-bold mb-4 text-purple-400">Ready to Transform Entrepreneurship?</h2>
+          <p className="text-lg text-gray-300 mb-6">
+            Join us in building the operating system for AI-powered companies. 
+            {COMPUTED_VALUES.investmentAmountFormatted} gets you early access to a platform that makes starting companies 
+            as easy as prompting ChatGPT.
+          </p>
+          <div className="grid grid-cols-3 gap-8 text-center">
+            <div>
+              <p className="text-2xl font-bold text-green-400">{formatCurrency((year1Revenue / 1000000), 0)}M</p>
+              <p className="text-sm text-gray-400">Year 1 Revenue</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-blue-400">
+                {formatCurrency((calculateReturns(BASE_INVESTMENT_PARAMS.exitMultiples.year1, year1Revenue).returnMultiple), 0)}x
+              </p>
+              <p className="text-sm text-gray-400">Conservative Return</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-purple-400">{TIMELINE_MARKER_PARAMS.launchMonth + 1}</p>
+              <p className="text-sm text-gray-400">Months to Break-even</p>
+            </div>
           </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 2.0 }}
-          className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
-        >
-          <div className="text-sm text-gray-400 space-y-2">
-            <p><strong>Risk Mitigation:</strong> AI-powered operations reduce human dependencies. Autonomous execution scales without proportional cost increases. Multiple successful AI companies demonstrate model viability.</p>
-            <p><strong>Competitive Advantage:</strong> First-mover in autonomous AI business operations. No existing platform offers true AI-powered company management. Technical moats via multi-agent coordination take years to replicate.</p>
-            <p><strong>Market Timing:</strong> AI capabilities now sufficient for autonomous business operations. ChatGPT demonstrates mass market AI adoption. Founders ready for AI-powered business management.</p>
-            <p><strong>Investment Thesis:</strong> Autonomous AI companies represent the future of business. {formatMultiplier(keyMetrics.ltvCacRatio)} LTV/CAC ratio from eliminated operational overhead. Revolutionary 100x+ return potential as entire markets transition to AI operation.</p>
+          
+          <div className="mt-8 p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+            <p className="text-sm text-gray-300">
+              <strong>Next Round:</strong> Series A at $1M+ MRR (month 15-18) with proven viral growth engine. 
+              Network effects compound with each new VibeFounder, reducing future CAC and creating winner-take-most dynamics.
+            </p>
           </div>
         </motion.div>
       </motion.div>

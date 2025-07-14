@@ -2,214 +2,84 @@ import { motion } from 'framer-motion'
 import {
   baseCAC,
   baseLTV,
-  keyMetrics,
   formatCurrency,
-  formatNumber,
   formatPercentage,
-  formatMultiplier,
-  formatMonths,
-  runSensitivityAnalysis,
+  calculateInfrastructureCostPerCompany,
+  calculateFormationCosts,
   BASE_BUSINESS_PARAMS,
   BASE_INFRASTRUCTURE_PARAMS,
-  GROWTH_STAGES,
-  SENSITIVITY_PARAMS,
-  BASE_EMPLOYEE_PARAMS,
-  calculateEmployeeCosts
+  TIMELINE_MARKER_PARAMS,
+  COMPUTED_VALUES
 } from '../../lib'
-import { DataTable, MetricCards } from '../charts'
+import { MetricCards } from '../charts'
 
 export function UnitEconomicsSlide() {
-  // Calculate timeline-aware costs
-  const timelineAwareCosts = {
-    preLaunch: calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, -3, 0, undefined, false), // 3 months pre-launch average
-    launch: calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, 1, 0, undefined, false), // Month 1 (launch)
-    preInvestment: calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, 2, 0, undefined, false), // Month 2 (pre-investment)
-    postInvestment: calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, 3, 0, undefined, true), // Month 3 (post-investment)
-    scaling: calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, 6, 100000, undefined, true), // Month 6 with $100k MRR
-    mature: calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, 12, 400000, undefined, true), // Month 12 with $400k MRR
+  // Calculate employee costs at different stages using computed values
+  const employeeCosts = {
+    preLaunch: COMPUTED_VALUES.getEmployeeCostAtMonth(TIMELINE_MARKER_PARAMS.developmentStartMonth),
+    postInvestment: COMPUTED_VALUES.getEmployeeCostAtMonth(TIMELINE_MARKER_PARAMS.investmentMonth + 1),
+    scaling: COMPUTED_VALUES.getEmployeeCostAtMonth(TIMELINE_MARKER_PARAMS.customerSuccessHire.month, TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold),
+    mature: COMPUTED_VALUES.getEmployeeCostAtMonth(TIMELINE_MARKER_PARAMS.seniorDevHire.month, TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold),
   };
 
-  // Calculate CAC breakdown dynamically with timeline context
-  const cacBreakdown = [
-    {
-      item: "Timeline context",
-      value: "Launch Month 0",
-      detail: `Pre-launch development (Month -6 to 0): $${formatNumber(timelineAwareCosts.preLaunch.totalCost * 6)} total contractor costs. Launch timing optimized for maximum AWS credit utilization.`
-    },
-    {
-      item: "Monthly marketing spend",
-      value: formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend),
-      detail: `Video creation: ${formatCurrency(BASE_BUSINESS_PARAMS.videoCreationCost)}, promotion: ${formatCurrency(BASE_BUSINESS_PARAMS.promotionCost)}, amplification: ${formatCurrency(BASE_BUSINESS_PARAMS.amplificationCost)} (starts Month 0)`
-    },
-    {
-      item: "Reach multiplier",
-      value: `${formatNumber(baseCAC.totalViews)} views`,
-      detail: `${formatNumber(BASE_BUSINESS_PARAMS.baseVideoViews)} organic × ${BASE_BUSINESS_PARAMS.organicMultiplier}x viral coefficient = ${formatNumber(baseCAC.totalViews)} total impressions per month`
-    },
-    {
-      item: "Conversion funnel",
-      value: `${formatNumber(baseCAC.signups)} signups`,
-      detail: `${formatPercentage(BASE_BUSINESS_PARAMS.viewToSignupRate)} signup rate (industry benchmark: 0.3-2% for B2B content)`
-    },
-    {
-      item: "Formation conversion",
-      value: `${formatNumber(baseCAC.directCompanies)} companies`,
-      detail: `${formatPercentage(BASE_BUSINESS_PARAMS.formationConversionRate)} formation rate (Stripe Atlas: 45%, LegalZoom: 25%)`
-    },
-    {
-      item: "Viral amplification",
-      value: `+${formatNumber(baseCAC.viralCompanies)} companies`,
-      detail: `${BASE_BUSINESS_PARAMS.viralCoefficient} k-factor: each founder shows 5 people → 8% convert (takes 2-3 months to fully manifest)`
-    },
-    {
-      item: "Total acquisition",
-      value: `${formatNumber(baseCAC.totalCompanies)} companies`,
-      detail: `Direct: ${formatNumber(baseCAC.directCompanies)} + Viral: ${formatNumber(baseCAC.viralCompanies)} = ${formatNumber(baseCAC.totalCompanies)} total monthly acquisitions (by Month 3)`
-    }
-  ]
+  // Formation economics from computed values
+  const formationEconomics = calculateFormationCosts(BASE_INFRASTRUCTURE_PARAMS, BASE_BUSINESS_PARAMS.formationFee);
+  const infrastructureCostPerCompany = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
 
-  // Calculate LTV breakdown with timeline context
-  const ltvCalculation = [
-    {
-      stage: "Timeline & Launch Context",
-      value: "Month -6 to +12",
-      detail: `Development starts 6 months pre-launch. Investment received Month 0. Launch Month 1 after prep. Full team scaling Month 6-12. LTV calculations account for pre-launch development costs amortized across customer base.`
-    },
-    {
-      stage: "Formation (one-time)",
-      value: formatCurrency(baseLTV.formationLTV),
-      detail: `Gross profit: ${formatCurrency(BASE_BUSINESS_PARAMS.formationFee)} revenue - ${formatCurrency(BASE_BUSINESS_PARAMS.formationFee - baseLTV.formationLTV)} COGS (state fees: ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.stateFilingFee)}, KYC: ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.identityVerification)}, processing: ${formatCurrency(BASE_BUSINESS_PARAMS.formationFee * BASE_INFRASTRUCTURE_PARAMS.paymentProcessingRate)}, infra: ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.infrastructurePerFormation)})`
-    },
-    {
-      stage: "Stage 1 Monthly (AWS credits)",
-      value: formatCurrency(baseLTV.saasLTVStage1 / 12),
-      detail: `94% margin on ${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)}: Payment processing 3% only, all infra covered by credits (Months 1-12)`
-    },
-    {
-      stage: "Stage 2+ Monthly (paid infra)",
-      value: formatCurrency(baseLTV.saasLTVStage2 / 12),
-      detail: `95% margin on ${formatCurrency((BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) * 1.5)}: Pricing increase absorbs ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.computeCostPerCompany + BASE_INFRASTRUCTURE_PARAMS.storageCostPerCompany + BASE_INFRASTRUCTURE_PARAMS.databaseCostPerCompany + BASE_INFRASTRUCTURE_PARAMS.cdnCostPerCompany + BASE_INFRASTRUCTURE_PARAMS.communicationCostPerCompany)}/month infrastructure costs (Month 13+)`
-    },
-    {
-      stage: "Blended LTV per company",
-      value: formatCurrency(baseLTV.blendedLTV),
-      detail: `Weighted average: (Stage 1: ${formatCurrency(baseLTV.saasLTVStage1)} + Stage 2+: ${formatCurrency(baseLTV.saasLTVStage2)}) ÷ 2 stages`
-    },
-    {
-      stage: "Multi-company founder multiplier",
-      value: `×${BASE_BUSINESS_PARAMS.averageCompaniesPerFounder}`,
-      detail: `Serial entrepreneur factor: successful founders start 2.3 companies on average over 18-month period`
-    },
-    {
-      stage: "Final LTV per founder",
-      value: formatCurrency(baseLTV.ltvPerFounder),
-      detail: `${formatCurrency(baseLTV.blendedLTV)} × ${BASE_BUSINESS_PARAMS.averageCompaniesPerFounder} companies per founder over lifetime`
-    }
-  ]
-
-  // Calculate sensitivity analysis dynamically
-  const formationRateSensitivity = runSensitivityAnalysis(
-    BASE_BUSINESS_PARAMS,
-    BASE_INFRASTRUCTURE_PARAMS,
-    GROWTH_STAGES,
-    'formationConversionRate',
-    SENSITIVITY_PARAMS.formationRateRange,
-    BASE_EMPLOYEE_PARAMS
-  )
-
-  const viralSensitivity = runSensitivityAnalysis(
-    BASE_BUSINESS_PARAMS,
-    BASE_INFRASTRUCTURE_PARAMS,
-    GROWTH_STAGES,
-    'viralCoefficient',
-    SENSITIVITY_PARAMS.viralCoefficientRange,
-    BASE_EMPLOYEE_PARAMS
-  )
-
-  const churnSensitivity = runSensitivityAnalysis(
-    BASE_BUSINESS_PARAMS,
-    BASE_INFRASTRUCTURE_PARAMS,
-    GROWTH_STAGES,
-    'monthlyChurnRate',
-    SENSITIVITY_PARAMS.churnRateRange,
-    BASE_EMPLOYEE_PARAMS
-  )
-
-  const proTierSensitivity = runSensitivityAnalysis(
-    BASE_BUSINESS_PARAMS,
-    BASE_INFRASTRUCTURE_PARAMS,
-    GROWTH_STAGES,
-    'proTierAdoptionRate',
-    SENSITIVITY_PARAMS.proTierRange,
-    BASE_EMPLOYEE_PARAMS
-  )
-
-  const sensitivities = [
-    {
-      variable: "Formation rate",
-      pessimistic: `${formatPercentage(SENSITIVITY_PARAMS.formationRateRange[0])} (-33%)`,
-      base: formatPercentage(SENSITIVITY_PARAMS.formationRateRange[1]),
-      optimistic: `${formatPercentage(SENSITIVITY_PARAMS.formationRateRange[2])} (+33%)`,
-      impact: `${formatCurrency(formationRateSensitivity[0].projection.totalRevenue / 1000000, 1)}M / ${formatCurrency(formationRateSensitivity[1].projection.totalRevenue / 1000000, 1)}M / ${formatCurrency(formationRateSensitivity[2].projection.totalRevenue / 1000000, 1)}M Y1 revenue`
-    },
-    {
-      variable: "Viral k-factor",
-      pessimistic: `${SENSITIVITY_PARAMS.viralCoefficientRange[0]} (-50%)`,
-      base: SENSITIVITY_PARAMS.viralCoefficientRange[1].toString(),
-      optimistic: `${SENSITIVITY_PARAMS.viralCoefficientRange[2]} (+50%)`,
-      impact: `${formatCurrency(viralSensitivity[0].projection.totalRevenue / 1000000, 1)}M / ${formatCurrency(viralSensitivity[1].projection.totalRevenue / 1000000, 1)}M / ${formatCurrency(viralSensitivity[2].projection.totalRevenue / 1000000, 1)}M Y1 revenue`
-    },
-    {
-      variable: "Monthly churn",
-      pessimistic: `${formatPercentage(SENSITIVITY_PARAMS.churnRateRange[0])} (+50%)`,
-      base: formatPercentage(SENSITIVITY_PARAMS.churnRateRange[1]),
-      optimistic: `${formatPercentage(SENSITIVITY_PARAMS.churnRateRange[2])} (-38%)`,
-      impact: `${formatCurrency(churnSensitivity[0].projection.totalRevenue / 1000000, 1)}M / ${formatCurrency(churnSensitivity[1].projection.totalRevenue / 1000000, 1)}M / ${formatCurrency(churnSensitivity[2].projection.totalRevenue / 1000000, 1)}M Y1 revenue`
-    },
-    {
-      variable: "Pro tier adoption",
-      pessimistic: `${formatPercentage(SENSITIVITY_PARAMS.proTierRange[0])} (-33%)`,
-      base: formatPercentage(SENSITIVITY_PARAMS.proTierRange[1]),
-      optimistic: `${formatPercentage(SENSITIVITY_PARAMS.proTierRange[2])} (+33%)`,
-      impact: `${formatCurrency(proTierSensitivity[0].projection.totalRevenue / 1000000, 1)}M / ${formatCurrency(proTierSensitivity[1].projection.totalRevenue / 1000000, 1)}M / ${formatCurrency(proTierSensitivity[2].projection.totalRevenue / 1000000, 1)}M Y1 revenue`
-    }
-  ]
-
-  // Create key metrics for cards with timeline context
+  // Key unit economics metrics
   const unitEconomicsCards = [
     {
-      label: 'LTV/CAC Ratio',
-      value: formatMultiplier(keyMetrics.ltvCacRatio),
-      color: 'green',
-      description: 'vs 3-5x industry standard'
-    },
-    {
-      label: 'CAC Payback',
-      value: formatMonths(keyMetrics.paybackPeriod),
+      label: 'CAC per Company',
+      value: formatCurrency(baseCAC.cacPerCompany),
       color: 'blue',
-      description: 'vs 12-18 month industry avg'
+      description: `${formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend / 1000)}k marketing → ${baseCAC.totalCompanies} companies`
     },
     {
-      label: 'Pre-Launch Investment',
-      value: formatCurrency(timelineAwareCosts.preLaunch.totalCost * 6 / 1000) + 'k',
+      label: 'LTV per Company',
+      value: formatCurrency(baseLTV.blendedLTV),
+      color: 'green',
+      description: `${formatCurrency(BASE_BUSINESS_PARAMS.formationFee)} formation + ${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)}/mo × ${(1/BASE_BUSINESS_PARAMS.monthlyChurnRate).toFixed(0)} months`
+    },
+    {
+      label: 'LTV/CAC Ratio',
+      value: (baseLTV.blendedLTV / baseCAC.cacPerCompany).toFixed(1) + 'x',
       color: 'purple',
-      description: '6 months contractor costs'
+      description: 'Industry benchmark: 3-5x'
     },
     {
-      label: 'Break-even Timeline',
-      value: 'Month 2',
-      color: 'red',
-      description: 'After $50k investment received'
+      label: 'Payback Period',
+      value: (baseCAC.cacPerCompany / (BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)).toFixed(1) + ' months',
+      color: 'yellow',
+      description: 'Time to recover customer acquisition cost'
     }
   ];
 
-  // Prepare sensitivity analysis data for table
-  const sensitivityColumns = [
-    { key: 'variable', label: 'Variable', align: 'left' as const },
-    { key: 'pessimistic', label: 'Pessimistic', align: 'center' as const, color: 'red' },
-    { key: 'base', label: 'Base Case', align: 'center' as const, color: 'blue' },
-    { key: 'optimistic', label: 'Optimistic', align: 'center' as const, color: 'green' },
-    { key: 'impact', label: 'Revenue Impact', align: 'right' as const }
+  // Cost breakdown sections using computed values
+  const costBreakdowns = [
+    {
+      title: 'Formation Unit Economics',
+      items: [
+        { label: 'Formation Revenue', value: formatCurrency(formationEconomics.revenue), positive: true },
+        { label: 'State Filing Fees', value: `-${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.stateFilingFee)}`, positive: false },
+        { label: 'Identity Verification', value: `-${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.identityVerification)}`, positive: false },
+        { label: 'Infrastructure Costs', value: `-${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.infrastructurePerFormation)}`, positive: false },
+        { label: 'Payment Processing', value: `-${formatCurrency(formationEconomics.revenue * BASE_INFRASTRUCTURE_PARAMS.paymentProcessingRate)}`, positive: false },
+        { label: 'Formation Gross Profit', value: formatCurrency(formationEconomics.grossProfit), positive: true, highlight: true },
+        { label: 'Gross Margin', value: formatPercentage(formationEconomics.margin), positive: true, highlight: true }
+      ]
+    },
+    {
+      title: 'Monthly SaaS Economics',
+      items: [
+        { label: 'Basic Tier Revenue', value: formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate)), positive: true },
+        { label: 'Pro Tier Revenue', value: formatCurrency(BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate), positive: true },
+        { label: 'Blended Revenue', value: formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate), positive: true },
+        { label: 'Infrastructure Cost', value: `-${formatCurrency(infrastructureCostPerCompany)}`, positive: false },
+        { label: 'Payment Processing', value: `-${formatCurrency((BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) * BASE_INFRASTRUCTURE_PARAMS.paymentProcessingRate)}`, positive: false },
+        { label: 'Monthly Gross Profit', value: formatCurrency((BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) - infrastructureCostPerCompany - (BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) * BASE_INFRASTRUCTURE_PARAMS.paymentProcessingRate), positive: true, highlight: true },
+        { label: 'Monthly Gross Margin', value: formatPercentage(((BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) - infrastructureCostPerCompany - (BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) * BASE_INFRASTRUCTURE_PARAMS.paymentProcessingRate) / (BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)), positive: true, highlight: true }
+      ]
+    }
   ];
 
   return (
@@ -221,211 +91,239 @@ export function UnitEconomicsSlide() {
         className="max-w-7xl mx-auto"
       >
         <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
-          Unit Economics & Timeline Strategy
+          Unit Economics That Break SaaS Norms
         </h1>
-        
-        {/* Timeline Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-8 bg-gray-900/50 border border-gray-700 rounded-lg p-6"
-        >
-          <h2 className="text-2xl font-bold mb-4 text-blue-400">Strategic Timeline Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-            <div className="border-l-4 border-purple-500 pl-4">
-              <h3 className="font-semibold text-purple-400 mb-2">Pre-Launch Phase (Month -6 to 0)</h3>
-              <p className="text-gray-300">Development with ${formatCurrency(timelineAwareCosts.preLaunch.totalCost)}/month contractor. Total pre-launch investment: ${formatCurrency(timelineAwareCosts.preLaunch.totalCost * 6)}. No revenue, building for optimal launch timing.</p>
-            </div>
-            <div className="border-l-4 border-green-500 pl-4">
-              <h3 className="font-semibold text-green-400 mb-2">Launch &amp; Prove (Month 0 to 3)</h3>
-              <p className="text-gray-300">Launch Month 0. Prove product-market fit and achieve break-even (Month 2) before requesting investment. Revenue-first approach de-risks investor capital.</p>
-            </div>
-            <div className="border-l-4 border-blue-500 pl-4">
-              <h3 className="font-semibold text-blue-400 mb-2">Scale &amp; Optimize (Month 3+)</h3>
-              <p className="text-gray-300">$50k investment Month 3 enables founder salary and strategic hires. Revenue-driven hiring ensures sustainable scaling throughout growth phases.</p>
-            </div>
-          </div>
-        </motion.div>
-        
+        <p className="text-2xl text-green-400 mb-12 text-center font-medium">
+          {(baseLTV.blendedLTV / baseCAC.cacPerCompany).toFixed(1)}x LTV/CAC ratio (industry standard: 3-5x)
+        </p>
+
         {/* Key Metrics Cards */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-16"
         >
           <MetricCards metrics={unitEconomicsCards} />
         </motion.div>
 
-        <div className="grid grid-cols-2 gap-16 mb-16">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="border-l-4 border-red-500 pl-8"
-          >
-            <h2 className="text-4xl font-bold mb-8 text-red-400">CAC: {formatCurrency(keyMetrics.cac)} per founder</h2>
-            <div className="space-y-6">
-              {cacBreakdown.map((item, index) => (
-                <div key={index} className="border-b border-gray-800 pb-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="font-semibold text-xl">{item.item}</span>
-                    <span className="text-xl text-red-400 font-bold">{item.value}</span>
-                  </div>
-                  <p className="text-sm text-gray-400 leading-relaxed">{item.detail}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="border-l-4 border-green-500 pl-8"
-          >
-            <h2 className="text-4xl font-bold mb-8 text-green-400">LTV: {formatCurrency(keyMetrics.ltv)} per founder</h2>
-            <div className="space-y-6">
-              {ltvCalculation.map((item, index) => (
-                <div key={index} className="border-b border-gray-800 pb-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="font-semibold text-xl">{item.stage}</span>
-                    <span className="text-xl text-green-400 font-bold">{item.value}</span>
-                  </div>
-                  <p className="text-sm text-gray-400 leading-relaxed">{item.detail}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Timeline Cost Evolution */}
+        {/* Cost Breakdown Analysis */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="border-t-4 border-purple-500 pt-8 mb-16"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="border-t-4 border-blue-500 pt-8 mb-16"
         >
-          <h2 className="text-4xl font-bold mb-8 text-purple-400 text-center">Employee Cost Evolution Timeline</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">DETAILED COST BREAKDOWN ANALYSIS</h2>
           
-          {/* Timeline Container */}
-          <div className="relative">
-            {/* Main timeline line */}
-            <div className="absolute top-20 left-8 right-8 h-1 bg-gradient-to-r from-purple-500 via-blue-500 via-green-500 via-yellow-500 to-red-500"></div>
-            
-            {/* Timeline nodes */}
-            <div className="flex justify-between items-start px-8">
-              {[
-                {
-                  phase: 'Pre-Launch',
-                  timeline: 'Month -6 to 0',
-                  cost: timelineAwareCosts.preLaunch.totalCost,
-                  team: timelineAwareCosts.preLaunch.activeEmployees.map(e => e.role).join(', '),
-                  color: 'border-purple-500 bg-purple-500',
-                  textColor: 'text-purple-400',
-                  description: 'Development with contractor while working SWE job'
-                },
-                {
-                  phase: 'Launch',
-                  timeline: 'Month 0 to 3',
-                  cost: timelineAwareCosts.preInvestment.totalCost,
-                  team: timelineAwareCosts.preInvestment.activeEmployees.map(e => e.role).join(', '),
-                  color: 'border-blue-500 bg-blue-500',
-                  textColor: 'text-blue-400',
-                  description: 'Bootstrapped revenue-first approach'
-                },
-                {
-                  phase: 'Post-Investment',
-                  timeline: 'Month 3 to 6',
-                  cost: timelineAwareCosts.postInvestment.totalCost,
-                  team: timelineAwareCosts.postInvestment.activeEmployees.map(e => e.role).join(', '),
-                  color: 'border-green-500 bg-green-500',
-                  textColor: 'text-green-400',
-                  description: 'Founder quits day job, strategic hires'
-                },
-                {
-                  phase: 'Scaling',
-                  timeline: 'Month 6 to 12',
-                  cost: timelineAwareCosts.scaling.totalCost,
-                  team: timelineAwareCosts.scaling.activeEmployees.map(e => e.role).join(', '),
-                  color: 'border-yellow-500 bg-yellow-500',
-                  textColor: 'text-yellow-400',
-                  description: 'Revenue-driven hiring begins'
-                },
-                {
-                  phase: 'Mature',
-                  timeline: 'Month 12+',
-                  cost: timelineAwareCosts.mature.totalCost,
-                  team: timelineAwareCosts.mature.activeEmployees.map(e => e.role).join(', '),
-                  color: 'border-red-500 bg-red-500',
-                  textColor: 'text-red-400',
-                  description: 'Full team operational'
-                }
-              ].map((phase, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.7 + index * 0.1 }}
-                  className="flex flex-col items-center relative"
-                  style={{ width: '18%' }}
-                >
-                  {/* Timeline node */}
-                  <div className={`w-4 h-4 rounded-full ${phase.color} border-4 border-gray-900 mb-4 z-10 relative`}></div>
-                  
-                  {/* Phase content */}
-                  <div className="text-center">
-                    <h3 className={`text-lg font-bold mb-1 ${phase.textColor}`}>
-                      {phase.phase}
-                    </h3>
-                    <p className="text-xs text-gray-400 mb-2">{phase.timeline}</p>
-                    <p className="text-sm font-semibold text-white mb-2">{formatCurrency(phase.cost)}/month</p>
-                    <p className="text-xs text-gray-400 mb-2 min-h-[2.5rem]">{phase.description}</p>
-                    <div className="bg-gray-800 rounded p-2 min-h-[3rem]">
-                      <p className="text-xs text-gray-500">{phase.team}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-            
-            {/* Timeline labels */}
-            <div className="flex justify-between mt-8 px-8 text-xs text-gray-500">
-              <span>Pre-Launch Development</span>
-              <span>Revenue Generation</span>
-              <span>Investment & Growth</span>
-              <span>Market Expansion</span>
-              <span>Full Operations</span>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {costBreakdowns.map((section, sectionIndex) => (
+              <motion.div
+                key={sectionIndex}
+                initial={{ opacity: 0, x: sectionIndex === 0 ? -30 : 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 + sectionIndex * 0.2 }}
+                className="bg-gray-900/30 border border-gray-700 rounded-lg p-6"
+              >
+                <h3 className="text-xl font-semibold text-blue-300 mb-6">{section.title}</h3>
+                <div className="space-y-3">
+                  {section.items.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.6 + sectionIndex * 0.2 + index * 0.05 }}
+                      className={`flex justify-between items-center py-2 px-3 rounded ${
+                        item.highlight 
+                          ? 'bg-blue-900/30 border border-blue-500/30' 
+                          : 'border-b border-gray-700'
+                      }`}
+                    >
+                      <span className={`text-sm ${item.highlight ? 'font-semibold text-blue-300' : 'text-gray-300'}`}>
+                        {item.label}
+                      </span>
+                      <span className={`font-mono text-sm font-bold ${
+                        item.highlight 
+                          ? 'text-blue-400' 
+                          : item.positive 
+                            ? 'text-green-400' 
+                            : 'text-red-400'
+                      }`}>
+                        {item.value}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
 
+        {/* Employee Cost Evolution */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="border-t-4 border-blue-500 pt-8"
+          className="border-t-4 border-purple-500 pt-8 mb-16"
         >
-          <h2 className="text-4xl font-bold mb-8 text-blue-400 text-center">Sensitivity Analysis</h2>
+          <h2 className="text-3xl font-bold mb-8 text-purple-400">EMPLOYEE COST EVOLUTION BY GROWTH STAGE</h2>
           
-          {/* Sensitivity Analysis Table */}
-          <DataTable 
-            data={sensitivities}
-            columns={sensitivityColumns}
-            title="Impact of Key Variables on Year 1 Revenue"
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {[
+              {
+                stage: 'Pre-Launch Development',
+                timeline: `Month ${TIMELINE_MARKER_PARAMS.developmentStartMonth} to ${TIMELINE_MARKER_PARAMS.investmentMonth - 1}`,
+                costs: employeeCosts.preLaunch,
+                color: 'border-gray-500',
+                textColor: 'text-gray-400',
+                description: 'Bootstrapped development phase'
+              },
+              {
+                stage: 'Post-Investment Setup',
+                timeline: `Month ${TIMELINE_MARKER_PARAMS.investmentMonth} to ${TIMELINE_MARKER_PARAMS.launchMonth - 1}`,
+                costs: employeeCosts.postInvestment,
+                color: 'border-purple-500',
+                textColor: 'text-purple-400',
+                description: `After ${COMPUTED_VALUES.investmentAmountFormatted} investment received`
+              },
+              {
+                stage: 'Scaling Phase',
+                timeline: `Month ${TIMELINE_MARKER_PARAMS.customerSuccessHire.month}+`,
+                costs: employeeCosts.scaling,
+                color: 'border-blue-500',
+                textColor: 'text-blue-400',
+                description: `At ${formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000)}k MRR milestone`
+              },
+              {
+                stage: 'Mature Operations',
+                timeline: `Month ${TIMELINE_MARKER_PARAMS.seniorDevHire.month}+`,
+                costs: employeeCosts.mature,
+                color: 'border-green-500',
+                textColor: 'text-green-400',
+                description: `At ${formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000)}k MRR milestone`
+              }
+            ].map((stage, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
+                className={`border-l-4 ${stage.color} pl-6 pb-6`}
+              >
+                <h3 className={`text-lg font-bold mb-2 ${stage.textColor}`}>
+                  {stage.stage}
+                </h3>
+                <p className="text-sm text-gray-400 mb-4">{stage.timeline}</p>
+                <p className="text-xs text-gray-500 mb-4">{stage.description}</p>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-xs text-gray-400">Total Monthly:</span>
+                    <span className={`text-sm font-bold ${stage.textColor}`}>
+                      {formatCurrency(stage.costs.totalCost / 1000)}k
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {stage.costs.activeEmployees.map((employee, empIndex) => (
+                      <div key={empIndex} className="flex justify-between text-xs">
+                        <span className="text-gray-500">{employee.role}:</span>
+                        <span className="text-gray-400">{formatCurrency(employee.monthlyCost / 1000)}k</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
 
+        {/* Competitive Analysis */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="mt-12 text-center"
+          transition={{ duration: 0.6, delay: 1.0 }}
+          className="border-t-4 border-yellow-500 pt-8"
         >
-          <p className="text-sm text-gray-400 max-w-4xl mx-auto leading-relaxed">
-            <span className="font-semibold">Timeline-Integrated Unit Economics:</span> Pre-launch development costs (${formatCurrency(timelineAwareCosts.preLaunch.totalCost * 6)}) are strategically invested before revenue generation, creating optimal launch timing with AWS credits. Month 3 investment timing (${formatCurrency(BASE_EMPLOYEE_PARAMS.investmentAmount)}) occurs after break-even proof, de-risking investor capital while enabling founder focus and strategic hires. Employee costs scale predictably: ${formatCurrency(timelineAwareCosts.preLaunch.totalCost)}/month pre-launch → ${formatCurrency(timelineAwareCosts.postInvestment.totalCost)}/month post-investment → ${formatCurrency(timelineAwareCosts.mature.totalCost)}/month at maturity. The {formatMultiplier(keyMetrics.ltvCacRatio)} LTV/CAC ratio accounts for all timeline costs including pre-launch development, demonstrating sustainable unit economics even with comprehensive cost modeling. Most importantly, the viral coefficient (0.4) creates exponential customer acquisition while timeline-driven hiring ensures each employee is revenue-justified, maintaining positive cash flow throughout all growth phases despite conservative assumptions across formation rates, churn, and market adoption.
-          </p>
+          <h2 className="text-3xl font-bold mb-8 text-yellow-400">COMPETITIVE UNIT ECONOMICS COMPARISON</h2>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-4 px-6 text-gray-300">Metric</th>
+                  <th className="text-center py-4 px-6 text-blue-400">VibeStartup</th>
+                  <th className="text-center py-4 px-6 text-gray-400">Industry Avg</th>
+                  <th className="text-center py-4 px-6 text-gray-400">Best in Class</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  {
+                    metric: 'LTV/CAC Ratio',
+                    vibestartup: (baseLTV.blendedLTV / baseCAC.cacPerCompany).toFixed(1) + 'x',
+                    industry: '3-5x',
+                    bestInClass: '8-12x'
+                  },
+                  {
+                    metric: 'CAC Payback Period',
+                    vibestartup: (baseCAC.cacPerCompany / (BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)).toFixed(1) + ' months',
+                    industry: '12-18 months',
+                    bestInClass: '6-9 months'
+                  },
+                  {
+                    metric: 'Gross Margin',
+                    vibestartup: formatPercentage(((BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) - infrastructureCostPerCompany - (BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate) * BASE_INFRASTRUCTURE_PARAMS.paymentProcessingRate) / (BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)),
+                    industry: '70-80%',
+                    bestInClass: '85-90%'
+                  },
+                  {
+                    metric: 'Monthly Churn',
+                    vibestartup: formatPercentage(BASE_BUSINESS_PARAMS.monthlyChurnRate),
+                    industry: '8-12%',
+                    bestInClass: '3-5%'
+                  },
+                  {
+                    metric: 'Viral Coefficient',
+                    vibestartup: BASE_BUSINESS_PARAMS.viralCoefficient.toFixed(1),
+                    industry: '0.0-0.2',
+                    bestInClass: '0.6-1.2'
+                  }
+                ].map((row, index) => (
+                  <motion.tr
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 1.2 + index * 0.1 }}
+                    className="border-b border-gray-800 hover:bg-gray-900/30"
+                  >
+                    <td className="py-4 px-6 text-gray-300 font-medium">{row.metric}</td>
+                    <td className="py-4 px-6 text-center text-blue-400 font-bold">{row.vibestartup}</td>
+                    <td className="py-4 px-6 text-center text-gray-400">{row.industry}</td>
+                    <td className="py-4 px-6 text-center text-gray-400">{row.bestInClass}</td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.8 }}
+            className="mt-8 p-6 bg-yellow-900/20 border border-yellow-500/30 rounded-lg"
+          >
+            <h3 className="text-lg font-semibold text-yellow-300 mb-4">Why Our Unit Economics Break SaaS Norms</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-300">
+              <div>
+                <p><strong>Viral Growth Engine:</strong> K-factor of {BASE_BUSINESS_PARAMS.viralCoefficient} means every 10 companies drive 4 additional companies organically. Each founder naturally showcases their new company, creating authentic viral loops that reduce CAC to near-zero over time.</p>
+                <p className="mt-3"><strong>Multi-Revenue Model:</strong> Formation fees ({formatCurrency(BASE_BUSINESS_PARAMS.formationFee)} one-time) + monthly subscriptions (${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)} blended) create high LTV with multiple monetization points per customer relationship.</p>
+              </div>
+              <div>
+                <p><strong>Network Effects Compounding:</strong> Each new company strengthens the platform for all users. VibeFund creates investment loops, VibeMatch enables founder collaboration, VibeReach amplifies marketing reach. Platform value increases exponentially with user count.</p>
+                <p className="mt-3"><strong>AI-Optimized Operations:</strong> Minimal human overhead compared to traditional service businesses. Automated formation processes, AI-powered support, and self-service platform reduce operational costs while scaling revenue efficiently.</p>
+              </div>
+            </div>
+          </motion.div>
         </motion.div>
       </motion.div>
     </div>

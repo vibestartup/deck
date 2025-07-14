@@ -9,6 +9,10 @@ import {
   BASE_INFRASTRUCTURE_PARAMS,
   INFRASTRUCTURE_OPTIMIZATION,
   BASE_EMPLOYEE_PARAMS,
+  TIMELINE_MARKER_PARAMS,
+  BURN_RATE_CALCULATIONS,
+  BASE_INVESTMENT_PARAMS,
+  COMPUTED_VALUES,
   calculateEmployeeCosts
 } from '../../lib'
 import { MetricCards } from '../charts'
@@ -369,7 +373,7 @@ export function FinancialProjectionsSlide() {
     
     // For pre-launch months, costs are just employee costs
     // For post-launch, include infrastructure costs
-    const variableCosts = month >= 2 ? totalCompanies * infrastructureCost : 0;
+    const variableCosts = month >= TIMELINE_MARKER_PARAMS.launchMonth ? totalCompanies * infrastructureCost : 0;
     const totalCosts = employeeCosts + variableCosts;
     
     return {
@@ -383,47 +387,10 @@ export function FinancialProjectionsSlide() {
   });
 
   // Find break-even month
-  const breakEvenMonth = monthlyFinancialData.find(d => d.profit > 0)?.month || 3;
+  const breakEvenMonth = monthlyFinancialData.find(d => d.profit > 0)?.month || TIMELINE_MARKER_PARAMS.launchMonth + 1;
 
-  // Timeline markers for key business milestones
-  const timelineMarkers = [
-    { 
-      month: -6, 
-      label: 'Dev Start', 
-      type: 'milestone' as const, 
-      description: 'Pre-launch development begins' 
-    },
-    { 
-      month: 0, 
-      label: 'Investment', 
-      type: 'investment' as const, 
-      description: '$50k received, 1-month prep begins' 
-    },
-    { 
-      month: 2, 
-      label: 'Launch', 
-      type: 'launch' as const, 
-      description: 'Product launch, revenue begins' 
-    },
-    { 
-      month: 6, 
-      label: 'CS Hire', 
-      type: 'hire' as const, 
-      description: 'Customer Success Manager at $100k MRR' 
-    },
-    { 
-      month: 9, 
-      label: 'Marketing Hire', 
-      type: 'hire' as const, 
-      description: 'Marketing Manager at $200k MRR' 
-    },
-    { 
-      month: 12, 
-      label: 'Dev Hire', 
-      type: 'hire' as const, 
-      description: 'Senior Developer at $400k MRR' 
-    }
-  ];
+  // Use computed timeline markers
+  const timelineMarkers = COMPUTED_VALUES.getTimelineMarkers();
 
   // Strategic decision thresholds
   const decisionThresholds = [
@@ -432,13 +399,13 @@ export function FinancialProjectionsSlide() {
     { month: 24, label: 'Conservative\nTransition', type: 'conservative' as const }
   ];
 
-  // Key metrics for cards
+  // Key metrics for cards using computed values
   const keyMetricsCards = [
     {
       label: 'Pre-Launch Burn',
-      value: '$40k',
+      value: COMPUTED_VALUES.preLaunchBurnFormatted,
       color: 'red',
-      description: '$12k dev + $14k month 0 + $14k month 1'
+      description: `${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * COMPUTED_VALUES.developmentPhaseMonths / 1000)}k dev + ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * COMPUTED_VALUES.prepPhaseMonths / 1000)}k prep`
     },
     {
       label: 'Break-even Month',
@@ -454,9 +421,9 @@ export function FinancialProjectionsSlide() {
     },
     {
       label: 'First Year ROI',
-      value: formatCurrency((baseProjections.totalRevenue - 50000) / 50000, 0) + 'x',
+      value: formatCurrency((baseProjections.totalRevenue - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount, 0) + 'x',
       color: 'yellow',
-      description: 'Return on $50k investment'
+      description: `Return on ${COMPUTED_VALUES.investmentAmountFormatted} investment`
     }
   ];
 
@@ -474,7 +441,7 @@ export function FinancialProjectionsSlide() {
           Financial Projections & Milestone Timeline
         </h1>
         <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
-          $12k pre-launch burn → $0 revenue at launch → {formatCurrency((monthlyFinancialData.find(d => d.month === 12)?.revenue || 0) / 1000000, 1)}M MRR by month 12
+          {COMPUTED_VALUES.preLaunchBurnFormatted} pre-launch burn → $0 revenue at launch → {formatCurrency((monthlyFinancialData.find(d => d.month === 12)?.revenue || 0) / 1000000, 1)}M MRR by month 12
         </p>
 
         {/* Key Metrics Cards */}
@@ -510,13 +477,13 @@ export function FinancialProjectionsSlide() {
             <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-purple-400 mb-4">Investment & Funding Timeline</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Pre-Investment (Month -6 to -1):</strong> $2k/month contractor, bootstrapped development</p>
-                <p><strong>Month 0:</strong> $50k investment received</p>
-                <p><strong>Month 1:</strong> Full preparation period - infrastructure setup, legal compliance, marketing materials</p>
-                <p><strong>Month 2:</strong> Product launch with revenue generation beginning</p>
-                <p><strong>Post-Investment:</strong> Founder salary $5k/month + legal $3k/month + compliance $4k/month</p>
-                <p><strong>Employee Burn Rate:</strong> $14k/month during prep, $19k/month after launch (adding marketing)</p>
-                <p className="text-xs text-purple-300 mt-2">Investment provides runway for proper launch preparation. The full month between investment and launch ensures infrastructure, legal, and go-to-market strategy are fully ready. $50k provides 6-month runway for core team while revenue scales to support additional hires.</p>
+                <p><strong>Pre-Investment (Month {TIMELINE_MARKER_PARAMS.developmentStartMonth} to {TIMELINE_MARKER_PARAMS.investmentMonth - 1}):</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 1000)}k/month contractor, bootstrapped development</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.investmentMonth}:</strong> {COMPUTED_VALUES.investmentAmountFormatted} investment received</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.investmentMonth + 1}:</strong> Full preparation period - infrastructure setup, legal compliance, marketing materials</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.launchMonth}:</strong> Product launch with revenue generation beginning</p>
+                <p><strong>Post-Investment:</strong> Founder salary ${formatCurrency(BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Founder Salary')?.monthlyCost || 0 / 1000)}k/month + legal ${formatCurrency(BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Legal Counsel')?.monthlyCost || 0 / 1000)}k/month + compliance ${formatCurrency(BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Compliance Specialist')?.monthlyCost || 0 / 1000)}k/month</p>
+                <p><strong>Employee Burn Rate:</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 1000)}k/month during prep, ${formatCurrency(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 1000)}k/month after launch (adding marketing)</p>
+                <p className="text-xs text-purple-300 mt-2">Investment provides runway for proper launch preparation. The full month between investment and launch ensures infrastructure, legal, and go-to-market strategy are fully ready. {COMPUTED_VALUES.investmentAmountFormatted} provides 6-month runway for core team while revenue scales to support additional hires.</p>
               </div>
             </div>
             
@@ -524,10 +491,10 @@ export function FinancialProjectionsSlide() {
             <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-blue-400 mb-4">Revenue-Driven Hiring Strategy</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Month 6:</strong> Customer Success at $100k MRR</p>
-                <p><strong>Month 9:</strong> Marketing Manager at $200k MRR</p>
-                <p><strong>Month 12:</strong> Senior Developer at $400k MRR</p>
-                <p><strong>Month 18:</strong> Sales Manager at $600k MRR</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.customerSuccessHire.month}:</strong> Customer Success at ${formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000)}k MRR</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.marketingHire.month}:</strong> Marketing Manager at ${formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold / 1000)}k MRR</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.seniorDevHire.month}:</strong> Senior Developer at ${formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000)}k MRR</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.salesHire.month}:</strong> Sales Manager at ${formatCurrency(TIMELINE_MARKER_PARAMS.salesHire.mrrThreshold / 1000)}k MRR</p>
                 <p className="text-xs text-blue-300 mt-2">Each hire triggered by MRR milestones ensuring revenue can support increased payroll. Conservative hiring approach maintains cash flow positive operations throughout growth phase.</p>
               </div>
             </div>
@@ -536,11 +503,11 @@ export function FinancialProjectionsSlide() {
             <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-green-400 mb-4">Cost Structure Evolution</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Month -6 to -1:</strong> $2k/month contractor only = $12k total pre-investment burn</p>
-                <p><strong>Month 0:</strong> Investment received, costs jump to $14k/month (founder + legal + compliance)</p>
-                <p><strong>Month 1:</strong> Full prep month at $14k/month (entire month dedicated to launch preparation)</p>
-                <p><strong>Month 2:</strong> Launch! Costs increase to $19k/month (adding $5k marketing), revenue begins</p>
-                <p><strong>Month 12:</strong> $27k employee costs + {formatCurrency(infrastructureCostPerCompany * (monthlyFinancialData.find(d => d.month === 12)?.companies || 0) / 1000)}k infrastructure</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.developmentStartMonth} to {TIMELINE_MARKER_PARAMS.investmentMonth - 1}:</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 1000)}k/month contractor only = ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * COMPUTED_VALUES.developmentPhaseMonths / 1000)}k total pre-investment burn</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.investmentMonth}:</strong> Investment received, costs jump to ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 1000)}k/month (founder + legal + compliance)</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.investmentMonth + 1}:</strong> Full prep month at ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 1000)}k/month (entire month dedicated to launch preparation)</p>
+                <p><strong>Month {TIMELINE_MARKER_PARAMS.launchMonth}:</strong> Launch! Costs increase to ${formatCurrency(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 1000)}k/month (adding ${formatCurrency(BASE_BUSINESS_PARAMS.monthlyMarketingSpend / 1000)}k marketing), revenue begins</p>
+                <p><strong>Month 12:</strong> ${formatCurrency(COMPUTED_VALUES.getEmployeeCostAtMonth(12, (monthlyFinancialData.find(d => d.month === 12)?.revenue || 0)).totalCost / 1000)}k employee costs + {formatCurrency(infrastructureCostPerCompany * (monthlyFinancialData.find(d => d.month === 12)?.companies || 0) / 1000)}k infrastructure</p>
                 <p><strong>Break-even maintained:</strong> Revenue growth outpaces cost increases</p>
                 <p className="text-xs text-green-300 mt-2">Employee costs scale predictably with revenue milestones. Infrastructure costs managed through three-stage optimization strategy. Overall operating leverage improves throughout timeline.</p>
               </div>
@@ -568,7 +535,7 @@ export function FinancialProjectionsSlide() {
                   `Infrastructure cost: $0 (AWS credits cover ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.awsCreditsMonthly * 12 / 1000000, 1)}M)`,
                   'SaaS gross margin: 94% (payment processing only)',
                   'Formation gross margin: 26% (state fees + KYC)',
-                  'Break-even: Month 2 at 882 companies',
+                  `Break-even: Month ${breakEvenMonth} at ${Math.round(monthlyFinancialData.find(d => d.month === breakEvenMonth)?.companies || 0)} companies`,
                   'Profit machine: Every $ of revenue = $0.85 profit'
                 ]
               },
@@ -653,13 +620,13 @@ export function FinancialProjectionsSlide() {
               <h3 className="text-xl font-semibold text-red-300">Investment Timeline Economics</h3>
               <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
                 <div className="space-y-2 text-sm text-gray-300">
-                   <p><strong>Pre-Investment (M1-3):</strong> $7k/month burn rate</p>
-                   <p><strong>Investment Timing:</strong> Month 3 (after break-even proven)</p>
-                   <p><strong>Post-Investment:</strong> $14k/month base burn + revenue-driven hires</p>
+                   <p><strong>Pre-Investment:</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 1000)}k/month burn rate</p>
+                   <p><strong>Investment Timing:</strong> Month {TIMELINE_MARKER_PARAMS.investmentMonth} (after {COMPUTED_VALUES.developmentPhaseMonths} months development)</p>
+                   <p><strong>Post-Investment:</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 1000)}k/month base burn + revenue-driven hires</p>
                    <p><strong>Hire Triggers:</strong> MRR milestones ensure affordability</p>
-                   <p><strong>Month 12 Burn:</strong> $25k/month total employee costs</p>
+                   <p><strong>Month 12 Burn:</strong> ${formatCurrency(COMPUTED_VALUES.getEmployeeCostAtMonth(12, (monthlyFinancialData.find(d => d.month === 12)?.revenue || 0)).totalCost / 1000)}k/month total employee costs</p>
                    <p><strong>Cash Flow:</strong> Positive throughout (revenue &gt; costs)</p>
-                   <p><strong>Investment Efficiency:</strong> <span className="text-green-400">{formatCurrency((monthlyFinancialData[11].revenue * 12 - 50000) / 50000, 0)}x first year return</span></p>
+                   <p><strong>Investment Efficiency:</strong> <span className="text-green-400">{formatCurrency((monthlyFinancialData[11].revenue * 12 - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount, 0)}x first year return</span></p>
                  </div>
               </div>
             </div>
@@ -670,12 +637,12 @@ export function FinancialProjectionsSlide() {
             <h3 className="text-xl font-semibold text-gray-300 mb-4">Timeline-Based Strategic Planning</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400">
               <div>
-                <p className="font-semibold text-green-300 mb-2">Launch Strategy (Month 0-3)</p>
-                <p>Bootstrapped launch with minimal team (contractor + founder). Focus on proving product-market fit before major investment. Marketing spend drives viral growth. Break-even achieved Month 2 validates business model before scaling costs.</p>
+                <p className="font-semibold text-green-300 mb-2">Launch Strategy (Month {TIMELINE_MARKER_PARAMS.investmentMonth}-{TIMELINE_MARKER_PARAMS.launchMonth + 1})</p>
+                <p>Bootstrapped launch with minimal team (contractor + founder). Focus on proving product-market fit before major investment. Marketing spend drives viral growth. Break-even achieved Month {breakEvenMonth} validates business model before scaling costs.</p>
               </div>
               <div>
-                <p className="font-semibold text-purple-300 mb-2">Investment Strategy (Month 3-12)</p>
-                <p>$50k received after break-even proven reduces investor risk. Founder salary allows full-time focus. Legal/compliance hires ensure scalable operations. Revenue-driven hiring ensures each new employee is affordable based on MRR growth.</p>
+                <p className="font-semibold text-purple-300 mb-2">Investment Strategy (Month {TIMELINE_MARKER_PARAMS.launchMonth}-12)</p>
+                <p>{COMPUTED_VALUES.investmentAmountFormatted} received after break-even proven reduces investor risk. Founder salary allows full-time focus. Legal/compliance hires ensure scalable operations. Revenue-driven hiring ensures each new employee is affordable based on MRR growth.</p>
               </div>
               <div>
                 <p className="font-semibold text-blue-300 mb-2">Scaling Strategy (Month 12+)</p>
@@ -693,13 +660,13 @@ export function FinancialProjectionsSlide() {
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
           <div className="text-sm text-gray-400 space-y-3">
-            <p><strong>Investment-First Strategy:</strong> Month 0 investment provides capital after 6 months of bootstrapped development. Pre-launch burn totals $12k (contractor only). Month 1 is entirely dedicated to launch preparation, ensuring all systems are ready: formation APIs tested, legal compliance verified, marketing materials prepared, and initial content created. This de-risks the launch while providing founder salary to focus full-time on execution.</p>
+            <p><strong>Investment-First Strategy:</strong> Month {TIMELINE_MARKER_PARAMS.investmentMonth} investment provides capital after {COMPUTED_VALUES.developmentPhaseMonths} months of bootstrapped development. Pre-launch burn totals {COMPUTED_VALUES.preLaunchBurnFormatted} (contractor only). Month {TIMELINE_MARKER_PARAMS.investmentMonth + 1} is entirely dedicated to launch preparation, ensuring all systems are ready: formation APIs tested, legal compliance verified, marketing materials prepared, and initial content created. This de-risks the launch while providing founder salary to focus full-time on execution.</p>
             
-            <p><strong>Revenue-Driven Hiring Model:</strong> Each hire triggered by specific MRR milestones ensuring affordability: Customer Success at $100k MRR (Month 6), Marketing at $200k MRR (Month 9), Senior Developer at $400k MRR (Month 12). This conservative approach maintains positive cash flow throughout scaling while building capabilities systematically.</p>
+            <p><strong>Revenue-Driven Hiring Model:</strong> Each hire triggered by specific MRR milestones ensuring affordability: Customer Success at ${formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000)}k MRR (Month {TIMELINE_MARKER_PARAMS.customerSuccessHire.month}), Marketing at ${formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold / 1000)}k MRR (Month {TIMELINE_MARKER_PARAMS.marketingHire.month}), Senior Developer at ${formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000)}k MRR (Month {TIMELINE_MARKER_PARAMS.seniorDevHire.month}). This conservative approach maintains positive cash flow throughout scaling while building capabilities systematically.</p>
             
-            <p><strong>Cost Structure Evolution:</strong> Pre-investment costs limited to $2k/month contractor for 6 months. Post-investment jumps to $14k/month base (founder + legal + compliance) during month 1 prep period, then $19k at launch (month 2) adding marketing. Revenue starts at $0 on launch day (beginning of Month 2) and quickly scales to cover costs. Infrastructure costs optimize through three-stage strategy. Break-even achieved by Month {breakEvenMonth} despite initial burn period.</p>
+            <p><strong>Cost Structure Evolution:</strong> Pre-investment costs limited to ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 1000)}k/month contractor for {COMPUTED_VALUES.developmentPhaseMonths} months. Post-investment jumps to ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 1000)}k/month base (founder + legal + compliance) during month {TIMELINE_MARKER_PARAMS.investmentMonth + 1} prep period, then ${formatCurrency(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 1000)}k at launch (month {TIMELINE_MARKER_PARAMS.launchMonth}) adding marketing. Revenue starts at $0 on launch day (beginning of Month {TIMELINE_MARKER_PARAMS.launchMonth}) and quickly scales to cover costs. Infrastructure costs optimize through three-stage strategy. Break-even achieved by Month {breakEvenMonth} despite initial burn period.</p>
             
-            <p><strong>Financial Model Validation:</strong> Timeline demonstrates sustainable path to $22M year 1 revenue even with 8 months of pre-revenue burn. Total pre-revenue investment: $40k ($12k pre-investment + $14k month 0 + $14k month 1 prep). Investment ROI exceeds {formatCurrency((baseProjections.totalRevenue - 50000) / 50000, 0)}x in first year. Conservative hiring and infrastructure transition timing ensures execution risk is minimized while growth potential is maximized.</p>
+            <p><strong>Financial Model Validation:</strong> Timeline demonstrates sustainable path to ${formatCurrency(baseProjections.totalRevenue / 1000000, 0)}M year 1 revenue even with {TIMELINE_MARKER_PARAMS.launchMonth - TIMELINE_MARKER_PARAMS.developmentStartMonth} months of pre-revenue burn. Total pre-revenue investment: {COMPUTED_VALUES.preLaunchBurnFormatted} ({formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * COMPUTED_VALUES.developmentPhaseMonths / 1000)}k pre-investment + {formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * COMPUTED_VALUES.prepPhaseMonths / 1000)}k prep). Investment ROI exceeds {formatCurrency((baseProjections.totalRevenue - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount, 0)}x in first year. Conservative hiring and infrastructure transition timing ensures execution risk is minimized while growth potential is maximized.</p>
           </div>
         </motion.div>
       </motion.div>

@@ -1,58 +1,64 @@
-// Export types
-export * from './types';
-
-// Export parameters
+// Core business parameters and calculations
 export {
   BASE_BUSINESS_PARAMS,
-  BASE_INFRASTRUCTURE_PARAMS,
+  BASE_INFRASTRUCTURE_PARAMS, 
   BASE_USAGE_PATTERNS,
   GROWTH_STAGES,
-  SENSITIVITY_PARAMS,
-  INDUSTRY_BENCHMARKS,
-  calculateAveragePrice,
-  calculateInfrastructureCostPerCompany,
-  calculateFormationCosts,
-  MARKET_PARAMS,
-  COMPETITIVE_PARAMS,
-  INVESTMENT_PARAMS,
-  BRANDING_PARAMS,
-  PRODUCT_PARAMS,
-  MARKET_TIMING_PARAMS,
-  ROADMAP_PARAMS,
-  RISK_PARAMS,
-  SHARING_BEHAVIOR,
-  TECHNICAL_ARCHITECTURE,
-  INFRASTRUCTURE_OPTIMIZATION,
   BASE_EMPLOYEE_PARAMS,
+  TIMELINE_MARKER_PARAMS,
+  BURN_RATE_CALCULATIONS,
+  BASE_INVESTMENT_PARAMS,
+  COMPUTED_VALUES,
+  INFRASTRUCTURE_OPTIMIZATION,
   EMPLOYEE_COST_SCENARIOS,
-  calculateEmployeeCosts,
   generateEmployeeParamsForInvestment,
   getEmployeesByPhase,
+  calculateEmployeeCosts,
+  calculateAveragePrice,
+  calculateInfrastructureCostPerCompany,
+  calculateFormationCosts
 } from './parameters';
 
-// Export calculations
+// Calculations
 export {
   baseProjections,
   baseCAC,
   baseLTV,
-  keyMetrics,
-  calculateGrowthProjections,
-  calculateCAC,
-  calculateLTV,
-  calculateInvestmentReturns,
-  runSensitivityAnalysis,
-  calculateCompetitiveBenchmarks,
-  calculateMonthlySaaSRevenue,
-  calculateInfrastructureCost,
+  calculateGrowthProjections
 } from './calculations';
 
-// Export utilities
+// Type exports
+export type {
+  BusinessParameters,
+  InfrastructureParameters,
+  UsagePatterns,
+  GrowthStage,
+  MonthlyCohort,
+  SensitivityParameters,
+  FinancialProjections,
+  CompetitiveBenchmarks,
+  InvestmentScenario,
+  MarketParameters,
+  CompetitiveParameters,
+  InvestmentParameters,
+  BrandingParameters,
+  ProductParameters,
+  MarketTimingParameters,
+  RoadmapParameters,
+  RiskParameters,
+  InfrastructureOptimization,
+  Employee,
+  EmployeeParameters,
+  EmployeeCostScenario,
+  TimelineMarkerParameters,
+  BurnRateCalculations,
+  ComputedValues
+} from './types';
+
+// Utility functions
 export {
   formatCurrency,
-  formatNumber,
-  formatPercentage,
-  formatMultiplier,
-  formatMonths,
+  formatPercentage
 } from './utils';
 
 // Additional utility functions for slides

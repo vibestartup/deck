@@ -16,7 +16,10 @@ import {
   InfrastructureOptimization,
   EmployeeParameters,
   EmployeeCostScenario,
-  Employee
+  Employee,
+  TimelineMarkerParameters,
+  BurnRateCalculations,
+  ComputedValues
 } from './types';
 
 // Base case business parameters from pitch deck
@@ -47,6 +50,35 @@ export const BASE_BUSINESS_PARAMS: BusinessParameters = {
   // Timeline parameters
   investmentMonth: 0, // Investment received at month 0
   launchDelayMonths: 1, // Launch happens 1 month after investment
+};
+
+// Timeline marker parameters - computed from business params
+export const TIMELINE_MARKER_PARAMS: TimelineMarkerParameters = {
+  developmentStartMonth: -6, // Start development 6 months before investment
+  investmentMonth: BASE_BUSINESS_PARAMS.investmentMonth, // Month 0
+  launchMonth: BASE_BUSINESS_PARAMS.investmentMonth + BASE_BUSINESS_PARAMS.launchDelayMonths + 1, // Month 2
+  
+  // Hiring thresholds based on MRR milestones
+  customerSuccessHire: {
+    month: 6,
+    mrrThreshold: 100000, // $100k MRR
+    salary: 3500 // $3.5k/month
+  },
+  marketingHire: {
+    month: 9,
+    mrrThreshold: 200000, // $200k MRR
+    salary: 4500 // $4.5k/month
+  },
+  seniorDevHire: {
+    month: 12,
+    mrrThreshold: 400000, // $400k MRR
+    salary: 8000 // $8k/month
+  },
+  salesHire: {
+    month: 18,
+    mrrThreshold: 600000, // $600k MRR
+    salary: 5000 // $5k/month
+  }
 };
 
 // Infrastructure cost parameters
@@ -109,7 +141,7 @@ export const GROWTH_STAGES: GrowthStage[] = [
     endMonth: 36,
     awsCreditsActive: false,
     selfHostingActive: true,
-    pricingMultiplier: 1.5, // Maintain higher pricing
+    pricingMultiplier: 1.5, // Keep higher pricing
   },
 ];
 
@@ -120,84 +152,190 @@ export const BASE_EMPLOYEE_PARAMS: EmployeeParameters = {
     {
       role: 'Technical Contractor',
       monthlyCost: 2000, // $2k/month
-      startMonth: -6, // 6 months before launch
-      endMonth: 0, // Until investment
+      startMonth: TIMELINE_MARKER_PARAMS.developmentStartMonth, // Month -6
+      endMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Until investment (month 0)
       investmentRequired: false,
     },
-    // Post-investment employees (investment at month 0, launch at month 1)
+    // Post-investment employees (investment at month 0, launch at month 2)
     {
       role: 'Founder Salary',
       monthlyCost: 5000, // $5k/month
-      startMonth: 0, // Starts when investment received
+      startMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Starts when investment received
       endMonth: undefined,
       investmentRequired: true,
     },
     {
       role: 'Technical Contractor (Continued)',
       monthlyCost: 2000, // $2k/month
-      startMonth: 0, // Continues after investment
+      startMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Continues after investment
       endMonth: undefined,
       investmentRequired: false,
     },
     {
       role: 'Legal Counsel',
       monthlyCost: 3000, // $3k/month
-      startMonth: 0, // Starts when investment received
+      startMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Starts when investment received
       endMonth: undefined,
       investmentRequired: true,
     },
     {
       role: 'Compliance Specialist',
       monthlyCost: 4000, // $4k/month
-      startMonth: 0, // Starts when investment received
+      startMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Starts when investment received
       endMonth: undefined,
       investmentRequired: true,
     },
     // Marketing spend (not technically an employee but counts as fixed cost)
     {
       role: 'Marketing & Content',
-      monthlyCost: 5000, // $5k/month
-      startMonth: 1, // Starts at launch
+      monthlyCost: BASE_BUSINESS_PARAMS.monthlyMarketingSpend, // $5k/month from business params
+      startMonth: TIMELINE_MARKER_PARAMS.launchMonth, // Starts at launch
       endMonth: undefined,
       investmentRequired: false,
     },
     // Revenue-driven hires
     {
       role: 'Customer Success Manager',
-      monthlyCost: 3500, // $3.5k/month
-      startMonth: 6,
+      monthlyCost: TIMELINE_MARKER_PARAMS.customerSuccessHire.salary,
+      startMonth: TIMELINE_MARKER_PARAMS.customerSuccessHire.month,
       endMonth: undefined,
       investmentRequired: false,
-      requiredMRR: 100000, // At $100k MRR
+      requiredMRR: TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold,
     },
     {
       role: 'Marketing Manager',
-      monthlyCost: 4500, // $4.5k/month
-      startMonth: 9,
+      monthlyCost: TIMELINE_MARKER_PARAMS.marketingHire.salary,
+      startMonth: TIMELINE_MARKER_PARAMS.marketingHire.month,
       endMonth: undefined,
       investmentRequired: false,
-      requiredMRR: 200000, // At $200k MRR
+      requiredMRR: TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold,
     },
     {
       role: 'Senior Developer',
-      monthlyCost: 8000, // $8k/month
-      startMonth: 12,
+      monthlyCost: TIMELINE_MARKER_PARAMS.seniorDevHire.salary,
+      startMonth: TIMELINE_MARKER_PARAMS.seniorDevHire.month,
       endMonth: undefined,
       investmentRequired: false,
-      requiredMRR: 400000, // At $400k MRR
+      requiredMRR: TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold,
     },
     {
       role: 'Sales Manager',
-      monthlyCost: 5000, // $5k/month
-      startMonth: 18,
+      monthlyCost: TIMELINE_MARKER_PARAMS.salesHire.salary,
+      startMonth: TIMELINE_MARKER_PARAMS.salesHire.month,
       endMonth: undefined,
       investmentRequired: false,
-      requiredMRR: 600000, // At $600k MRR
+      requiredMRR: TIMELINE_MARKER_PARAMS.salesHire.mrrThreshold,
     },
   ],
-  launchMonth: 1, // Launch happens at month 1 (after 1 month prep)
-  investmentMonth: 0, // Investment received at month 0
+  launchMonth: TIMELINE_MARKER_PARAMS.launchMonth, // Launch happens at month 2
+  investmentMonth: TIMELINE_MARKER_PARAMS.investmentMonth, // Investment received at month 0
   investmentAmount: 50000, // $50k base case investment
+};
+
+// Computed burn rate calculations
+export const BURN_RATE_CALCULATIONS: BurnRateCalculations = {
+  preLaunchMonthlyBurn: 2000, // Technical contractor only
+  postInvestmentPreLaunchBurn: 14000, // Founder + legal + compliance + contractor
+  postLaunchBaseBurn: 19000, // Post-investment costs + marketing
+  
+  // Pre-revenue burn calculation
+  preRevenueBurnTotal: () => {
+    const preLaunchMonths = Math.abs(TIMELINE_MARKER_PARAMS.developmentStartMonth - TIMELINE_MARKER_PARAMS.investmentMonth);
+    const prepMonths = TIMELINE_MARKER_PARAMS.launchMonth - TIMELINE_MARKER_PARAMS.investmentMonth;
+    
+    return (preLaunchMonths * BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn) +
+           (prepMonths * BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn);
+  },
+};
+
+// Investment scenario parameters
+export const BASE_INVESTMENT_PARAMS: InvestmentParameters = {
+  requestedInvestmentAmount: BASE_EMPLOYEE_PARAMS.investmentAmount, // $50k
+  premoneyValuation: 2000000, // $2M
+  equityPercentage: 2.5, // 2.5%
+  useOfFunds: {
+    infrastructure: 15000, // $15k
+    marketing: 20000, // $20k
+    legal: 10000, // $10k
+    vibefundTreasury: 5000, // $5k
+  },
+  exitMultiples: {
+    year1: 10, // 10x revenue
+    year2: 8, // 8x revenue
+    year3: 6, // 6x revenue
+  },
+};
+
+// Computed values helper object
+export const COMPUTED_VALUES: ComputedValues = {
+  // Timeline helpers
+  get developmentPhaseMonths() {
+    return Math.abs(TIMELINE_MARKER_PARAMS.developmentStartMonth - TIMELINE_MARKER_PARAMS.investmentMonth);
+  },
+  
+  get prepPhaseMonths() {
+    return TIMELINE_MARKER_PARAMS.launchMonth - TIMELINE_MARKER_PARAMS.investmentMonth;
+  },
+  
+  // Investment and cost helpers
+  get investmentAmountFormatted() {
+    return `$${(BASE_INVESTMENT_PARAMS.requestedInvestmentAmount / 1000)}k`;
+  },
+  
+  get preLaunchBurnTotal() {
+    return BURN_RATE_CALCULATIONS.preRevenueBurnTotal();
+  },
+  
+  get preLaunchBurnFormatted() {
+    return `$${(this.preLaunchBurnTotal / 1000)}k`;
+  },
+  
+  // Employee cost helpers
+  getEmployeeCostAtMonth(month: number, mrr: number = 0) {
+    return calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, month, mrr, undefined, month >= TIMELINE_MARKER_PARAMS.investmentMonth);
+  },
+  
+  // Timeline marker helpers
+  getTimelineMarkers() {
+    return [
+      {
+        month: TIMELINE_MARKER_PARAMS.developmentStartMonth,
+        label: 'Dev Start',
+        type: 'milestone' as const,
+        description: 'Pre-launch development begins'
+      },
+      {
+        month: TIMELINE_MARKER_PARAMS.investmentMonth,
+        label: 'Investment',
+        type: 'investment' as const,
+        description: `${this.investmentAmountFormatted} received, ${this.prepPhaseMonths}-month prep begins`
+      },
+      {
+        month: TIMELINE_MARKER_PARAMS.launchMonth,
+        label: 'Launch',
+        type: 'launch' as const,
+        description: 'Product launch, revenue begins'
+      },
+      {
+        month: TIMELINE_MARKER_PARAMS.customerSuccessHire.month,
+        label: 'CS Hire',
+        type: 'hire' as const,
+        description: `Customer Success Manager at $${TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000}k MRR`
+      },
+      {
+        month: TIMELINE_MARKER_PARAMS.marketingHire.month,
+        label: 'Marketing Hire',
+        type: 'hire' as const,
+        description: `Marketing Manager at $${TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold / 1000}k MRR`
+      },
+      {
+        month: TIMELINE_MARKER_PARAMS.seniorDevHire.month,
+        label: 'Dev Hire',
+        type: 'hire' as const,
+        description: `Senior Developer at $${TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000}k MRR`
+      }
+    ];
+  }
 };
 
 // Employee cost scenario definitions

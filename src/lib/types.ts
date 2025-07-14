@@ -329,4 +329,68 @@ export interface EmployeeCostScenario {
   founderSalaryMultiplier: number; // Multiplier for founder salary based on investment
   hiringTimeline: 'conservative' | 'moderate' | 'aggressive'; // How quickly to hire
   burnRateTarget: number; // Target monthly burn rate as % of investment
+}
+
+// Timeline marker parameters
+export interface TimelineMarkerParameters {
+  developmentStartMonth: number; // Month when development starts (negative = pre-investment)
+  investmentMonth: number; // Month when investment is received
+  launchMonth: number; // Month when product launches
+  
+  // Hiring milestone parameters
+  customerSuccessHire: {
+    month: number;
+    mrrThreshold: number;
+    salary: number;
+  };
+  marketingHire: {
+    month: number;
+    mrrThreshold: number;
+    salary: number;
+  };
+  seniorDevHire: {
+    month: number;
+    mrrThreshold: number;
+    salary: number;
+  };
+  salesHire: {
+    month: number;
+    mrrThreshold: number;
+    salary: number;
+  };
+}
+
+// Burn rate calculation parameters
+export interface BurnRateCalculations {
+  preLaunchMonthlyBurn: number; // Monthly burn before investment
+  postInvestmentPreLaunchBurn: number; // Monthly burn after investment but before launch
+  postLaunchBaseBurn: number; // Monthly burn after launch (base costs)
+  preRevenueBurnTotal: () => number; // Function to calculate total pre-revenue burn
+}
+
+// Computed values interface for helper functions
+export interface ComputedValues {
+  // Timeline helpers
+  readonly developmentPhaseMonths: number;
+  readonly prepPhaseMonths: number;
+  
+  // Investment and cost helpers
+  readonly investmentAmountFormatted: string;
+  readonly preLaunchBurnTotal: number;
+  readonly preLaunchBurnFormatted: string;
+  
+  // Function helpers
+  getEmployeeCostAtMonth(month: number, mrr?: number): {
+    totalCost: number;
+    phase: 'pre-launch' | 'post-investment';
+    breakdown: Record<string, number>;
+    activeEmployees: Employee[];
+  };
+  
+  getTimelineMarkers(): Array<{
+    month: number;
+    label: string;
+    type: 'launch' | 'investment' | 'hire' | 'milestone';
+    description: string;
+  }>;
 } 
