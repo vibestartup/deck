@@ -11,25 +11,29 @@ export function SuperAppSlide() {
       name: "VibeCode", 
       desc: "AI agents that code, deploy, and maintain your entire tech stack",
       technical: "Autonomous coding agents with real-time deployment. Full-stack development from prompts. Auto-scaling infrastructure management. Continuous integration/deployment pipelines. Code review and optimization bots.",
-      position: { x: -120, y: -80 }
+      position: { x: -120, y: -80 },
+      tooltipPosition: { x: -320, y: -40 } // Left side of bubble
     },
     { 
       name: "VibeBrand", 
       desc: "AI agents for design, content, and brand strategy",
       technical: "Generative design systems. Brand voice AI. Content creation at scale. Social media automation. Video and graphic generation. Brand consistency monitoring across all touchpoints.",
-      position: { x: 120, y: -80 }
+      position: { x: 120, y: -80 },
+      tooltipPosition: { x: 180, y: -40 } // Right side of bubble
     },
     { 
       name: "VibeOps", 
       desc: "AI agents for customer service, sales, and operations",
       technical: "Voice AI for customer calls. Intelligent ticket routing. Sales automation and lead qualification. Inventory management. Automated vendor relations. 24/7 operational oversight.",
-      position: { x: -120, y: 80 }
+      position: { x: -120, y: 80 },
+      tooltipPosition: { x: -320, y: 40 } // Left side of bubble
     },
     { 
       name: "VibeGrow", 
       desc: "AI agents for marketing, analytics, and business development",
       technical: "Market research automation. Campaign optimization. Growth experiment management. Competitive analysis. Partnership discovery. Revenue optimization algorithms.",
-      position: { x: 120, y: 80 }
+      position: { x: 120, y: 80 },
+      tooltipPosition: { x: 180, y: 40 } // Right side of bubble
     }
   ]
 
@@ -100,14 +104,14 @@ export function SuperAppSlide() {
             <span className="text-white font-bold text-lg text-center">VibeStartup</span>
           </div>
 
-          {/* Agent bubbles */}
+          {/* Agent bubbles with static tooltips */}
           {coreAgents.map((agent, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.4 + index * 0.2 }}
-              className="absolute group cursor-pointer"
+              className="absolute"
               style={{
                 left: `calc(50% + ${agent.position.x}px)`,
                 top: `calc(50% + ${agent.position.y}px)`,
@@ -128,21 +132,31 @@ export function SuperAppSlide() {
               />
               
               {/* Agent bubble */}
-              <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center shadow-xl border-2 border-white/20 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center shadow-xl border-2 border-white/20">
                 <span className="text-white font-semibold text-xs text-center px-2">{agent.name}</span>
               </div>
               
-              {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-gray-900 border border-gray-700 rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+              {/* Static tooltip */}
+              <motion.div 
+                initial={{ opacity: 0, x: agent.tooltipPosition.x > 0 ? -20 : 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
+                className="absolute w-64 bg-gray-900 border border-gray-700 rounded-lg p-3 z-20"
+                style={{
+                  left: `${agent.tooltipPosition.x}px`,
+                  top: `${agent.tooltipPosition.y}px`,
+                  transform: 'translate(-50%, -50%)'
+                }}
+              >
                 <p className="text-sm font-semibold text-green-400 mb-1">{agent.desc}</p>
                 <p className="text-xs text-gray-400">{agent.technical}</p>
-              </div>
+              </motion.div>
             </motion.div>
           ))}
         </motion.div>
 
         {/* Two columns below */}
-        <div className="grid grid-cols-2 gap-16 mb-16">
+        <div className="grid grid-cols-2 gap-16">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -193,20 +207,6 @@ export function SuperAppSlide() {
             </div>
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
-          className="p-6 bg-gray-900/50 border border-gray-700"
-        >
-          <div className="text-sm text-gray-400 space-y-2">
-            <p><strong>Revolutionary Vision:</strong> Transform how companies operate. Instead of managing employees and processes, you manage AI agents through natural language. &quot;Code the new homepage,&quot; &quot;Launch a marketing campaign,&quot; &quot;Handle customer support&quot; - your AI company executes everything.</p>
-            <p><strong>Autonomous Operations:</strong> Your company runs 24/7 without human intervention. AI agents make decisions, adapt to changes, and optimize performance continuously. You focus on vision and strategy while AI handles execution.</p>
-            <p><strong>Viral Growth Engine:</strong> Every successful autonomous company becomes a showcase. Founders naturally share their AI-powered achievements, inspiring others to start their own autonomous companies. Network effects compound exponentially.</p>
-            <p><strong>The Future of Work:</strong> This isn&apos;t just a tool - it&apos;s a complete paradigm shift. From human-operated businesses to AI-operated businesses. From managing people to managing AI. From coding software to prompting entire companies.</p>
-          </div>
-        </motion.div>
       </motion.div>
     </div>
   )

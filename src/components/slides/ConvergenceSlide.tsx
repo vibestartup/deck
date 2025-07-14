@@ -88,20 +88,6 @@ export function ConvergenceSlide() {
             ))}
           </div>
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.4 }}
-          className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
-        >
-          <div className="text-sm text-gray-400 space-y-2">
-            <p><strong>The Paradigm Shift:</strong> We&apos;re witnessing the transition from human-operated businesses to AI-operated businesses. Instead of hiring teams, founders deploy AI agents. Instead of managing people, they prompt intelligent systems.</p>
-            <p><strong>Why Now:</strong> AI capabilities have reached the threshold where autonomous operation is possible. GPT-4 can code, DALL-E can design, and specialized AI can handle customer service, marketing, and operations. The infrastructure exists.</p>
-            <p><strong>The Opportunity:</strong> First platform to enable true autonomous companies wins the entire market. Network effects from successful AI companies demonstrating the model. Winner-take-most dynamics.</p>
-            <p><strong>VibeStartup&apos;s Role:</strong> We&apos;re not just another business tool. We&apos;re the operating system for AI-powered companies. The ChatGPT interface for your entire business. The platform that makes autonomous companies accessible to any founder.</p>
-          </div>
-        </motion.div>
       </motion.div>
     </div>
   )
