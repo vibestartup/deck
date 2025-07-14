@@ -365,9 +365,7 @@ export function FinancialProjectionsSlide() {
     const employeeCostsResult = calculateEmployeeCosts(
       BASE_EMPLOYEE_PARAMS, 
       month, 
-      cohort.monthlyRecurringRevenue, 
-      undefined, 
-      month >= BASE_BUSINESS_PARAMS.investmentMonth
+      cohort.monthlyRecurringRevenue
     );
     const employeeCosts = employeeCostsResult.totalCost;
     
