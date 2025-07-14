@@ -12,14 +12,25 @@ import {
   COMPUTED_VALUES
 } from '../../lib'
 import { MetricCards } from '../charts'
+import { Employee } from '../../lib/types'
 
 export function UnitEconomicsSlide() {
+  // Helper function to convert days to months
+  const daysToMonths = (days: number) => Math.round(days / 30.44);
+  
+  // Calculate months from dates for display
+  const developmentStartMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const investmentMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.investmentDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const launchMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.launchDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const customerSuccessMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const seniorDevMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
   // Calculate employee costs at different stages using computed values
   const employeeCosts = {
-    preLaunch: COMPUTED_VALUES.getEmployeeCostAtMonth(TIMELINE_MARKER_PARAMS.developmentStartMonth),
-    postInvestment: COMPUTED_VALUES.getEmployeeCostAtMonth(TIMELINE_MARKER_PARAMS.investmentMonth + 1),
-    scaling: COMPUTED_VALUES.getEmployeeCostAtMonth(TIMELINE_MARKER_PARAMS.customerSuccessHire.month, TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold),
-    mature: COMPUTED_VALUES.getEmployeeCostAtMonth(TIMELINE_MARKER_PARAMS.seniorDevHire.month, TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold),
+    preLaunch: COMPUTED_VALUES.getEmployeeCostAtDate(TIMELINE_MARKER_PARAMS.developmentStartDate),
+    postInvestment: COMPUTED_VALUES.getEmployeeCostAtDate(new Date(TIMELINE_MARKER_PARAMS.investmentDate.getTime() + 30 * 24 * 60 * 60 * 1000)), // 1 month after investment
+    scaling: COMPUTED_VALUES.getEmployeeCostAtDate(TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate, TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold),
+    mature: COMPUTED_VALUES.getEmployeeCostAtDate(TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate, TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold),
   };
 
   // Formation economics from computed values
@@ -36,13 +47,13 @@ export function UnitEconomicsSlide() {
     },
     {
       label: 'LTV per Company',
-      value: formatCurrency(baseLTV.blendedLTV),
+      value: formatCurrency(baseLTV.blendedLtvPerCompany),
       color: 'green',
       description: `${formatCurrency(BASE_BUSINESS_PARAMS.formationFee)} formation + ${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)}/mo × ${(1/BASE_BUSINESS_PARAMS.monthlyChurnRate).toFixed(0)} months`
     },
     {
       label: 'LTV/CAC Ratio',
-      value: (baseLTV.blendedLTV / baseCAC.cacPerCompany).toFixed(1) + 'x',
+      value: (baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1) + 'x',
       color: 'purple',
       description: 'Industry benchmark: 3-5x'
     },
@@ -94,7 +105,7 @@ export function UnitEconomicsSlide() {
           Unit Economics That Break SaaS Norms
         </h1>
         <p className="text-2xl text-green-400 mb-12 text-center font-medium">
-          {(baseLTV.blendedLTV / baseCAC.cacPerCompany).toFixed(1)}x LTV/CAC ratio (industry standard: 3-5x)
+          {(baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1)}x LTV/CAC ratio (industry standard: 3-5x)
         </p>
 
         {/* Key Metrics Cards */}
@@ -172,7 +183,7 @@ export function UnitEconomicsSlide() {
             {[
               {
                 stage: 'Pre-Launch Development',
-                timeline: `Month ${TIMELINE_MARKER_PARAMS.developmentStartMonth} to ${TIMELINE_MARKER_PARAMS.investmentMonth - 1}`,
+                timeline: `Month ${developmentStartMonth} to ${investmentMonth - 1}`,
                 costs: employeeCosts.preLaunch,
                 color: 'border-gray-500',
                 textColor: 'text-gray-400',
@@ -180,7 +191,7 @@ export function UnitEconomicsSlide() {
               },
               {
                 stage: 'Post-Investment Setup',
-                timeline: `Month ${TIMELINE_MARKER_PARAMS.investmentMonth} to ${TIMELINE_MARKER_PARAMS.launchMonth - 1}`,
+                timeline: `Month ${investmentMonth} to ${launchMonth - 1}`,
                 costs: employeeCosts.postInvestment,
                 color: 'border-purple-500',
                 textColor: 'text-purple-400',
@@ -188,7 +199,7 @@ export function UnitEconomicsSlide() {
               },
               {
                 stage: 'Scaling Phase',
-                timeline: `Month ${TIMELINE_MARKER_PARAMS.customerSuccessHire.month}+`,
+                timeline: `Month ${customerSuccessMonth}+`,
                 costs: employeeCosts.scaling,
                 color: 'border-blue-500',
                 textColor: 'text-blue-400',
@@ -196,7 +207,7 @@ export function UnitEconomicsSlide() {
               },
               {
                 stage: 'Mature Operations',
-                timeline: `Month ${TIMELINE_MARKER_PARAMS.seniorDevHire.month}+`,
+                timeline: `Month ${seniorDevMonth}+`,
                 costs: employeeCosts.mature,
                 color: 'border-green-500',
                 textColor: 'text-green-400',
@@ -224,7 +235,7 @@ export function UnitEconomicsSlide() {
                     </span>
                   </div>
                   <div className="space-y-1">
-                    {stage.costs.activeEmployees.map((employee, empIndex) => (
+                    {stage.costs.activeEmployees.map((employee: Employee, empIndex: number) => (
                       <div key={empIndex} className="flex justify-between text-xs">
                         <span className="text-gray-500">{employee.role}:</span>
                         <span className="text-gray-400">{formatCurrency(employee.monthlyCost / 1000)}k</span>
@@ -260,7 +271,7 @@ export function UnitEconomicsSlide() {
                 {[
                   {
                     metric: 'LTV/CAC Ratio',
-                    vibestartup: (baseLTV.blendedLTV / baseCAC.cacPerCompany).toFixed(1) + 'x',
+                    vibestartup: (baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1) + 'x',
                     industry: '3-5x',
                     bestInClass: '8-12x'
                   },
