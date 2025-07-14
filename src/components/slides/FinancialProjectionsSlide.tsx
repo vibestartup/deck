@@ -563,18 +563,6 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
             transition={{ duration: 0.5 }}
           />
           
-          {/* Market saturation ceiling */}
-          <motion.path
-            d={saturationPath}
-            fill="none"
-            stroke="rgb(255, 193, 7)"
-            strokeWidth="0.15"
-            strokeDasharray="3,1.5"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 3, ease: "easeInOut", delay: 0.5 }}
-          />
-          
           {/* Revenue line */}
           <motion.path
             d={revenuePath}
@@ -757,10 +745,6 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
             <div className="flex items-center mb-0.5">
               <div className="w-2 h-px bg-purple-400 mr-1"></div>
               <span className="text-gray-300">Market Penetration</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-2 h-px bg-yellow-400 border-dashed border-t mr-1"></div>
-              <span className="text-gray-300">Market Ceiling (5%)</span>
             </div>
           </div>
           
