@@ -12,7 +12,8 @@ import {
   BASE_BUSINESS_PARAMS,
   BASE_INFRASTRUCTURE_PARAMS,
   GROWTH_STAGES,
-  SENSITIVITY_PARAMS
+  SENSITIVITY_PARAMS,
+  BASE_EMPLOYEE_PARAMS
 } from '../../lib'
 import { DataTable, MetricCards } from '../charts'
 
@@ -91,7 +92,8 @@ export function UnitEconomicsSlide() {
     BASE_INFRASTRUCTURE_PARAMS,
     GROWTH_STAGES,
     'formationConversionRate',
-    SENSITIVITY_PARAMS.formationRateRange
+    SENSITIVITY_PARAMS.formationRateRange,
+    BASE_EMPLOYEE_PARAMS
   )
 
   const viralSensitivity = runSensitivityAnalysis(
@@ -99,7 +101,8 @@ export function UnitEconomicsSlide() {
     BASE_INFRASTRUCTURE_PARAMS,
     GROWTH_STAGES,
     'viralCoefficient',
-    SENSITIVITY_PARAMS.viralCoefficientRange
+    SENSITIVITY_PARAMS.viralCoefficientRange,
+    BASE_EMPLOYEE_PARAMS
   )
 
   const churnSensitivity = runSensitivityAnalysis(
@@ -107,7 +110,8 @@ export function UnitEconomicsSlide() {
     BASE_INFRASTRUCTURE_PARAMS,
     GROWTH_STAGES,
     'monthlyChurnRate',
-    SENSITIVITY_PARAMS.churnRateRange
+    SENSITIVITY_PARAMS.churnRateRange,
+    BASE_EMPLOYEE_PARAMS
   )
 
   const proTierSensitivity = runSensitivityAnalysis(
@@ -115,7 +119,8 @@ export function UnitEconomicsSlide() {
     BASE_INFRASTRUCTURE_PARAMS,
     GROWTH_STAGES,
     'proTierAdoptionRate',
-    SENSITIVITY_PARAMS.proTierRange
+    SENSITIVITY_PARAMS.proTierRange,
+    BASE_EMPLOYEE_PARAMS
   )
 
   const sensitivities = [
@@ -273,9 +278,7 @@ export function UnitEconomicsSlide() {
           className="mt-12 text-center"
         >
           <p className="text-sm text-gray-400 max-w-4xl mx-auto leading-relaxed">
-                         <span className="font-semibold">smalltext:</span> These numbers are legitimately insane. Typical B2B SaaS struggles to hit 3x LTV/CAC.
-             We&apos;re hitting {formatMultiplier(keyMetrics.ltvCacRatio)} because of viral mechanics + multi-company founders.
-             Even with heavy usage assumptions (voice agents, SMS, 100x baseline), the math works.
+            <span className="font-semibold">smalltext:</span> These numbers incorporate full employee cost modeling: $2k/month pre-investment (Indonesian contractor), scaling to $14k/month post-$50k investment (founder salary $5k, attorney $3k, compliance $4k, contractor $2k), plus strategic hires (customer success month 6, marketing month 12). Break-even analysis includes all operational costs: infrastructure scales from $0 (AWS credits) to $1.6M/month, then drops to $200k/month with self-hosting. Employee costs grow predictably with revenue milestones. The 75.2x LTV/CAC ratio holds even with conservative assumptions because viral coefficient (0.4) creates exponential customer acquisition while multi-company founders (2.5 avg) multiply lifetime value. Most importantly, the three-stage infrastructure model (Stage 1: AWS credits = 94% margins, Stage 2: pricing increase = 73% margins, Stage 3: self-hosting = 95% margins) ensures sustained profitability throughout scaling phases. Sensitivity analysis shows formation rate dropping to 20% still yields $14.7M Y1 revenue, while K-factor dropping to 0.2 still generates $11M revenue - massive downside protection.
           </p>
         </motion.div>
       </motion.div>

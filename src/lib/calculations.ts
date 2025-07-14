@@ -4,9 +4,10 @@ import {
   GrowthStage, 
   MonthlyCohort, 
   FinancialProjections,
-  CompetitiveBenchmarks 
+  CompetitiveBenchmarks,
+  EmployeeParameters
 } from './types';
-import { calculateAveragePrice, calculateInfrastructureCostPerCompany } from './parameters';
+import { calculateAveragePrice, calculateInfrastructureCostPerCompany, calculateEmployeeCosts } from './parameters';
 
 // Customer Acquisition Cost (CAC) calculation
 export const calculateCAC = (
@@ -190,7 +191,8 @@ export const calculateGrowthProjections = (
   businessParams: BusinessParameters,
   infraParams: InfrastructureParameters,
   stages: GrowthStage[],
-  months: number
+  months: number,
+  employeeParams?: EmployeeParameters
 ): FinancialProjections => {
   const cohorts: MonthlyCohort[] = [];
   const cac = calculateCAC(businessParams);
@@ -231,8 +233,12 @@ export const calculateGrowthProjections = (
     const saasProcessingCosts = saasRevenue.totalRevenue * infraParams.paymentProcessingRate;
     const infraCosts = calculateInfrastructureCost(totalCompaniesRunning, infraParams, currentStage);
     
+    // Calculate employee costs for this month
+    const employeeCostsResult = employeeParams ? calculateEmployeeCosts(employeeParams, month, saasRevenue.totalRevenue) : null;
+    const employeeCosts = employeeCostsResult ? employeeCostsResult.totalCost : 0;
+    
     const totalRevenue = formationRevenue + saasRevenue.totalRevenue;
-    const totalCosts = formationCosts + saasProcessingCosts + infraCosts.netCost;
+    const totalCosts = formationCosts + saasProcessingCosts + infraCosts.netCost + employeeCosts;
     const grossProfit = totalRevenue - totalCosts;
     
     cumulativeRevenue += totalRevenue;
@@ -281,11 +287,12 @@ export const runSensitivityAnalysis = (
   infraParams: InfrastructureParameters,
   stages: GrowthStage[],
   parameter: keyof BusinessParameters,
-  values: number[]
+  values: number[],
+  employeeParams?: EmployeeParameters
 ): { value: number; projection: FinancialProjections }[] => {
   return values.map(value => {
     const modifiedParams = { ...baseParams, [parameter]: value };
-    const projection = calculateGrowthProjections(modifiedParams, infraParams, stages, 12);
+    const projection = calculateGrowthProjections(modifiedParams, infraParams, stages, 12, employeeParams);
     return { value, projection };
   });
 };
@@ -356,6 +363,7 @@ import {
   BASE_INFRASTRUCTURE_PARAMS,
   GROWTH_STAGES,
   INDUSTRY_BENCHMARKS,
+  BASE_EMPLOYEE_PARAMS,
 } from './parameters';
 
 // Base case calculations using default parameters
@@ -365,7 +373,8 @@ export const baseProjections = calculateGrowthProjections(
   BASE_BUSINESS_PARAMS,
   BASE_INFRASTRUCTURE_PARAMS,
   GROWTH_STAGES,
-  12
+  12,
+  BASE_EMPLOYEE_PARAMS
 );
 export const baseBenchmarks = calculateCompetitiveBenchmarks(baseProjections, INDUSTRY_BENCHMARKS);
 

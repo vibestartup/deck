@@ -298,3 +298,56 @@ export interface InfrastructureOptimization {
     riskAdjustedReturn: number;
   }>;
 } 
+
+// Employee cost parameters with realistic timeline modeling
+export interface EmployeeParameters {
+  // Pre-launch development phase (current state)
+  preLaunch: {
+    founderSalary: number; // $0 - working full-time SWE job
+    indonesianContractor: number; // $2,000/month (out of pocket)
+    legalCounsel: number; // $0 - no ongoing legal costs yet
+    totalMonthlyCost: number; // $2,000/month out of pocket
+    durationMonths: number; // How many months of pre-launch development
+  };
+  
+  // Post-launch but pre-investment phase
+  postLaunchPreInvestment: {
+    founderSalary: number; // $0 - still working full-time initially
+    indonesianContractor: number; // $2,000/month (continues out of pocket)
+    legalCounsel: number; // ~$500/month for formation-related legal
+    customerSupport: number; // $0 - founder handles initially
+    totalMonthlyCost: number; // Calculated dynamically
+  };
+  
+  // Post-investment structure (multiple scenarios)
+  postInvestment: {
+    founderSalary: number; // Variable based on investment size
+    indonesianContractor: number; // $2,000/month (continued)
+    legalCounsel: number; // $3,000/month (part-time attorney)
+    complianceSpecialist: number; // $4,000/month (regulatory expert)
+    customerSuccess: number; // $0 initially, added later
+    marketingManager: number; // $0 initially, added later
+    totalBaseMonthlyCost: number; // Base cost before optional hires
+  };
+  
+  // Timeline parameters
+  launchMonth: number; // Month when product launches (0 = launch month)
+  investmentMonth: number; // Month when investment is received (relative to launch)
+  investmentAmount: number; // Investment amount (parametrized)
+  
+  // Scaling parameters based on investment size and milestones
+  scalingHires: {
+    month: number; // Months after investment
+    role: string;
+    monthlyCost: number;
+    requiredMRR?: number; // Optional: MRR threshold to trigger hire
+  }[];
+}
+
+// Employee cost scenario parameters
+export interface EmployeeCostScenario {
+  amount: number; // Investment amount
+  founderSalaryMultiplier: number; // Multiplier for founder salary based on investment
+  hiringTimeline: 'conservative' | 'moderate' | 'aggressive'; // How quickly to hire
+  burnRateTarget: number; // Target monthly burn rate as % of investment
+} 

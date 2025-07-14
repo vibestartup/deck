@@ -10,7 +10,9 @@ import {
   calculateInfrastructureCostPerCompany,
   BASE_BUSINESS_PARAMS,
   BASE_INFRASTRUCTURE_PARAMS,
-  INFRASTRUCTURE_OPTIMIZATION
+  INFRASTRUCTURE_OPTIMIZATION,
+  BASE_EMPLOYEE_PARAMS,
+  calculateEmployeeCosts
 } from '../../lib'
 import { MetricCards } from '../charts'
 
@@ -226,9 +228,10 @@ export function FinancialProjectionsSlide() {
     const month = index + 1;
     const totalCompanies = cohort.totalCompanies;
     const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
-    const fixedCosts = 28135; // Monthly fixed costs from slide
+    const employeeCostsResult = calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, month, cohort.monthlyRecurringRevenue);
+    const employeeCosts = employeeCostsResult.totalCost;
     const variableCosts = totalCompanies * infrastructureCost;
-    const totalCosts = fixedCosts + variableCosts;
+    const totalCosts = employeeCosts + variableCosts;
     
     return {
       month,

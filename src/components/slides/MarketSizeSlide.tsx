@@ -10,7 +10,7 @@ import {
   BASE_BUSINESS_PARAMS,
   INDUSTRY_BENCHMARKS
 } from '../../lib'
-import { DataTable, PieChart } from '../charts'
+import { DataTable } from '../charts'
 
 export function MarketSizeSlide() {
   const marketData = [
@@ -129,12 +129,11 @@ export function MarketSizeSlide() {
     { key: 'advantage', label: 'Our Advantage', align: 'left' as const }
   ];
 
-  // Market size data for pie chart
+  // Market size data for hierarchical visualization
   const marketSizeData = [
-    { label: 'Traditional TAM', value: 6, color: 'gray' },
-    { label: 'Expanded TAM', value: 19, color: 'green' }, // 25 - 6 = 19 additional
-    { label: 'Our SAM', value: 2, color: 'blue' },
-    { label: 'Target SOM', value: 0.2, color: 'purple' }
+    { label: 'Total Expanded Market', value: 25, color: 'green', width: 100, description: '$25B Global TAM' },
+    { label: 'Digital-First Serviceable Market', value: 2, color: 'blue', width: 8, description: '$2B SAM (8% of TAM)' },
+    { label: 'Target Obtainable Market', value: 0.2, color: 'purple', width: 0.8, description: '$200M SOM (10% of SAM)' },
   ];
 
   return (
@@ -161,13 +160,52 @@ export function MarketSizeSlide() {
           >
             <h2 className="text-3xl font-bold mb-8 text-green-400">Market Opportunity</h2>
             
-            {/* Market Size Pie Chart */}
+            {/* Market Size Hierarchical Visualization */}
             <div className="mb-8">
-              <PieChart 
-                data={marketSizeData}
-                title="Total Addressable Market ($B)"
-                size={280}
-              />
+              <h3 className="text-xl font-semibold text-green-300 mb-4 text-center">Market Funnel Analysis</h3>
+              <div className="space-y-4">
+                {marketSizeData.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 + index * 0.2 }}
+                    className="relative"
+                  >
+                    <div className="flex items-center mb-2">
+                      <span className="text-sm font-medium text-gray-300 w-32">{item.label}</span>
+                      <span className="text-lg font-bold text-green-400 ml-auto">${item.value}B</span>
+                    </div>
+                    <div className="relative h-6 bg-gray-800 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${item.width}%` }}
+                        transition={{ duration: 1, delay: 0.5 + index * 0.2 }}
+                        className={`h-full rounded-full ${
+                          item.color === 'green' ? 'bg-green-500' :
+                          item.color === 'blue' ? 'bg-blue-500' : 'bg-purple-500'
+                        }`}
+                      />
+                      <div className="absolute inset-0 flex items-center px-3">
+                        <span className="text-xs text-white font-medium">{item.description}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+                
+                {/* Traditional market comparison */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 1.2 }}
+                  className="mt-6 p-4 bg-gray-800/50 border border-gray-700 rounded-lg"
+                >
+                  <div className="text-center">
+                    <p className="text-sm text-gray-400 mb-2">Traditional incorporation market: <span className="text-gray-300 font-semibold">$6B</span></p>
+                    <p className="text-xs text-gray-500">We&apos;re expanding TAM by 4x through operational services integration</p>
+                  </div>
+                </motion.div>
+              </div>
             </div>
 
             <div className="space-y-6">

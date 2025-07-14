@@ -23,6 +23,10 @@ export {
   SHARING_BEHAVIOR,
   TECHNICAL_ARCHITECTURE,
   INFRASTRUCTURE_OPTIMIZATION,
+  BASE_EMPLOYEE_PARAMS,
+  EMPLOYEE_COST_SCENARIOS,
+  calculateEmployeeCosts,
+  generateEmployeeParamsForInvestment,
 } from './parameters';
 
 // Export calculations
