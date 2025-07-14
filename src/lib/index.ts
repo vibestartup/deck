@@ -5,39 +5,8 @@ export * from './types';
 // Real calculation exports - no more placeholders!
 export * from './calculations';
 
-// Formatting helper functions
-export const formatCurrency = (amount: number, decimals: number = 2): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(amount);
-};
-
-export const formatNumber = (value: number, decimals: number = 0): string => {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(value);
-};
-
-export const formatPercentage = (value: number, decimals: number = 1): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'percent',
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(value);
-};
-
-export const formatMultiplier = (value: number, decimals: number = 1): string => {
-  return `${formatNumber(value, decimals)}x`;
-};
-
-export const formatMonths = (months: number): string => {
-  if (months === 1) return '1 month';
-  return `${months} months`;
-};
+// Import formatting utilities from utils.ts to avoid conflicts
+export { formatCurrency, formatNumber, formatPercentage, formatMultiplier, formatMonths } from './utils';
 
 import { DailyCohort } from './types';
 

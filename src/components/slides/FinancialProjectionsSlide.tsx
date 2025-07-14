@@ -65,8 +65,8 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
   const maxDay = Math.max(...data.map(d => d.day));
   const dayRange = maxDay - minDay;
   
-  // Scale data points for SVG (0-100 range)
-  const scaleY = (value: number) => 90 - ((value - minValue) / valueRange) * 80;
+  // Scale data points for SVG (adjusted for new viewBox)
+  const scaleY = (value: number) => 55 - ((value - minValue) / valueRange) * 50;
   const scaleX = (day: number) => ((day - minDay) / dayRange) * 90 + 5;
 
   // Sample data for cleaner paths (every 5 days for smooth lines)
@@ -105,13 +105,13 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
   return (
     <div className="w-full">
       <div className="relative bg-gray-900/30 border border-gray-700 rounded-lg p-6" style={{ height: `${height}px` }}>
-        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <svg className="w-full h-full" viewBox="0 0 100 60" preserveAspectRatio="none">
           {/* Zero line */}
-          <motion.line
-            x1="5"
-            y1={zeroY}
-            x2="95"
-            y2={zeroY}
+                      <motion.line
+              x1="5"
+              y1={zeroY}
+              x2="95"
+              y2={zeroY}
             stroke="rgb(156, 163, 175)"
             strokeWidth="0.2"
             strokeDasharray="2,2"
@@ -137,9 +137,9 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
             <motion.line
               key={`marker-${index}`}
               x1={scaleX(marker.day)}
-              y1="10"
+              y1="5"
               x2={scaleX(marker.day)}
-              y2="90"
+              y2="55"
               stroke={
                 marker.type === 'launch' ? 'rgb(34, 197, 94)' :
                 marker.type === 'investment' ? 'rgb(147, 51, 234)' :
@@ -158,9 +158,9 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           {breakEvenDay >= minDay && breakEvenDay <= maxDay && (
             <motion.line
               x1={scaleX(breakEvenDay)}
-              y1="10"
+              y1="5"
               x2={scaleX(breakEvenDay)}
-              y2="90"
+              y2="55"
               stroke="rgb(34, 197, 94)"
               strokeWidth="0.4"
               strokeDasharray="3,3"
@@ -263,20 +263,72 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               transition={{ duration: 0.4, delay: 2 + index * 0.15 }}
             />
           ))}
+          {/* Y-axis grid lines and labels */}
+          {(() => {
+            // Calculate better Y-axis ticks (limit to 6-8 ticks)
+            const range = maxValue - minValue;
+            const targetTickCount = 6;
+            const roughStep = range / targetTickCount;
+            
+            // Find nice step size - always use millions for better readability
+            const stepSizeInMillions = Math.ceil(roughStep / 1000000);
+            
+            // Generate tick values starting from a clean number
+            const firstTickInMillions = Math.floor(minValue / 1000000);
+            const lastTickInMillions = Math.ceil(maxValue / 1000000);
+            
+            const ticks = [];
+            for (let millionValue = firstTickInMillions; millionValue <= lastTickInMillions; millionValue += Math.max(stepSizeInMillions, 1)) {
+              const tickValue = millionValue * 1000000;
+              if (tickValue >= minValue && tickValue <= maxValue) {
+                ticks.push(tickValue);
+              }
+            }
+            
+            // Ensure we always have zero line if it's in range
+            if (minValue <= 0 && maxValue >= 0 && !ticks.includes(0)) {
+              ticks.push(0);
+              ticks.sort((a, b) => a - b);
+            }
+            
+            return ticks.slice(0, 8).map((tickValue, index) => { // Limit to max 8 ticks
+              const yPos = scaleY(tickValue);
+              const millions = tickValue / 1000000;
+              const label = millions === 0 ? '$0' : 
+                           millions > 0 ? `$${millions.toFixed(millions < 1 ? 1 : 0)}M` :
+                           `-$${Math.abs(millions).toFixed(Math.abs(millions) < 1 ? 1 : 0)}M`;
+              
+              return (
+                <g key={index}>
+                  {/* Grid line */}
+                  <line
+                    x1="5"
+                    y1={yPos}
+                    x2="95"
+                    y2={yPos}
+                    stroke="rgba(156, 163, 175, 0.2)"
+                    strokeWidth="0.2"
+                    strokeDasharray="2,2"
+                  />
+                  {/* Y-axis label */}
+                  <text
+                    x="2"
+                    y={yPos + 1}
+                    fontSize="3"
+                    fill="rgb(156, 163, 175)"
+                    textAnchor="start"
+                    dominantBaseline="middle"
+                  >
+                    {label}
+                  </text>
+                </g>
+              );
+            });
+          })()}
         </svg>
         
         {/* Chart labels and axis */}
         <div className="absolute inset-0 pointer-events-none">
-          {/* Y-axis labels */}
-          <div className="absolute left-2 top-4 text-xs text-gray-400">
-            {maxValue >= 0 ? formatCurrency(maxValue / 1000000, 1) + 'M' : '-' + formatCurrency(Math.abs(maxValue) / 1000000, 1) + 'M'}
-          </div>
-          <div className="absolute left-2 top-1/2 text-xs text-gray-400">
-            {((maxValue + minValue) / 2) >= 0 ? formatCurrency((maxValue + minValue) / 2000000, 1) + 'M' : '-' + formatCurrency(Math.abs((maxValue + minValue) / 2) / 1000000, 1) + 'M'}
-          </div>
-          <div className="absolute left-2 bottom-4 text-xs text-gray-400">
-            {minValue >= 0 ? formatCurrency(minValue / 1000000, 1) + 'M' : '-' + formatCurrency(Math.abs(minValue) / 1000000, 1) + 'M'}
-          </div>
           
           {/* X-axis labels (show key day markers) */}
           <div className="absolute bottom-2 left-0 right-0 flex justify-between text-xs text-gray-400 px-8">
@@ -375,9 +427,7 @@ export function FinancialProjectionsSlide() {
   const launchDays = (TIMELINE_MARKER_PARAMS.launchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
   
   // Calculate phase durations
-  const developmentPhaseDays = COMPUTED_VALUES.developmentPhaseDays;
   const prepPhaseDays = COMPUTED_VALUES.prepPhaseDays;
-  const developmentPhaseMonths = daysToMonths(developmentPhaseDays);
   const prepPhaseMonths = daysToMonths(prepPhaseDays);
   
   // Use daily cohorts directly instead of converting to monthly
@@ -437,6 +487,9 @@ export function FinancialProjectionsSlide() {
 
   // Find day 365 data for year 1 metrics
   const day365Data = dailyFinancialData.find(d => Math.abs(d.day - 365) < 5) || dailyFinancialData[dailyFinancialData.length - 1];
+  
+  // Calculate Day 365 MRR (convert daily revenue to monthly)
+  const day365MRR = (day365Data?.revenue || 0) * 30.44;
 
   // Key metrics for cards using computed values
   const keyMetricsCards = [
@@ -444,7 +497,7 @@ export function FinancialProjectionsSlide() {
       label: 'Pre-Launch Burn',
       value: COMPUTED_VALUES.preLaunchBurnFormatted,
       color: 'red',
-      description: `${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * developmentPhaseMonths / 1000)}k dev + ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * prepPhaseMonths / 1000)}k prep`
+      description: `${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * 2 / 1000).toFixed(0)}k dev + ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * prepPhaseMonths / 1000).toFixed(0)}k prep`
     },
     {
       label: 'Break-even Day',
@@ -454,13 +507,13 @@ export function FinancialProjectionsSlide() {
     },
     {
       label: 'Day 365 MRR',
-      value: formatCurrency((day365Data?.revenue || 0) / 1000000, 1) + 'M',
+      value: `$${(day365MRR / 1000000).toFixed(1)}M`,
       color: 'purple',
-      description: formatCurrency((day365Data?.revenue || 0) * 12 / 1000000, 1) + 'M ARR run rate'
+      description: `$${(day365MRR * 12 / 1000000).toFixed(1)}M ARR run rate`
     },
     {
       label: 'First Year ROI',
-      value: formatCurrency((baseProjections.totalRevenue - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount, 0) + 'x',
+      value: `${((day365MRR * 12 - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount).toFixed(1)}x`,
       color: 'yellow',
       description: `Return on ${COMPUTED_VALUES.investmentAmountFormatted} investment`
     }
@@ -486,7 +539,7 @@ export function FinancialProjectionsSlide() {
           Daily Financial Projections & Milestone Timeline
         </h1>
         <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
-          {COMPUTED_VALUES.preLaunchBurnFormatted} pre-launch burn → $0 revenue at launch → {formatCurrency((day365Data?.revenue || 0) / 1000000, 1)}M MRR by day 365
+          {COMPUTED_VALUES.preLaunchBurnFormatted} pre-launch burn → $0 revenue at launch → ${(day365MRR / 1000000).toFixed(1)}M MRR by day 365
         </p>
 
         {/* Key Metrics Cards */}
@@ -514,7 +567,7 @@ export function FinancialProjectionsSlide() {
             decisionThresholds={decisionThresholds}
             timelineMarkers={timelineMarkers}
             breakEvenDay={breakEvenDay}
-            height={500}
+            height={600}
           />
           
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -522,12 +575,12 @@ export function FinancialProjectionsSlide() {
             <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-purple-400 mb-4">Investment & Funding Timeline</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Pre-Investment (Day {Math.round(developmentStartDays)} to {Math.round(investmentDays - 1)}):</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 1000)}k/month contractor, bootstrapped development</p>
+                <p><strong>Pre-Investment (Day {Math.round(developmentStartDays)} to {Math.round(investmentDays - 1)}):</strong> ${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 1000).toFixed(0)}k/month contractor, bootstrapped development</p>
                 <p><strong>Day {Math.round(investmentDays)}:</strong> {COMPUTED_VALUES.investmentAmountFormatted} investment received</p>
                 <p><strong>Days {Math.round(investmentDays)} to {Math.round(launchDays - 1)}:</strong> Full preparation period - infrastructure setup, legal compliance, marketing materials</p>
                 <p><strong>Day {Math.round(launchDays)}:</strong> Product launch with revenue generation beginning</p>
-                <p><strong>Post-Investment:</strong> Founder salary ${formatCurrency((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Founder Salary')?.monthlyCost || 0) / 1000)}k/month + legal ${formatCurrency((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Legal Counsel')?.monthlyCost || 0) / 1000)}k/month + compliance ${formatCurrency((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Compliance Specialist')?.monthlyCost || 0) / 1000)}k/month</p>
-                <p><strong>Daily Burn Rate:</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44)}k/day during prep, ${formatCurrency(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 30.44)}k/day after launch</p>
+                <p><strong>Post-Investment:</strong> Founder salary ${((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Founder Salary')?.monthlyCost || 0) / 1000).toFixed(0)}k/month + legal ${((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Legal Counsel')?.monthlyCost || 0) / 1000).toFixed(0)}k/month + compliance ${((BASE_EMPLOYEE_PARAMS.employees.find(e => e.role === 'Compliance Specialist')?.monthlyCost || 0) / 1000).toFixed(0)}k/month</p>
+                <p><strong>Daily Burn Rate:</strong> ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day during prep, ${(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 30.44 / 1000).toFixed(1)}k/day after launch</p>
                 <p className="text-xs text-purple-300 mt-2">Investment provides runway for proper launch preparation. The {Math.round(prepPhaseDays)} days between investment and launch ensures infrastructure, legal, and go-to-market strategy are fully ready.</p>
               </div>
             </div>
@@ -536,10 +589,10 @@ export function FinancialProjectionsSlide() {
             <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-blue-400 mb-4">Revenue-Driven Hiring Strategy</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Day {Math.round(customerSuccessHireDays)}:</strong> Customer Success at ${formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000)}k MRR</p>
-                <p><strong>Day {Math.round(marketingHireDays)}:</strong> Marketing Manager at ${formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold / 1000)}k MRR</p>
-                <p><strong>Day {Math.round(seniorDevHireDays)}:</strong> Senior Developer at ${formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000)}k MRR</p>
-                <p><strong>Day {Math.round(salesHireDays)}:</strong> Sales Manager at ${formatCurrency(TIMELINE_MARKER_PARAMS.salesHire.mrrThreshold / 1000)}k MRR</p>
+                <p><strong>Day {Math.round(customerSuccessHireDays)}:</strong> Customer Success at {formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold)}</p>
+                <p><strong>Day {Math.round(marketingHireDays)}:</strong> Marketing Manager at {formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold)}</p>
+                <p><strong>Day {Math.round(seniorDevHireDays)}:</strong> Senior Developer at {formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold)}</p>
+                <p><strong>Day {Math.round(salesHireDays)}:</strong> Sales Manager at {formatCurrency(TIMELINE_MARKER_PARAMS.salesHire.mrrThreshold)}</p>
                 <p className="text-xs text-blue-300 mt-2">Each hire triggered by MRR milestones ensuring revenue can support increased payroll. Conservative hiring approach maintains positive cash flow throughout growth phase.</p>
               </div>
             </div>
@@ -548,11 +601,11 @@ export function FinancialProjectionsSlide() {
             <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-green-400 mb-4">Daily Cost Structure Evolution</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Days {Math.round(developmentStartDays)} to {Math.round(investmentDays - 1)}:</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 30.44)}k/day contractor only = ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * developmentPhaseMonths / 1000)}k total pre-investment burn</p>
-                <p><strong>Day {Math.round(investmentDays)}:</strong> Investment received, costs jump to ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44)}k/day</p>
-                <p><strong>Days {Math.round(investmentDays)} to {Math.round(launchDays - 1)}:</strong> Full prep period at ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44)}k/day ({Math.round(prepPhaseDays)} days dedicated to launch preparation)</p>
-                <p><strong>Day {Math.round(launchDays)}:</strong> Launch! Costs increase to ${formatCurrency(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 30.44)}k/day, revenue begins</p>
-                <p><strong>Day 365:</strong> ${formatCurrency(day365EmployeeCosts / 1000)}k monthly employee costs + {formatCurrency(infrastructureCostPerCompany * (day365Data?.companies || 0) / 1000)}k infrastructure</p>
+                <p><strong>Days -60 to -30:</strong> ${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 30.44 / 1000).toFixed(1)}k/day contractor only = {(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * 2 / 1000).toFixed(0)}k total pre-investment burn</p>
+                <p><strong>Day {Math.round(investmentDays)}:</strong> Investment received, costs jump to ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day</p>
+                <p><strong>Days {Math.round(investmentDays)} to {Math.round(launchDays - 1)}:</strong> Full prep period at ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day ({Math.round(prepPhaseDays)} days dedicated to launch preparation)</p>
+                <p><strong>Day {Math.round(launchDays)}:</strong> Launch! Costs increase to ${(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 30.44 / 1000).toFixed(1)}k/day, revenue begins</p>
+                <p><strong>Day 365:</strong> ${(day365EmployeeCosts / 1000).toFixed(0)}k monthly employee costs + ${(infrastructureCostPerCompany * (day365Data?.companies || 0) / 1000).toFixed(0)}k infrastructure</p>
                 <p><strong>Break-even achieved:</strong> Day {Math.round(breakEvenDay)} (Month {Math.round(breakEvenDay / 30.44)})</p>
                 <p className="text-xs text-green-300 mt-2">Daily tracking shows precise cash flow dynamics. Employee costs scale predictably with revenue milestones.</p>
               </div>
@@ -577,7 +630,7 @@ export function FinancialProjectionsSlide() {
                 color: 'border-green-500',
                 textColor: 'text-green-400',
                 details: [
-                  `Infrastructure cost: $0 (AWS credits cover ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.awsCreditsDaily * 365 / 1000000, 1)}M annually)`,
+                  `Infrastructure cost: $0 (AWS credits cover ${(BASE_INFRASTRUCTURE_PARAMS.awsCreditsDaily * 365 / 1000000).toFixed(1)}M annually)`,
                   'SaaS gross margin: 94% (payment processing only)',
                   'Formation gross margin: 26% (state fees + KYC)',
                   `Break-even: Day ${Math.round(breakEvenDay)} at ${Math.round(dailyFinancialData.find(d => d.day === Math.round(breakEvenDay))?.companies || 0)} companies`,
@@ -591,7 +644,7 @@ export function FinancialProjectionsSlide() {
                 textColor: 'text-yellow-400',
                 details: [
                   `Infrastructure cost: ${formatCurrency(infrastructureCostPerCompany)}/company/month`,
-                  `At 100k companies: ${formatCurrency(infrastructureCostPerCompany * 100000 / 1000000, 1)}M/month AWS spend`,
+                  `At 100k companies: ${(infrastructureCostPerCompany * 100000 / 1000000).toFixed(1)}M/month AWS spend`,
                   'Pricing increase required: $40 → $60 average',
                   'SaaS gross margin: 73% (post-pricing adjustment)',
                   'Transition planning window: Days 457-730'
@@ -603,8 +656,8 @@ export function FinancialProjectionsSlide() {
                 color: 'border-purple-500',
                 textColor: 'text-purple-400',
                 details: [
-                  `CapEx investment: ${formatCurrency(BASE_INFRASTRUCTURE_PARAMS.selfHostingSetupCost / 1000000)}M infrastructure setup`,
-                  `Monthly savings: ${formatCurrency(infrastructureCostPerCompany * BASE_INFRASTRUCTURE_PARAMS.selfHostingSavingsRate * 100000 / 1000000, 1)}M vs AWS at 100k companies`,
+                  `CapEx investment: ${(BASE_INFRASTRUCTURE_PARAMS.selfHostingSetupCost / 1000000).toFixed(1)}M infrastructure setup`,
+                  `Monthly savings: ${(infrastructureCostPerCompany * BASE_INFRASTRUCTURE_PARAMS.selfHostingSavingsRate * 100000 / 1000000).toFixed(1)}M vs AWS at 100k companies`,
                   'SaaS gross margin: 95% (optimized infrastructure)',
                   'Self-hosted capacity: 1M+ companies',
                   'Path to $100M ARR with <1% global market share'
@@ -666,11 +719,11 @@ export function FinancialProjectionsSlide() {
               <h3 className="text-xl font-semibold text-red-300">Investment Timeline Economics</h3>
               <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
                 <div className="space-y-2 text-sm text-gray-300">
-                   <p><strong>Pre-Investment:</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 30.44)}k/day burn rate</p>
-                   <p><strong>Investment Timing:</strong> Day {Math.round(investmentDays)} (after {Math.round(developmentPhaseDays)} days development)</p>
-                   <p><strong>Post-Investment:</strong> ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44)}k/day base burn + revenue-driven hires</p>
+                   <p><strong>Pre-Investment:</strong> ${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 30.44 / 1000).toFixed(1)}k/day burn rate</p>
+                   <p><strong>Investment Timing:</strong> Day {Math.round(investmentDays)} (after 60 days development)</p>
+                   <p><strong>Post-Investment:</strong> ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day base burn + revenue-driven hires</p>
                    <p><strong>Hire Triggers:</strong> MRR milestones ensure affordability</p>
-                   <p><strong>Day 365 Burn:</strong> ${formatCurrency(day365EmployeeCosts / 1000)}k/month total employee costs</p>
+                   <p><strong>Day 365 Burn:</strong> ${(day365EmployeeCosts / 1000).toFixed(0)}k/month total employee costs</p>
                    <p><strong>Cash Flow:</strong> Positive from Day {Math.round(breakEvenDay)} onwards</p>
                    <p><strong>Investment Efficiency:</strong> <span className="text-green-400">{(((day365Data?.revenue || 0) * 12 - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount).toFixed(0)}x first year return</span></p>
                  </div>
@@ -684,7 +737,7 @@ export function FinancialProjectionsSlide() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400">
               <div>
                 <p className="font-semibold text-green-300 mb-2">Launch Strategy (Days {Math.round(investmentDays)}-{Math.round(launchDays + 30)})</p>
-                <p>Investment received Day {Math.round(investmentDays)} after {Math.round(developmentPhaseDays)} days bootstrapped development. Focus on proving product-market fit before major investment. Marketing spend drives viral growth. Break-even achieved Day {Math.round(breakEvenDay)} validates business model before scaling costs.</p>
+                <p>Investment received Day {Math.round(investmentDays)} after 60 days bootstrapped development. Focus on proving product-market fit before major investment. Marketing spend drives viral growth. Break-even achieved Day {Math.round(breakEvenDay)} validates business model before scaling costs.</p>
               </div>
               <div>
                 <p className="font-semibold text-purple-300 mb-2">Investment Strategy (Days {Math.round(launchDays)}-365)</p>
@@ -706,13 +759,13 @@ export function FinancialProjectionsSlide() {
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
           <div className="text-sm text-gray-400 space-y-3">
-            <p><strong>Daily Precision Strategy:</strong> Day {Math.round(investmentDays)} investment provides capital after {Math.round(developmentPhaseDays)} days of bootstrapped development. Pre-launch burn totals {COMPUTED_VALUES.preLaunchBurnFormatted} (contractor only). Days {Math.round(investmentDays)} to {Math.round(launchDays - 1)} are entirely dedicated to launch preparation ({Math.round(prepPhaseDays)} days), ensuring all systems are ready: formation APIs tested, legal compliance verified, marketing materials prepared, and initial content created.</p>
+            <p><strong>Daily Precision Strategy:</strong> Day {Math.round(investmentDays)} investment provides capital after 60 days of bootstrapped development. Pre-launch burn totals {COMPUTED_VALUES.preLaunchBurnFormatted} (contractor only). Days {Math.round(investmentDays)} to {Math.round(launchDays - 1)} are entirely dedicated to launch preparation ({Math.round(prepPhaseDays)} days), ensuring all systems are ready: formation APIs tested, legal compliance verified, marketing materials prepared, and initial content created.</p>
             
-            <p><strong>Revenue-Driven Hiring Model:</strong> Each hire triggered by specific MRR milestones ensuring affordability: Customer Success at ${formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000)}k MRR (Day {Math.round(customerSuccessHireDays)}), Marketing at ${formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold / 1000)}k MRR (Day {Math.round(marketingHireDays)}), Senior Developer at ${formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000)}k MRR (Day {Math.round(seniorDevHireDays)}). This conservative approach maintains positive cash flow throughout scaling.</p>
+            <p><strong>Revenue-Driven Hiring Model:</strong> Each hire triggered by specific MRR milestones ensuring affordability: Customer Success at {formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold)} (Day {Math.round(customerSuccessHireDays)}), Marketing at {formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold)} (Day {Math.round(marketingHireDays)}), Senior Developer at {formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold)} (Day {Math.round(seniorDevHireDays)}). This conservative approach maintains positive cash flow throughout scaling.</p>
             
-            <p><strong>Daily Cost Evolution:</strong> Pre-investment costs limited to ${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 30.44)}k/day contractor for {Math.round(developmentPhaseDays)} days. Post-investment jumps to ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44)}k/day base (founder + legal + compliance) during days {Math.round(investmentDays)} to {Math.round(launchDays - 1)} prep period, then ${formatCurrency(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 30.44)}k/day at launch (day {Math.round(launchDays)}) adding marketing. Revenue starts at $0 on launch day and quickly scales to cover costs. Break-even achieved by Day {Math.round(breakEvenDay)} despite initial burn period.</p>
+            <p><strong>Daily Cost Evolution:</strong> Pre-investment costs limited to ${(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn / 30.44 / 1000).toFixed(1)}k/day contractor for 60 days. Post-investment jumps to ${(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn / 30.44 / 1000).toFixed(1)}k/day base (founder + legal + compliance) during days {Math.round(investmentDays)} to {Math.round(launchDays - 1)} prep period, then ${(BURN_RATE_CALCULATIONS.postLaunchBaseBurn / 30.44 / 1000).toFixed(1)}k/day at launch (day {Math.round(launchDays)}) adding marketing. Revenue starts at $0 on launch day and quickly scales to cover costs. Break-even achieved by Day {Math.round(breakEvenDay)} despite initial burn period.</p>
             
-            <p><strong>Financial Model Validation:</strong> Daily tracking demonstrates sustainable path to ${formatCurrency(baseProjections.totalRevenue / 1000000, 0)}M year 1 revenue even with {Math.abs(Math.round(developmentStartDays))} days of pre-revenue burn. Total pre-revenue investment: {COMPUTED_VALUES.preLaunchBurnFormatted} ({formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * developmentPhaseMonths / 1000)}k pre-investment + {formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * prepPhaseMonths / 1000)}k prep). Investment ROI exceeds {formatCurrency((baseProjections.totalRevenue - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount, 0)}x in first year.</p>
+            <p><strong>Financial Model Validation:</strong> Daily tracking demonstrates sustainable path to ${(day365MRR * 12 / 1000000).toFixed(1)}M year 1 ARR even with 60 days of pre-revenue burn. Total pre-revenue investment: {COMPUTED_VALUES.preLaunchBurnFormatted} ({(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * 2 / 1000).toFixed(0)}k pre-investment + {(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * prepPhaseMonths / 1000).toFixed(0)}k prep). Investment ROI exceeds {((day365MRR * 12 - BASE_INVESTMENT_PARAMS.requestedInvestmentAmount) / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount).toFixed(1)}x in first year.</p>
           </div>
         </motion.div>
       </motion.div>

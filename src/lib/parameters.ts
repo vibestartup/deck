@@ -246,13 +246,14 @@ export const BURN_RATE_CALCULATIONS: BurnRateCalculations = {
   postInvestmentPreLaunchBurn: 14000, // Founder + legal + compliance + contractor
   postLaunchBaseBurn: 19000, // Post-investment costs + marketing
   
-  // Pre-revenue burn calculation
+  // Pre-revenue burn calculation (limited to -2 months pre-investment + prep period)
   preRevenueBurnTotal: () => {
-    const preLaunchMonths = Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
+    // Limit pre-investment burn to 2 months maximum
+    const maxPreLaunchMonths = 2;
     const prepMonths = (TIMELINE_MARKER_PARAMS.launchDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
     
-    return (preLaunchMonths * BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn) +
-           (prepMonths * BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn);
+    return Math.round((maxPreLaunchMonths * BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn) +
+           (prepMonths * BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn));
   },
 };
 
@@ -295,7 +296,7 @@ export const COMPUTED_VALUES: ComputedValues = {
   },
   
   get preLaunchBurnFormatted() {
-    return `$${(this.preLaunchBurnTotal / 1000)}k`;
+    return `$${(this.preLaunchBurnTotal / 1000).toFixed(1)}k`;
   },
   
   // Employee cost helpers - now uses proper date-based calculation
