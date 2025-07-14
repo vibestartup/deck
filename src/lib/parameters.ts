@@ -277,12 +277,12 @@ export const BASE_INVESTMENT_PARAMS: InvestmentParameters = {
 // Computed values helper object
 export const COMPUTED_VALUES: ComputedValues = {
   // Timeline helpers
-  get developmentPhaseMonths() {
-    return Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
+  get developmentPhaseDays() {
+    return Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24);
   },
   
-  get prepPhaseMonths() {
-    return TIMELINE_MARKER_PARAMS.launchDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime() / (1000 * 60 * 60 * 24 * 30.44); // Convert days to months
+  get prepPhaseDays() {
+    return (TIMELINE_MARKER_PARAMS.launchDate.getTime() - TIMELINE_MARKER_PARAMS.investmentDate.getTime()) / (1000 * 60 * 60 * 24);
   },
   
   // Investment and cost helpers
@@ -298,46 +298,85 @@ export const COMPUTED_VALUES: ComputedValues = {
     return `$${(this.preLaunchBurnTotal / 1000)}k`;
   },
   
-  // Employee cost helpers
-  getEmployeeCostAtMonth(month: number, mrr: number = 0) {
-    return calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, month, mrr, undefined, month >= TIMELINE_MARKER_PARAMS.investmentDate.getTime() / (1000 * 60 * 60 * 24 * 30.44)); // Convert days to months
+  // Employee cost helpers - now uses proper date-based calculation
+  getEmployeeCostAtDate(date: Date, mrr: number = 0) {
+    // Direct implementation to avoid circular imports
+    const investmentReceived = date >= BASE_EMPLOYEE_PARAMS.investmentDate;
+    const phase: 'pre-launch' | 'post-investment' = investmentReceived ? 'post-investment' : 'pre-launch';
+    
+    let totalCost = 0;
+    const breakdown: Record<string, number> = {};
+    const activeEmployees: Employee[] = [];
+    
+    BASE_EMPLOYEE_PARAMS.employees.forEach(employee => {
+      const isActive = date >= employee.startDate && 
+                      (!employee.endDate || date <= employee.endDate) &&
+                      (!employee.investmentRequired || investmentReceived) &&
+                      (!employee.requiredMRR || mrr >= employee.requiredMRR);
+      
+      if (isActive) {
+        activeEmployees.push(employee);
+        breakdown[employee.role.toLowerCase().replace(/\s+/g, '_')] = employee.monthlyCost;
+        totalCost += employee.monthlyCost;
+      }
+    });
+    
+    return {
+      totalCost,
+      totalDailyCost: totalCost / 30.44,
+      phase,
+      breakdown,
+      activeEmployees
+    };
   },
   
   // Timeline marker helpers
   getTimelineMarkers() {
+    const today = new Date();
+    
+    const calculateDaysFromToday = (targetDate: Date): number => {
+      return Math.floor((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    };
+    
     return [
       {
-        month: TIMELINE_MARKER_PARAMS.developmentStartDate,
+        date: TIMELINE_MARKER_PARAMS.developmentStartDate,
+        daysFromToday: calculateDaysFromToday(TIMELINE_MARKER_PARAMS.developmentStartDate),
         label: 'Dev Start',
         type: 'milestone' as const,
         description: 'Pre-launch development begins'
       },
       {
-        month: TIMELINE_MARKER_PARAMS.investmentDate,
+        date: TIMELINE_MARKER_PARAMS.investmentDate,
+        daysFromToday: calculateDaysFromToday(TIMELINE_MARKER_PARAMS.investmentDate),
         label: 'Investment',
         type: 'investment' as const,
-        description: `${this.investmentAmountFormatted} received, ${this.prepPhaseMonths}-month prep begins`
+        description: `${this.investmentAmountFormatted} received, ${Math.round(this.prepPhaseDays)}-day prep begins`
       },
       {
-        month: TIMELINE_MARKER_PARAMS.launchDate,
+        date: TIMELINE_MARKER_PARAMS.launchDate,
+        daysFromToday: calculateDaysFromToday(TIMELINE_MARKER_PARAMS.launchDate),
         label: 'Launch',
         type: 'launch' as const,
         description: 'Product launch, revenue begins'
       },
       {
-        month: TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate,
+        date: TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate,
+        daysFromToday: calculateDaysFromToday(TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate),
         label: 'CS Hire',
         type: 'hire' as const,
         description: `Customer Success Manager at $${TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000}k MRR`
       },
       {
-        month: TIMELINE_MARKER_PARAMS.marketingHire.targetDate,
+        date: TIMELINE_MARKER_PARAMS.marketingHire.targetDate,
+        daysFromToday: calculateDaysFromToday(TIMELINE_MARKER_PARAMS.marketingHire.targetDate),
         label: 'Marketing Hire',
         type: 'hire' as const,
         description: `Marketing Manager at $${TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold / 1000}k MRR`
       },
       {
-        month: TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate,
+        date: TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate,
+        daysFromToday: calculateDaysFromToday(TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate),
         label: 'Dev Hire',
         type: 'hire' as const,
         description: `Senior Developer at $${TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000}k MRR`
@@ -374,91 +413,7 @@ export const EMPLOYEE_COST_SCENARIOS: EmployeeCostScenario[] = [
   },
 ];
 
-// Function to calculate monthly employee costs based on realistic timeline
-export const calculateEmployeeCosts = (
-  employeeParams: EmployeeParameters,
-  month: number, // Month relative to launch (negative = pre-launch)  
-  currentMRR: number = 0,
-  investmentScenario?: EmployeeCostScenario,
-  investmentReceived: boolean = true
-): {
-  totalCost: number;
-  phase: 'pre-launch' | 'post-investment';
-  breakdown: Record<string, number>;
-  activeEmployees: Employee[];
-} => {
-  const scenario = investmentScenario || EMPLOYEE_COST_SCENARIOS.find(s => s.amount === employeeParams.investmentAmount) || EMPLOYEE_COST_SCENARIOS[1];
-  
-  // Determine phase (investment comes before launch in our timeline)
-  let phase: 'pre-launch' | 'post-investment';
-  if (month < employeeParams.investmentMonth || !investmentReceived) {
-    phase = 'pre-launch';
-  } else {
-    phase = 'post-investment';
-  }
-  
-  const activeEmployees: Employee[] = [];
-  const breakdown: Record<string, number> = {};
-  let totalCost = 0;
-  
-  employeeParams.employees.forEach(employee => {
-    // Check if employee should be active this month
-    const isActive = month >= employee.startMonth && 
-                    (!employee.endMonth || month <= employee.endMonth) &&
-                    (!employee.investmentRequired || (investmentReceived && month >= employeeParams.investmentMonth)) &&
-                    (!employee.requiredMRR || currentMRR >= employee.requiredMRR);
-    
-    if (isActive) {
-      let employeeCost = employee.monthlyCost;
-      
-      // Apply founder salary multiplier if this is founder
-      if (employee.role === 'Founder Salary') {
-        employeeCost = employee.monthlyCost * scenario.founderSalaryMultiplier;
-      }
-      
-      activeEmployees.push(employee);
-      breakdown[employee.role.toLowerCase().replace(/\s+/g, '_')] = employeeCost;
-      totalCost += employeeCost;
-    }
-  });
-  
-  return {
-    totalCost,
-    phase,
-    breakdown,
-    activeEmployees
-  };
-};
 
-// Function to generate employee cost parameters for different investment scenarios
-export const generateEmployeeParamsForInvestment = (
-  baseParams: EmployeeParameters,
-  investmentAmount: number,
-  investmentTimingMonth: number = 3
-): EmployeeParameters => {
-  return {
-    ...baseParams,
-    investmentAmount,
-    investmentMonth: investmentTimingMonth,
-  };
-};
-
-// Helper function to get employees by phase
-export const getEmployeesByPhase = (
-  employeeParams: EmployeeParameters,
-  phase: 'pre-launch' | 'post-investment'
-): Employee[] => {
-  return employeeParams.employees.filter(employee => {
-    switch(phase) {
-      case 'pre-launch':
-        return employee.startMonth < employeeParams.investmentMonth && !employee.investmentRequired;
-      case 'post-investment':
-        return employee.investmentRequired || employee.startMonth >= employeeParams.investmentMonth;
-      default:
-        return false;
-    }
-  });
-};
 
 // Sensitivity analysis ranges
 export const SENSITIVITY_PARAMS: SensitivityParameters = {

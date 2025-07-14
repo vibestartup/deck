@@ -3,6 +3,7 @@ import {
   baseProjections,
   baseCAC,
   baseLTV,
+  convertDailyToMonthlyCohorts,
   formatCurrency,
   calculateInfrastructureCostPerCompany,
   BASE_BUSINESS_PARAMS,
@@ -12,8 +13,7 @@ import {
   TIMELINE_MARKER_PARAMS,
   BURN_RATE_CALCULATIONS,
   BASE_INVESTMENT_PARAMS,
-  COMPUTED_VALUES,
-  calculateEmployeeCosts
+  COMPUTED_VALUES
 } from '../../lib'
 import { MetricCards } from '../charts'
 
@@ -357,21 +357,25 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
 }
 
 export function FinancialProjectionsSlide() {
+  // Convert daily cohorts to monthly for chart compatibility
+  const monthlyCohorts = convertDailyToMonthlyCohorts(baseProjections.cohorts);
+  
   // Calculate monthly financial data including costs and employee costs
-  const monthlyFinancialData = baseProjections.cohorts.map((cohort) => {
+  const monthlyFinancialData = monthlyCohorts.map((cohort) => {
     const month = cohort.month;
     const totalCompanies = cohort.totalCompanies;
     const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
-    const employeeCostsResult = calculateEmployeeCosts(
-      BASE_EMPLOYEE_PARAMS, 
-      month, 
-      cohort.monthlyRecurringRevenue
-    );
+    
+    // Calculate employee costs for this month using date-based system
+    const monthDate = new Date(BASE_BUSINESS_PARAMS.launchDate);
+    monthDate.setMonth(monthDate.getMonth() + month - 1); // Adjust for 1-based month
+    const employeeCostsResult = COMPUTED_VALUES.getEmployeeCostAtDate(monthDate, cohort.monthlyRecurringRevenue);
     const employeeCosts = employeeCostsResult.totalCost;
     
     // For pre-launch months, costs are just employee costs
     // For post-launch, include infrastructure costs
-    const variableCosts = month >= TIMELINE_MARKER_PARAMS.launchMonth ? totalCompanies * infrastructureCost : 0;
+    const launchMonth = Math.ceil((TIMELINE_MARKER_PARAMS.launchDate.getTime() - BASE_BUSINESS_PARAMS.todaysDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44)) + 1;
+    const variableCosts = month >= launchMonth ? totalCompanies * infrastructureCost : 0;
     const totalCosts = employeeCosts + variableCosts;
     
     return {
@@ -385,10 +389,16 @@ export function FinancialProjectionsSlide() {
   });
 
   // Find break-even month
-  const breakEvenMonth = monthlyFinancialData.find(d => d.profit > 0)?.month || TIMELINE_MARKER_PARAMS.launchMonth + 1;
+  const launchMonth = Math.ceil((TIMELINE_MARKER_PARAMS.launchDate.getTime() - BASE_BUSINESS_PARAMS.todaysDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44)) + 1;
+  const breakEvenMonth = monthlyFinancialData.find(d => d.profit > 0)?.month || launchMonth + 1;
 
-  // Use computed timeline markers
-  const timelineMarkers = COMPUTED_VALUES.getTimelineMarkers();
+  // Convert date-based timeline markers to month-based for chart compatibility
+  const timelineMarkers = COMPUTED_VALUES.getTimelineMarkers().map(marker => ({
+    month: Math.ceil(marker.daysFromToday / 30.44) + 1, // Convert days to month
+    label: marker.label,
+    type: marker.type,
+    description: marker.description
+  }));
 
   // Strategic decision thresholds
   const decisionThresholds = [
@@ -403,7 +413,7 @@ export function FinancialProjectionsSlide() {
       label: 'Pre-Launch Burn',
       value: COMPUTED_VALUES.preLaunchBurnFormatted,
       color: 'red',
-      description: `${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * COMPUTED_VALUES.developmentPhaseMonths / 1000)}k dev + ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * COMPUTED_VALUES.prepPhaseMonths / 1000)}k prep`
+      description: `${formatCurrency(BURN_RATE_CALCULATIONS.preLaunchMonthlyBurn * COMPUTED_VALUES.developmentPhaseDays / 30.44 / 1000)}k dev + ${formatCurrency(BURN_RATE_CALCULATIONS.postInvestmentPreLaunchBurn * COMPUTED_VALUES.prepPhaseDays / 30.44 / 1000)}k prep`
     },
     {
       label: 'Break-even Month',
