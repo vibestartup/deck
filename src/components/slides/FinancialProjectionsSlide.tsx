@@ -45,20 +45,23 @@ interface AdvancedChartProps {
     type: 'launch' | 'investment' | 'hire' | 'milestone';
     description: string;
   }>;
+  breakEvenMonth: number;
   height?: number;
 }
 
-function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timelineMarkers, height = 400 }: AdvancedChartProps) {
+function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timelineMarkers, breakEvenMonth, height = 400 }: AdvancedChartProps) {
   const maxRevenue = Math.max(...data.map(d => d.revenue));
   const maxCosts = Math.max(...data.map(d => d.costs));
   const maxValue = Math.max(maxRevenue, maxCosts) * 1.1; // 10% padding
   
-  // Find break-even month
-  const breakEvenMonth = data.find(d => d.profit > 0)?.month || 2;
+  // Get the month range
+  const minMonth = Math.min(...data.map(d => d.month));
+  const maxMonth = Math.max(...data.map(d => d.month));
+  const monthRange = maxMonth - minMonth;
   
   // Scale data points for SVG (0-100 range)
   const scaleY = (value: number) => 90 - (value / maxValue) * 80;
-  const scaleX = (month: number) => ((month - 1) / 11) * 90 + 5;
+  const scaleX = (month: number) => ((month - minMonth) / monthRange) * 90 + 5;
 
   // Generate path strings
   const revenuePath = data.map((d, i) => 
@@ -73,6 +76,14 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
     `${i === 0 ? 'M' : 'L'} ${scaleX(d.month)} ${scaleY(d.employeeCosts)}`
   ).join(' ');
 
+  // Profit line (can be negative)
+  const profitPath = data.map((d, i) => 
+    `${i === 0 ? 'M' : 'L'} ${scaleX(d.month)} ${scaleY(d.profit)}`
+  ).join(' ');
+
+  // Zero line position
+  const zeroY = scaleY(0);
+
   // Pareto frontier shaded area (months 12-24)
   const paretoAreaData = paretoData.filter(d => d.month >= 12 && d.month <= 24);
   const paretoUpperPath = paretoAreaData.map((d, i) => 
@@ -86,15 +97,31 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
     <div className="w-full">
       <div className="relative bg-gray-900/30 border border-gray-700 rounded-lg p-6" style={{ height: `${height}px` }}>
         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {/* Pareto frontier shaded area */}
-          <motion.path
-            d={`${paretoUpperPath} ${paretoLowerPath.split(' ').reverse().join(' ')} Z`}
-            fill="rgba(255, 193, 7, 0.15)"
-            stroke="none"
+          {/* Zero line */}
+          <motion.line
+            x1="5"
+            y1={zeroY}
+            x2="95"
+            y2={zeroY}
+            stroke="rgb(156, 163, 175)"
+            strokeWidth="0.2"
+            strokeDasharray="2,2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.5, delay: 0.5 }}
+            transition={{ duration: 0.5 }}
           />
+          
+          {/* Pareto frontier shaded area */}
+          {paretoUpperPath && paretoLowerPath && (
+            <motion.path
+              d={`${paretoUpperPath} ${paretoLowerPath.split(' ').reverse().join(' ')} Z`}
+              fill="rgba(255, 193, 7, 0.15)"
+              stroke="none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.5, delay: 0.5 }}
+            />
+          )}
           
           {/* Timeline markers - vertical lines */}
           {timelineMarkers.map((marker, index) => (
@@ -119,18 +146,20 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           ))}
           
           {/* Break-even vertical line */}
-          <motion.line
-            x1={scaleX(breakEvenMonth)}
-            y1="10"
-            x2={scaleX(breakEvenMonth)}
-            y2="90"
-            stroke="rgb(34, 197, 94)"
-            strokeWidth="0.4"
-            strokeDasharray="3,3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1 }}
-          />
+          {breakEvenMonth >= minMonth && breakEvenMonth <= maxMonth && (
+            <motion.line
+              x1={scaleX(breakEvenMonth)}
+              y1="10"
+              x2={scaleX(breakEvenMonth)}
+              y2="90"
+              stroke="rgb(34, 197, 94)"
+              strokeWidth="0.4"
+              strokeDasharray="3,3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1 }}
+            />
+          )}
           
           {/* Revenue line */}
           <motion.path
@@ -164,6 +193,17 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 2, ease: "easeInOut", delay: 0.6 }}
+          />
+          
+          {/* Profit line */}
+          <motion.path
+            d={profitPath}
+            fill="none"
+            stroke="rgb(16, 185, 129)"
+            strokeWidth="0.8"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 2, ease: "easeInOut", delay: 0.9 }}
           />
           
           {/* Revenue data points */}
@@ -231,20 +271,24 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           
           {/* X-axis labels */}
           <div className="absolute bottom-2 left-0 right-0 flex justify-between text-xs text-gray-400 px-8">
-            {data.filter((_, i) => i % 2 === 0).map((item, index) => (
-              <span key={index}>M{item.month}</span>
+            {[-6, -3, 0, 3, 6, 9, 12].map((month) => (
+              <span key={month} style={{ position: 'absolute', left: `${scaleX(month)}%`, transform: 'translateX(-50%)' }}>
+                M{month}
+              </span>
             ))}
           </div>
           
           {/* Break-even label */}
-          <div className="absolute text-xs text-green-400 font-semibold" 
-               style={{ 
-                 left: `${scaleX(breakEvenMonth)}%`, 
-                 top: '15%',
-                 transform: 'translateX(-50%)'
-               }}>
-            Break-even<br/>Month {breakEvenMonth}
-          </div>
+          {breakEvenMonth >= minMonth && breakEvenMonth <= maxMonth && (
+            <div className="absolute text-xs text-green-400 font-semibold" 
+                 style={{ 
+                   left: `${scaleX(breakEvenMonth)}%`, 
+                   top: '15%',
+                   transform: 'translateX(-50%)'
+                 }}>
+              Break-even<br/>Month {breakEvenMonth}
+            </div>
+          )}
           
           {/* Timeline marker labels */}
           {timelineMarkers.map((marker, index) => (
@@ -293,6 +337,10 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               <span className="text-gray-300">Employee Costs</span>
             </div>
             <div className="flex items-center mb-1">
+              <div className="w-3 h-0.5 bg-green-400 mr-2"></div>
+              <span className="text-gray-300">Profit/Loss</span>
+            </div>
+            <div className="flex items-center mb-1">
               <div className="w-3 h-2 bg-yellow-400/20 border border-yellow-400/40 mr-2"></div>
               <span className="text-gray-300">Pareto Frontier</span>
             </div>
@@ -310,12 +358,21 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
 export function FinancialProjectionsSlide() {
   // Calculate monthly financial data including costs and employee costs
   const monthlyFinancialData = baseProjections.cohorts.map((cohort, index) => {
-    const month = index + 1;
+    const month = cohort.month;
     const totalCompanies = cohort.totalCompanies;
     const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
-    const employeeCostsResult = calculateEmployeeCosts(BASE_EMPLOYEE_PARAMS, month, cohort.monthlyRecurringRevenue, undefined, true);
+    const employeeCostsResult = calculateEmployeeCosts(
+      BASE_EMPLOYEE_PARAMS, 
+      month, 
+      cohort.monthlyRecurringRevenue, 
+      undefined, 
+      month >= BASE_BUSINESS_PARAMS.investmentMonth
+    );
     const employeeCosts = employeeCostsResult.totalCost;
-    const variableCosts = totalCompanies * infrastructureCost;
+    
+    // For pre-launch months, costs are just employee costs
+    // For post-launch, include infrastructure costs
+    const variableCosts = month >= 2 ? totalCompanies * infrastructureCost : 0;
     const totalCosts = employeeCosts + variableCosts;
     
     return {
@@ -328,19 +385,34 @@ export function FinancialProjectionsSlide() {
     };
   });
 
+  // Find break-even month
+  const breakEvenMonth = monthlyFinancialData.find(d => d.profit > 0)?.month || 3;
+
   // Timeline markers for key business milestones
   const timelineMarkers = [
     { 
-      month: 1, 
-      label: 'Launch', 
-      type: 'launch' as const, 
-      description: 'Product launch with $2k/month contractor' 
+      month: -6, 
+      label: 'Dev Start', 
+      type: 'milestone' as const, 
+      description: 'Pre-launch development begins' 
     },
     { 
-      month: 3, 
+      month: 0, 
       label: 'Investment', 
       type: 'investment' as const, 
       description: '$50k received, founder salary starts' 
+    },
+    { 
+      month: 1, 
+      label: 'Prep Month', 
+      type: 'milestone' as const, 
+      description: 'Launch preparation period' 
+    },
+    { 
+      month: 2, 
+      label: 'Launch', 
+      type: 'launch' as const, 
+      description: 'Product launch, revenue begins' 
     },
     { 
       month: 6, 
@@ -372,28 +444,28 @@ export function FinancialProjectionsSlide() {
   // Key metrics for cards
   const keyMetricsCards = [
     {
-      label: 'Year 1 Revenue',
-      value: formatCurrency(baseProjections.totalRevenue / 1000000, 1) + 'M',
-      color: 'blue',
-      description: '87,714 companies formed'
+      label: 'Pre-Launch Burn',
+      value: '$40k',
+      color: 'red',
+      description: '$12k contractor + $28k prep'
     },
     {
       label: 'Break-even Month',
-      value: '2',
+      value: String(breakEvenMonth),
       color: 'green',
-      description: 'At 882 companies'
+      description: `Month ${breakEvenMonth} after investment`
     },
     {
-      label: 'Final MRR',
-      value: formatCurrency(monthlyFinancialData[11].revenue / 1000000, 1) + 'M',
+      label: 'Month 12 MRR',
+      value: formatCurrency((monthlyFinancialData.find(d => d.month === 12)?.revenue || 0) / 1000000, 1) + 'M',
       color: 'purple',
-      description: formatCurrency(monthlyFinancialData[11].revenue * 12 / 1000000, 1) + 'M ARR run rate'
+      description: formatCurrency((monthlyFinancialData.find(d => d.month === 12)?.revenue || 0) * 12 / 1000000, 1) + 'M ARR run rate'
     },
     {
-      label: 'Investment ROI',
-      value: formatCurrency((monthlyFinancialData[11].revenue * 12 - 50000) / 50000, 0) + 'x',
+      label: 'First Year ROI',
+      value: formatCurrency((baseProjections.totalRevenue - 50000) / 50000, 0) + 'x',
       color: 'yellow',
-      description: 'First year return on $50k'
+      description: 'Return on $50k investment'
     }
   ];
 
@@ -411,7 +483,7 @@ export function FinancialProjectionsSlide() {
           Financial Projections & Milestone Timeline
         </h1>
         <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
-          {formatCurrency(monthlyFinancialData[0].revenue / 1000)}k MRR → {formatCurrency(monthlyFinancialData[11].revenue / 1000000, 1)}M MRR in 12 months
+          $12k pre-launch burn → $0 revenue at launch → {formatCurrency((monthlyFinancialData.find(d => d.month === 12)?.revenue || 0) / 1000000, 1)}M MRR by month 12
         </p>
 
         {/* Key Metrics Cards */}
@@ -438,6 +510,7 @@ export function FinancialProjectionsSlide() {
             paretoData={INFRASTRUCTURE_OPTIMIZATION.paretoFrontier}
             decisionThresholds={decisionThresholds}
             timelineMarkers={timelineMarkers}
+            breakEvenMonth={breakEvenMonth}
             height={500}
           />
           
@@ -446,11 +519,12 @@ export function FinancialProjectionsSlide() {
             <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-purple-400 mb-4">Investment & Funding Timeline</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Pre-Launch (Month -6 to 0):</strong> $2k/month contractor, bootstrapped development</p>
-                <p><strong>Month 3:</strong> $50k investment received</p>
+                <p><strong>Pre-Investment (Month -6 to 0):</strong> $2k/month contractor, bootstrapped development</p>
+                <p><strong>Month 1:</strong> $50k investment received</p>
+                <p><strong>Month 2:</strong> Product launch after 1 month preparation</p>
                 <p><strong>Post-Investment:</strong> Founder salary $5k/month + legal $3k/month + compliance $4k/month</p>
                 <p><strong>Employee Burn Rate:</strong> $14k/month base after investment</p>
-                <p className="text-xs text-purple-300 mt-2">Investment timing optimized for break-even achieved (Month 2) before major hiring costs begin. $50k provides 6-month runway for core team while revenue scales to support additional hires.</p>
+                <p className="text-xs text-purple-300 mt-2">Investment provides runway for launch preparation and initial scaling. 1-month prep period ensures infrastructure, legal, and go-to-market strategy are fully ready. $50k provides 6-month runway for core team while revenue scales to support additional hires.</p>
               </div>
             </div>
             
@@ -470,9 +544,11 @@ export function FinancialProjectionsSlide() {
             <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-green-400 mb-4">Cost Structure Evolution</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <p><strong>Month 1:</strong> $2k contractor + $5k marketing = $7k total</p>
-                <p><strong>Month 3:</strong> $14k employee costs + infrastructure</p>
-                <p><strong>Month 12:</strong> $25k employee costs + {formatCurrency(infrastructureCostPerCompany * monthlyFinancialData[11].companies / 1000)}k infrastructure</p>
+                <p><strong>Month -6 to -1:</strong> $2k contractor only = $12k total pre-launch</p>
+                <p><strong>Month 0:</strong> $14k (investment received, founder + legal + compliance)</p>
+                <p><strong>Month 1:</strong> $14k employee costs (prep month)</p>
+                <p><strong>Month 2:</strong> $19k employee costs + infrastructure (launch with marketing)</p>
+                <p><strong>Month 12:</strong> $27k employee costs + {formatCurrency(infrastructureCostPerCompany * (monthlyFinancialData.find(d => d.month === 12)?.companies || 0) / 1000)}k infrastructure</p>
                 <p><strong>Break-even maintained:</strong> Revenue growth outpaces cost increases</p>
                 <p className="text-xs text-green-300 mt-2">Employee costs scale predictably with revenue milestones. Infrastructure costs managed through three-stage optimization strategy. Overall operating leverage improves throughout timeline.</p>
               </div>
@@ -625,13 +701,13 @@ export function FinancialProjectionsSlide() {
           className="mt-12 p-6 bg-gray-900/50 border border-gray-700"
         >
           <div className="text-sm text-gray-400 space-y-3">
-            <p><strong>Investment Timing Strategy:</strong> Month 3 investment optimally timed after break-even proven (Month 2) but before major scaling costs begin. This de-risks the investment while providing capital for growth phase. $50k provides 6-month runway at post-investment burn rate, with revenue growth ensuring self-sustaining operations.</p>
+            <p><strong>Investment-First Strategy:</strong> Month 0 investment provides capital after 6 months of bootstrapped development. Pre-launch burn totals $12k (contractor only). The 1-month prep period (Month 0-1) ensures all systems are ready: formation APIs tested, legal compliance verified, marketing materials prepared, and initial content created. This de-risks the launch while providing founder salary to focus full-time on execution.</p>
             
             <p><strong>Revenue-Driven Hiring Model:</strong> Each hire triggered by specific MRR milestones ensuring affordability: Customer Success at $100k MRR (Month 6), Marketing at $200k MRR (Month 9), Senior Developer at $400k MRR (Month 12). This conservative approach maintains positive cash flow throughout scaling while building capabilities systematically.</p>
             
-            <p><strong>Cost Structure Evolution:</strong> Employee costs grow from $7k pre-investment to $25k post-scaling, but revenue scales faster maintaining operating leverage. Infrastructure costs optimize through three-stage strategy. Break-even maintained throughout growth phases due to viral coefficient creating exponential customer acquisition.</p>
+            <p><strong>Cost Structure Evolution:</strong> Pre-investment costs limited to $2k/month contractor for 6 months. Post-investment jumps to $14k/month base (founder + legal + compliance), then $19k at launch adding marketing. Revenue starts at $0 on launch day (Month 2) and quickly scales to cover costs. Infrastructure costs optimize through three-stage strategy. Break-even achieved by Month {breakEvenMonth} despite initial burn period.</p>
             
-            <p><strong>Financial Model Validation:</strong> Timeline demonstrates sustainable path to $22M year 1 revenue with positive cash flow maintained throughout. Investment ROI exceeds {formatCurrency((monthlyFinancialData[11].revenue * 12 - 50000) / 50000, 0)}x in first year. Conservative hiring and infrastructure transition timing ensures execution risk is minimized while growth potential is maximized.</p>
+            <p><strong>Financial Model Validation:</strong> Timeline demonstrates sustainable path to $22M year 1 revenue even with 8 months of pre-revenue burn. Total pre-revenue investment: $40k ($12k pre-investment + $28k prep period). Investment ROI exceeds {formatCurrency((baseProjections.totalRevenue - 50000) / 50000, 0)}x in first year. Conservative hiring and infrastructure transition timing ensures execution risk is minimized while growth potential is maximized.</p>
           </div>
         </motion.div>
       </motion.div>

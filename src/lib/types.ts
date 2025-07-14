@@ -22,6 +22,10 @@ export interface BusinessParameters {
   promotionCost: number; // $1,500
   amplificationCost: number; // $500
   baseVideoViews: number; // 100,000 views
+  
+  // Timeline parameters
+  investmentMonth: number; // Month when investment is received (0 = investment month)
+  launchDelayMonths: number; // Months after investment before launch
 }
 
 // Infrastructure cost parameters

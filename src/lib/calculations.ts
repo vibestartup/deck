@@ -192,7 +192,8 @@ export const calculateGrowthProjections = (
   infraParams: InfrastructureParameters,
   stages: GrowthStage[],
   months: number,
-  employeeParams?: EmployeeParameters
+  employeeParams?: EmployeeParameters,
+  startMonth: number = 1 // Allow starting from negative months
 ): FinancialProjections => {
   const cohorts: MonthlyCohort[] = [];
   const cac = calculateCAC(businessParams);
@@ -202,19 +203,33 @@ export const calculateGrowthProjections = (
   let cumulativeGrossProfit = 0;
   let cumulativeInfraCost = 0;
   
-  for (let month = 1; month <= months; month++) {
-    // Find current stage
+  // Calculate launch month (investment month + launch delay)
+  const investmentMonth = businessParams.investmentMonth;
+  const launchMonth = businessParams.investmentMonth + businessParams.launchDelayMonths + 1;
+  
+  for (let month = startMonth; month <= months; month++) {
+    // Find current stage (default to stage 1 for pre-launch)
     const currentStage = stages.find(s => month >= s.startMonth && month <= s.endMonth) || stages[0];
     
-    // Calculate new companies (direct + viral from existing base)
-    const directNew = cac.directCompanies;
-    const viralNew = totalCompaniesRunning * businessParams.viralCoefficient / 12; // Monthly viral rate
-    const newCompanies = directNew + viralNew;
+    // Only generate new companies and revenue after launch
+    let newCompanies = 0;
+    let directNew = 0;
+    let viralNew = 0;
     
-    // Apply churn to existing companies
-    totalCompaniesRunning = totalCompaniesRunning * (1 - businessParams.monthlyChurnRate) + newCompanies;
+    if (month >= launchMonth) {
+      // Calculate new companies (direct + viral from existing base)
+      directNew = cac.directCompanies;
+      viralNew = totalCompaniesRunning * businessParams.viralCoefficient / 12; // Monthly viral rate
+      newCompanies = directNew + viralNew;
+    }
     
-    // Calculate revenues
+    // Apply churn to existing companies (only if we have companies)
+    if (totalCompaniesRunning > 0) {
+      totalCompaniesRunning = totalCompaniesRunning * (1 - businessParams.monthlyChurnRate);
+    }
+    totalCompaniesRunning += newCompanies;
+    
+    // Calculate revenues (only after launch)
     const formationRevenue = newCompanies * businessParams.formationFee;
     const saasRevenue = calculateMonthlySaaSRevenue(
       businessParams, 
@@ -234,7 +249,14 @@ export const calculateGrowthProjections = (
     const infraCosts = calculateInfrastructureCost(totalCompaniesRunning, infraParams, currentStage);
     
     // Calculate employee costs for this month
-    const employeeCostsResult = employeeParams ? calculateEmployeeCosts(employeeParams, month, saasRevenue.totalRevenue, undefined, true) : null;
+    // For pre-launch months, use the actual month number
+    const employeeCostsResult = employeeParams ? calculateEmployeeCosts(
+      employeeParams, 
+      month, 
+      saasRevenue.totalRevenue, 
+      undefined, 
+      month >= investmentMonth
+    ) : null;
     const employeeCosts = employeeCostsResult ? employeeCostsResult.totalCost : 0;
     
     const totalRevenue = formationRevenue + saasRevenue.totalRevenue;
@@ -263,7 +285,9 @@ export const calculateGrowthProjections = (
   const finalMRR = cohorts[cohorts.length - 1].monthlyRecurringRevenue;
   const finalARR = finalMRR * 12;
   const ltvCacRatio = ltv.ltvPerFounder / cac.cacPerFounder;
-  const paybackPeriod = cac.cacPerFounder / (finalMRR / totalCompaniesRunning * businessParams.averageCompaniesPerFounder);
+  const paybackPeriod = totalCompaniesRunning > 0 ? 
+    cac.cacPerFounder / (finalMRR / totalCompaniesRunning * businessParams.averageCompaniesPerFounder) : 
+    0;
   
   return {
     timeHorizon: months,
@@ -374,7 +398,8 @@ export const baseProjections = calculateGrowthProjections(
   BASE_INFRASTRUCTURE_PARAMS,
   GROWTH_STAGES,
   12,
-  BASE_EMPLOYEE_PARAMS
+  BASE_EMPLOYEE_PARAMS,
+  -6 // Start from 6 months before launch
 );
 export const baseBenchmarks = calculateCompetitiveBenchmarks(baseProjections, INDUSTRY_BENCHMARKS);
 

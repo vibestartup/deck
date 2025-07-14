@@ -73,7 +73,7 @@ export function UnitEconomicsSlide() {
     {
       stage: "Timeline & Launch Context",
       value: "Month -6 to +12",
-      detail: `Development starts 6 months pre-launch. Investment received Month 3. Full team scaling Month 6-12. LTV calculations account for pre-launch development costs amortized across customer base.`
+      detail: `Development starts 6 months pre-launch. Investment received Month 0. Launch Month 1 after prep. Full team scaling Month 6-12. LTV calculations account for pre-launch development costs amortized across customer base.`
     },
     {
       stage: "Formation (one-time)",
