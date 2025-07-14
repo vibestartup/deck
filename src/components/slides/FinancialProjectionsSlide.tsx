@@ -480,8 +480,8 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
   const scaleYPenetration = (value: number) => 55 - (value / penetrationRange) * 50;
   const scaleX = (day: number) => ((day - minDay) / dayRange) * 87 + 8;
 
-  // Sample data for cleaner paths (every 30 days for 5-year view)
-  const sampledData = data.filter((d, i) => i % 30 === 0 || i === data.length - 1);
+  // Sample data for cleaner paths (every 5 days for fine-grained detail)
+  const sampledData = data.filter((d, i) => i % 5 === 0 || i === data.length - 1);
 
   // Generate path strings
   const revenuePath = sampledData.map((d, i) => 
