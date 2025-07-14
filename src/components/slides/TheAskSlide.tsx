@@ -8,14 +8,18 @@ import {
 } from '../../lib'
 
 export function TheAskSlide() {
-  // Helper function to convert days to months
-  const daysToMonths = (days: number) => Math.round(days / 30.44);
+  // Helper function to convert days to months (rounding up for display)
+  const daysToMonths = (days: number) => Math.ceil(days / 30.44);
   
-  // Calculate months from dates for display
-  const investmentMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.investmentDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const launchMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.launchDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const developmentPhaseMonths = daysToMonths(COMPUTED_VALUES.developmentPhaseDays);
-  const prepPhaseMonths = daysToMonths(COMPUTED_VALUES.prepPhaseDays);
+  // Calculate actual day differences from today for all timeline markers
+  const today = new Date();
+  const investmentDays = Math.abs(TIMELINE_MARKER_PARAMS.investmentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  const launchDays = Math.abs(TIMELINE_MARKER_PARAMS.launchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  const customerSuccessDays = Math.abs(TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  
+  // Calculate phase durations in days
+  const developmentPhaseDays = COMPUTED_VALUES.developmentPhaseDays;
+  const prepPhaseDays = COMPUTED_VALUES.prepPhaseDays;
 
   // Use of funds breakdown from parameters
   const useOfFunds = [
@@ -23,7 +27,7 @@ export function TheAskSlide() {
       category: 'Founder Salary Runway',
       amount: formatCurrency(BASE_INVESTMENT_PARAMS.useOfFunds.marketing / 1000) + 'k',
       percentage: (BASE_INVESTMENT_PARAMS.useOfFunds.marketing / BASE_INVESTMENT_PARAMS.requestedInvestmentAmount * 100).toFixed(0) + '%',
-      description: `${prepPhaseMonths + 3} months × $5k/month post-investment`,
+      description: `${daysToMonths(prepPhaseDays + 90)} months × $5k/month post-investment`, // 90 days = ~3 months
       details: 'Enables founder to quit day job and focus full-time on execution'
     },
     {
@@ -63,8 +67,8 @@ export function TheAskSlide() {
     { term: 'Investment amount', value: COMPUTED_VALUES.investmentAmountFormatted + ' SAFE', detail: 'Simple Agreement for Future Equity. Standard YC terms.' },
     { term: 'Pre-money valuation', value: formatCurrency(BASE_INVESTMENT_PARAMS.premoneyValuation / 1000000, 1) + 'M', detail: 'Conservative valuation based on proven traction and viral metrics.' },
     { term: 'Equity percentage', value: BASE_INVESTMENT_PARAMS.equityPercentage + '%', detail: 'Fair equity stake for early-stage risk and growth capital.' },
-    { term: 'Use of funds', value: `${prepPhaseMonths + 3}-month runway`, detail: 'Focused on achieving break-even and proving scalability.' },
-    { term: 'Break-even timeline', value: `Month ${launchMonth + 1}`, detail: 'Revenue covers all operating costs including team scaling.' },
+    { term: 'Use of funds', value: `${daysToMonths(prepPhaseDays + 90)}-month runway`, detail: 'Focused on achieving break-even and proving scalability.' }, // 90 days = ~3 months
+    { term: 'Break-even timeline', value: `Month ${daysToMonths(launchDays + 30)}`, detail: 'Revenue covers all operating costs including team scaling.' }, // 30 days after launch
     { term: 'Expected ROI', value: '100x+', detail: 'Conservative estimates show exceptional return potential.' }
   ];
 
@@ -232,8 +236,8 @@ export function TheAskSlide() {
               <h3 className="text-xl font-semibold text-yellow-300">Pre-Investment Traction</h3>
               <div className="space-y-4">
                 {[
-                  { milestone: `${developmentPhaseMonths} months bootstrapped development`, status: 'Complete', description: 'Product development proven feasible with minimal capital' },
-                  { milestone: 'Break-even model validated', status: 'Complete', description: `Financial projections show profitability by month ${launchMonth + 1}` },
+                  { milestone: `${daysToMonths(developmentPhaseDays)} months bootstrapped development`, status: 'Complete', description: 'Product development proven feasible with minimal capital' },
+                  { milestone: 'Break-even model validated', status: 'Complete', description: `Financial projections show profitability by month ${daysToMonths(launchDays + 30)}` },
                   { milestone: 'Viral mechanics tested', status: 'Complete', description: 'K-factor of 0.4+ demonstrated through early content experiments' },
                   { milestone: `${COMPUTED_VALUES.preLaunchBurnFormatted} total pre-revenue burn`, status: 'Complete', description: 'Minimal capital risk demonstrated through efficient development' }
                 ].map((item, index) => (
@@ -259,10 +263,10 @@ export function TheAskSlide() {
               <h3 className="text-xl font-semibold text-yellow-300">Post-Investment Validation</h3>
               <div className="space-y-4">
                 {[
-                  { milestone: `Month ${investmentMonth}: Investment deployment`, target: '30 days', description: 'Legal setup, team assembly, launch preparation' },
-                  { milestone: `Month ${launchMonth}: Product launch`, target: '60 days', description: 'First customers, revenue generation begins' },
-                  { milestone: `Month ${launchMonth + 1}: Break-even achieved`, target: '90 days', description: 'Revenue covers all operating costs including team' },
-                  { milestone: `Month ${daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}: First revenue hire`, target: '180 days', description: `Customer Success Manager at ${formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000)}k MRR milestone` }
+                  { milestone: `Month ${daysToMonths(investmentDays)}: Investment deployment`, target: '30 days', description: 'Legal setup, team assembly, launch preparation' },
+                  { milestone: `Month ${daysToMonths(launchDays)}: Product launch`, target: '60 days', description: 'First customers, revenue generation begins' },
+                  { milestone: `Month ${daysToMonths(launchDays + 30)}: Break-even achieved`, target: '90 days', description: 'Revenue covers all operating costs including team' },
+                  { milestone: `Month ${daysToMonths(customerSuccessDays)}: First revenue hire`, target: '180 days', description: `Customer Success Manager at ${formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold / 1000)}k MRR milestone` }
                 ].map((item, index) => (
                   <motion.div
                     key={index}
@@ -311,7 +315,7 @@ export function TheAskSlide() {
               <p className="text-sm text-gray-400">Conservative Return</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-purple-400">{launchMonth + 1}</p>
+              <p className="text-2xl font-bold text-purple-400">{daysToMonths(launchDays + 30)}</p>
               <p className="text-sm text-gray-400">Months to Break-even</p>
             </div>
           </div>

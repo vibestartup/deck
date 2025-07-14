@@ -15,15 +15,16 @@ import { MetricCards } from '../charts'
 import { Employee } from '../../lib/types'
 
 export function UnitEconomicsSlide() {
-  // Helper function to convert days to months
-  const daysToMonths = (days: number) => Math.round(days / 30.44);
+  // Helper function to convert days to months (rounding up for display)
+  const daysToMonths = (days: number) => Math.ceil(days / 30.44);
   
-  // Calculate months from dates for display
-  const developmentStartMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const investmentMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.investmentDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const launchMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.launchDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const customerSuccessMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const seniorDevMonth = daysToMonths(Math.abs(TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  // Calculate actual day differences from today for all timeline markers
+  const today = new Date();
+  const developmentStartDays = Math.abs(TIMELINE_MARKER_PARAMS.developmentStartDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  const investmentDays = Math.abs(TIMELINE_MARKER_PARAMS.investmentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  const launchDays = Math.abs(TIMELINE_MARKER_PARAMS.launchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  const customerSuccessDays = Math.abs(TIMELINE_MARKER_PARAMS.customerSuccessHire.targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  const seniorDevDays = Math.abs(TIMELINE_MARKER_PARAMS.seniorDevHire.targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
 
   // Calculate employee costs at different stages using computed values
   const employeeCosts = {
@@ -183,7 +184,7 @@ export function UnitEconomicsSlide() {
             {[
               {
                 stage: 'Pre-Launch Development',
-                timeline: `Month ${developmentStartMonth} to ${investmentMonth - 1}`,
+                timeline: `Month ${daysToMonths(developmentStartDays)} to ${daysToMonths(investmentDays)}`,
                 costs: employeeCosts.preLaunch,
                 color: 'border-gray-500',
                 textColor: 'text-gray-400',
@@ -191,7 +192,7 @@ export function UnitEconomicsSlide() {
               },
               {
                 stage: 'Post-Investment Setup',
-                timeline: `Month ${investmentMonth} to ${launchMonth - 1}`,
+                timeline: `Month ${daysToMonths(investmentDays)} to ${daysToMonths(launchDays)}`,
                 costs: employeeCosts.postInvestment,
                 color: 'border-purple-500',
                 textColor: 'text-purple-400',
@@ -199,7 +200,7 @@ export function UnitEconomicsSlide() {
               },
               {
                 stage: 'Scaling Phase',
-                timeline: `Month ${customerSuccessMonth}+`,
+                timeline: `Month ${daysToMonths(customerSuccessDays)}+`,
                 costs: employeeCosts.scaling,
                 color: 'border-blue-500',
                 textColor: 'text-blue-400',
@@ -207,7 +208,7 @@ export function UnitEconomicsSlide() {
               },
               {
                 stage: 'Mature Operations',
-                timeline: `Month ${seniorDevMonth}+`,
+                timeline: `Month ${daysToMonths(seniorDevDays)}+`,
                 costs: employeeCosts.mature,
                 color: 'border-green-500',
                 textColor: 'text-green-400',
