@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 
@@ -36,13 +36,13 @@ export function Slides({ slides, title = 'Presentation' }: SlidesProps) {
     return () => clearInterval(interval)
   }, [isPlaying, slides.length])
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length)
-  }
+  }, [slides.length])
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
-  }
+  }, [slides.length])
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index)
@@ -63,7 +63,7 @@ export function Slides({ slides, title = 'Presentation' }: SlidesProps) {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [slides.length])
+  }, [slides.length, nextSlide, prevSlide])
 
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex flex-col relative overflow-hidden">

@@ -3,10 +3,8 @@ import {
   formatCurrency,
   BASE_INVESTMENT_PARAMS,
   COMPUTED_VALUES,
-  baseProjections,
   TIMELINE_MARKER_PARAMS,
   BASE_INFRASTRUCTURE_PARAMS,
-  calculateInfrastructureCostPerCompany,
   calculateGrowthProjections,
   BASE_BUSINESS_PARAMS,
   GROWTH_STAGES,
@@ -26,42 +24,6 @@ export function TheAskSlide() {
   // Calculate phase durations in days
   const developmentPhaseDays = COMPUTED_VALUES.developmentPhaseDays;
   const prepPhaseDays = COMPUTED_VALUES.prepPhaseDays;
-
-  // Calculate daily financial data to get proper year 1 revenue (same approach as FinancialProjectionsSlide.tsx)
-  const dailyCohorts = baseProjections.cohorts;
-  const dailyFinancialData = dailyCohorts.map((cohort) => {
-    const day = cohort.daysFromToday;
-    const totalCompanies = cohort.totalCompanies;
-    const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
-    
-    // Calculate the actual date for this day (relative to today)
-    const dayDate = new Date(today);
-    dayDate.setDate(dayDate.getDate() + day);
-    
-    // Get employee costs for this date
-    const employeeCostsResult = COMPUTED_VALUES.getEmployeeCostAtDate(dayDate, cohort.dailyRecurringRevenue * 30.44);
-    const employeeCosts = employeeCostsResult.totalCost / 30.44;
-    
-    // Variable costs only apply after launch
-    const variableCosts = day >= launchDays ? totalCompanies * infrastructureCost / 30.44 : 0;
-    const totalCosts = employeeCosts + variableCosts;
-    
-    return {
-      day,
-      revenue: cohort.totalRevenue,
-      costs: totalCosts,
-      profit: cohort.totalRevenue - totalCosts,
-      companies: totalCompanies,
-      employeeCosts: employeeCosts
-    };
-  });
-
-  // Find day 365 data for year 1 metrics (same approach as FinancialProjectionsSlide.tsx)
-  const day365Data = dailyFinancialData.find(d => Math.abs(d.day - 365) < 5) || dailyFinancialData[dailyFinancialData.length - 1];
-  
-  // Calculate Day 365 MRR (convert daily revenue to monthly) and then ARR
-  const day365MRR = (day365Data?.revenue || 0) * 30.44;
-  const year1ARR = day365MRR * 12;
 
   // Calculate proper multi-year projections using the same sophisticated math as the lib
   // This accounts for viral coefficients, churn rates, network effects, etc.

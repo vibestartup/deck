@@ -146,7 +146,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
                 marker.type === 'hire' ? 'rgb(59, 130, 246)' :
                 'rgb(156, 163, 175)'
               }
-              strokeWidth="0.3"
+              strokeWidth="0.2"
               strokeDasharray={marker.type === 'launch' ? '1,1' : '2,2'}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -162,7 +162,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               x2={scaleX(breakEvenDay)}
               y2="55"
               stroke="rgb(34, 197, 94)"
-              strokeWidth="0.4"
+              strokeWidth="0.3"
               strokeDasharray="3,3"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -175,7 +175,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
             d={revenuePath}
             fill="none"
             stroke="rgb(59, 130, 246)"
-            strokeWidth="0.8"
+            strokeWidth="0.4"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 2, ease: "easeInOut" }}
@@ -186,7 +186,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
             d={costsPath}
             fill="none"
             stroke="rgb(239, 68, 68)"
-            strokeWidth="0.8"
+            strokeWidth="0.4"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 2, ease: "easeInOut", delay: 0.3 }}
@@ -197,7 +197,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
             d={employeeCostsPath}
             fill="none"
             stroke="rgb(168, 85, 247)"
-            strokeWidth="0.6"
+            strokeWidth="0.3"
             strokeDasharray="4,2"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
@@ -209,7 +209,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
             d={profitPath}
             fill="none"
             stroke="rgb(16, 185, 129)"
-            strokeWidth="0.8"
+            strokeWidth="0.4"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 2, ease: "easeInOut", delay: 0.9 }}
@@ -221,7 +221,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               key={`revenue-${index}`}
               cx={scaleX(item.day)}
               cy={scaleY(item.revenue)}
-              r="0.8"
+              r="0.5"
               fill="rgb(59, 130, 246)"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -235,7 +235,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               <motion.circle
                 cx={scaleX(threshold.day)}
                 cy={scaleY(data.find(d => d.day === threshold.day)?.revenue || 0)}
-                r="1.5"
+                r="1.0"
                 fill={threshold.type === 'optimal' ? 'rgb(34, 197, 94)' : 
                       threshold.type === 'conservative' ? 'rgb(59, 130, 246)' : 'rgb(239, 68, 68)'}
                 initial={{ scale: 0 }}
@@ -251,7 +251,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               key={`marker-point-${index}`}
               cx={scaleX(marker.day)}
               cy={scaleY(data.find(d => d.day === marker.day)?.revenue || data.find(d => d.day === marker.day)?.costs || 0)}
-              r="1.2"
+              r="0.8"
               fill={
                 marker.type === 'launch' ? 'rgb(34, 197, 94)' :
                 marker.type === 'investment' ? 'rgb(147, 51, 234)' :
