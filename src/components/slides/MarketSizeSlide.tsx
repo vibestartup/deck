@@ -10,6 +10,7 @@ import {
   BASE_BUSINESS_PARAMS,
   INDUSTRY_BENCHMARKS
 } from '../../lib'
+import { DataTable, BarChart } from '../charts'
 
 export function MarketSizeSlide() {
   const marketData = [
@@ -119,6 +120,23 @@ export function MarketSizeSlide() {
     }
   ]
 
+  // Prepare competitive matrix data for table
+  const competitiveColumns = [
+    { key: 'metric', label: 'Metric', align: 'left' as const, color: 'yellow' },
+    { key: 'stripeAtlas', label: 'Stripe Atlas', align: 'center' as const },
+    { key: 'legalZoom', label: 'LegalZoom', align: 'center' as const },
+    { key: 'vibeStartup', label: 'VibeStartup', align: 'center' as const, color: 'yellow' },
+    { key: 'advantage', label: 'Our Advantage', align: 'left' as const }
+  ];
+
+  // Market size data for bar chart
+  const marketSizeData = [
+    { label: 'Traditional', value: 6, color: 'gray' },
+    { label: 'Expanded TAM', value: 25, color: 'green' },
+    { label: 'SAM', value: 2, color: 'blue' },
+    { label: 'SOM', value: 0.2, color: 'purple' }
+  ];
+
   return (
     <div className="w-full flex flex-col px-8 py-8">
       <motion.div
@@ -142,6 +160,16 @@ export function MarketSizeSlide() {
             className="border-l-4 border-green-500 pl-8"
           >
             <h2 className="text-3xl font-bold mb-8 text-green-400">Market Opportunity</h2>
+            
+            {/* Market Size Bar Chart */}
+            <div className="mb-8">
+              <BarChart 
+                data={marketSizeData}
+                title="Total Addressable Market ($B)"
+                height={200}
+              />
+            </div>
+
             <div className="space-y-6">
               {marketData.map((item, index) => (
                 <motion.div
@@ -195,36 +223,13 @@ export function MarketSizeSlide() {
           className="border-t-4 border-yellow-500 pt-8 mb-12"
         >
           <h2 className="text-3xl font-bold mb-8 text-yellow-400">COMPETITIVE ANALYSIS</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b-2 border-yellow-500/30">
-                  <th className="text-left py-3 text-yellow-400 font-semibold">Metric</th>
-                  <th className="text-left py-3 text-gray-400">Stripe Atlas</th>
-                  <th className="text-left py-3 text-gray-400">LegalZoom</th>
-                  <th className="text-left py-3 text-yellow-400 font-semibold">VibeStartup</th>
-                  <th className="text-left py-3 text-gray-400">Our Advantage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {competitiveMatrix.map((row, index) => (
-                  <motion.tr
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
-                    className="border-b border-yellow-500/10"
-                  >
-                    <td className="py-3 text-yellow-400 font-medium">{row.metric}</td>
-                    <td className="py-3 text-gray-400">{row.stripeAtlas}</td>
-                    <td className="py-3 text-gray-400">{row.legalZoom}</td>
-                    <td className="py-3 text-yellow-400 font-semibold">{row.vibeStartup}</td>
-                    <td className="py-3 text-gray-400 text-xs">{row.advantage}</td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          
+          {/* Competitive Comparison Table */}
+          <DataTable 
+            data={competitiveMatrix}
+            columns={competitiveColumns}
+            title="How We Dominate the Competition"
+          />
         </motion.div>
 
         <motion.div

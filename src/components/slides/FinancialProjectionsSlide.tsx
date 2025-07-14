@@ -11,13 +11,73 @@ import {
   BASE_BUSINESS_PARAMS,
   BASE_INFRASTRUCTURE_PARAMS
 } from '../../lib'
+import { LineChart, Timeline, MetricCards } from '../charts'
 
 export function FinancialProjectionsSlide() {
   // Get specific month data from projections
   const month1 = baseProjections.cohorts[0];
   const month6 = baseProjections.cohorts[5];
   const month12 = baseProjections.cohorts[11];
-  
+
+  // Prepare growth chart data
+  const growthChartData = [
+    { label: 'M1', value: month1.totalRevenue, formatValue: (v: number) => formatCurrency(v / 1000) + 'k' },
+    { label: 'M3', value: baseProjections.cohorts[2].totalRevenue, formatValue: (v: number) => formatCurrency(v / 1000) + 'k' },
+    { label: 'M6', value: month6.totalRevenue, formatValue: (v: number) => formatCurrency(v / 1000) + 'k' },
+    { label: 'M9', value: baseProjections.cohorts[8].totalRevenue, formatValue: (v: number) => formatCurrency(v / 1000000, 1) + 'M' },
+    { label: 'M12', value: month12.totalRevenue, formatValue: (v: number) => formatCurrency(v / 1000000, 1) + 'M' },
+  ];
+
+  // Key metrics for cards
+  const keyMetricsCards = [
+    {
+      label: 'Total Revenue (Year 1)',
+      value: formatCurrency(baseProjections.totalRevenue / 1000000, 1) + 'M',
+      color: 'green',
+      description: '87,714 companies formed'
+    },
+    {
+      label: 'Final MRR',
+      value: formatCurrency(month12.monthlyRecurringRevenue / 1000000, 1) + 'M',
+      color: 'blue',
+      description: formatCurrency(month12.monthlyRecurringRevenue * 12 / 1000000, 1) + 'M ARR run rate'
+    },
+    {
+      label: 'Gross Margin',
+      value: formatPercentage(keyMetrics.grossMargin),
+      color: 'purple',
+      description: 'Stage 1 with AWS credits'
+    },
+    {
+      label: 'Break-even Month',
+      value: '2',
+      color: 'yellow',
+      description: 'at 882 companies'
+    }
+  ];
+
+  // Infrastructure timeline
+  const infrastructureTimeline = [
+    {
+      title: 'Stage 1: AWS Credits Active',
+      period: 'Months 1-12',
+      description: '$0 infrastructure cost. 94% SaaS margins. Formation: 26% margin. Break-even Month 2.',
+      status: 'current' as const,
+    },
+    {
+      title: 'Stage 2: Paid Infrastructure',
+      period: 'Months 13-24',
+      description: 'Pricing increase required: $40→$60 average. 73% SaaS margins. Risk mitigation needed.',
+      status: 'upcoming' as const,
+    },
+    {
+      title: 'Stage 3: Self-Hosted Optimization',
+      period: 'Month 25+',
+      description: '$2M capex investment. 95% SaaS margins. Massive cost reduction and margin expansion.',
+      status: 'upcoming' as const,
+    },
+  ];
+
   const growthTrajectory = [
     { 
       period: 'Month 1', 
@@ -131,6 +191,16 @@ export function FinancialProjectionsSlide() {
           {formatCurrency(month1.monthlyRecurringRevenue / 1000)}k MRR → {formatCurrency(month12.monthlyRecurringRevenue / 1000000, 1)}M MRR in 12 months
         </p>
 
+        {/* Key Metrics Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-12"
+        >
+          <MetricCards metrics={keyMetricsCards} />
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -138,6 +208,17 @@ export function FinancialProjectionsSlide() {
           className="border-t-4 border-blue-500 pt-8 mb-16"
         >
           <h2 className="text-3xl font-bold mb-8 text-blue-400">GROWTH TRAJECTORY</h2>
+          
+          {/* Growth Chart */}
+          <div className="mb-8">
+            <LineChart 
+              data={growthChartData} 
+              title="Revenue Growth (12 Months)"
+              color="blue"
+              height={250}
+            />
+          </div>
+
           <div className="grid grid-cols-4 gap-6">
             {growthTrajectory.map((item, index) => (
               <motion.div
@@ -165,6 +246,8 @@ export function FinancialProjectionsSlide() {
         >
           <h2 className="text-3xl font-bold mb-8 text-gray-300">THREE-STAGE INFRASTRUCTURE OPTIMIZATION</h2>
           
+          <Timeline stages={infrastructureTimeline} />
+
           <div className="grid grid-cols-3 gap-8">
             {infrastructureStages.map((stage, index) => (
               <motion.div
