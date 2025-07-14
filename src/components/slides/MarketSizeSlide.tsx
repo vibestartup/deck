@@ -137,17 +137,17 @@ export function MarketSizeSlide() {
   ];
 
   return (
-    <div className="w-full flex flex-col px-8 py-8">
+    <div className="w-full flex flex-col px-8 py-8 font-inter">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
+        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight text-white">
           Market Size & Competitive Domination
         </h1>
-        <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
+        <p className="text-2xl text-blue-500 mb-12 text-center font-medium">
           Winner-take-most market with network effects
         </p>
 
@@ -156,13 +156,13 @@ export function MarketSizeSlide() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="border-l-4 border-green-500 pl-8"
+            className="border-l-2 border-blue-500 pl-8"
           >
-            <h2 className="text-3xl font-bold mb-8 text-green-400">Market Opportunity</h2>
+            <h2 className="text-3xl font-bold mb-8 text-blue-400">Market Opportunity</h2>
             
             {/* Market Size Hierarchical Visualization */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-green-300 mb-4 text-center">Market Funnel Analysis</h3>
+              <h3 className="text-xl font-semibold text-blue-300 mb-4 text-center">Market Funnel Analysis</h3>
               <div className="space-y-4">
                 {marketSizeData.map((item, index) => (
                   <motion.div

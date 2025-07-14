@@ -35,17 +35,17 @@ export function ConvergenceSlide() {
   ]
 
   return (
-    <div className="w-full flex flex-col px-8 py-8">
+    <div className="w-full flex flex-col px-8 py-8 font-inter">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
+        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight text-white">
           The AI Company Revolution
         </h1>
-        <p className="text-2xl text-blue-400 mb-16 text-center font-medium">
+        <p className="text-2xl text-blue-500 mb-16 text-center font-medium">
           From managing employees to prompting AI agents
         </p>
 
@@ -56,11 +56,11 @@ export function ConvergenceSlide() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
-              className="border-l-4 border-blue-500 pl-8"
+              className="border-l-2 border-blue-500 pl-8"
             >
               <h3 className="text-2xl font-bold mb-3 text-white">{shift.title}</h3>
-              <p className="text-lg text-gray-300 mb-4 font-medium">{shift.subtitle}</p>
-              <p className="text-sm text-gray-400 leading-relaxed">{shift.technical}</p>
+              <p className="text-lg text-slate-300 mb-4 font-medium">{shift.subtitle}</p>
+              <p className="text-sm text-slate-400 leading-relaxed">{shift.technical}</p>
             </motion.div>
           ))}
         </div>
@@ -69,9 +69,9 @@ export function ConvergenceSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="border-t-4 border-red-500 pt-8"
+          className="border-t border-slate-700 pt-8"
         >
-          <h2 className="text-3xl font-bold mb-8 text-red-400">THE BROKEN CURRENT SYSTEM</h2>
+          <h2 className="text-3xl font-bold mb-8 text-slate-300">THE BROKEN CURRENT SYSTEM</h2>
           
           <div className="space-y-6">
             {brokenSystemData.map((item, index) => (
@@ -80,10 +80,10 @@ export function ConvergenceSlide() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
-                className="border-l-2 border-red-500/50 pl-6"
+                className="border-l border-slate-600 pl-6"
               >
-                <p className="text-lg font-semibold text-gray-200 mb-2">• {item.point}</p>
-                <p className="text-sm text-gray-400 leading-relaxed">{item.detail}</p>
+                <p className="text-lg font-semibold text-slate-200 mb-2">• {item.point}</p>
+                <p className="text-sm text-slate-400 leading-relaxed">{item.detail}</p>
               </motion.div>
             ))}
           </div>

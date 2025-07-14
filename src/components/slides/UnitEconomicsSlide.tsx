@@ -95,17 +95,17 @@ export function UnitEconomicsSlide() {
   ];
 
   return (
-    <div className="w-full flex flex-col px-8 py-8">
+    <div className="w-full flex flex-col px-8 py-8 font-inter">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
+        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight text-white">
           Unit Economics That Break SaaS Norms
         </h1>
-        <p className="text-2xl text-green-400 mb-12 text-center font-medium">
+        <p className="text-2xl text-emerald-500 mb-12 text-center font-medium">
           {(baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1)}x LTV/CAC ratio (industry standard: 3-5x)
         </p>
 
@@ -124,7 +124,7 @@ export function UnitEconomicsSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="border-t-4 border-blue-500 pt-8 mb-16"
+          className="border-t border-slate-700 pt-8 mb-16"
         >
           <h2 className="text-3xl font-bold mb-8 text-blue-400">DETAILED COST BREAKDOWN ANALYSIS</h2>
           
@@ -135,7 +135,7 @@ export function UnitEconomicsSlide() {
                 initial={{ opacity: 0, x: sectionIndex === 0 ? -30 : 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 + sectionIndex * 0.2 }}
-                className="bg-gray-900/30 border border-gray-700 rounded-lg p-6"
+                className="bg-slate-800/30 border border-slate-600 rounded-lg p-6"
               >
                 <h3 className="text-xl font-semibold text-blue-300 mb-6">{section.title}</h3>
                 <div className="space-y-3">
@@ -148,17 +148,17 @@ export function UnitEconomicsSlide() {
                       className={`flex justify-between items-center py-2 px-3 rounded ${
                         item.highlight 
                           ? 'bg-blue-900/30 border border-blue-500/30' 
-                          : 'border-b border-gray-700'
+                          : 'border-b border-slate-700'
                       }`}
                     >
-                      <span className={`text-sm ${item.highlight ? 'font-semibold text-blue-300' : 'text-gray-300'}`}>
+                      <span className={`text-sm ${item.highlight ? 'font-semibold text-blue-300' : 'text-slate-300'}`}>
                         {item.label}
                       </span>
                       <span className={`font-mono text-sm font-bold ${
                         item.highlight 
                           ? 'text-blue-400' 
                           : item.positive 
-                            ? 'text-green-400' 
+                            ? 'text-emerald-400' 
                             : 'text-red-400'
                       }`}>
                         {item.value}
@@ -176,9 +176,9 @@ export function UnitEconomicsSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="border-t-4 border-purple-500 pt-8 mb-16"
+          className="border-t border-slate-700 pt-8 mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-purple-400">EMPLOYEE COST EVOLUTION BY GROWTH STAGE</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">EMPLOYEE COST EVOLUTION BY GROWTH STAGE</h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {[
@@ -186,16 +186,16 @@ export function UnitEconomicsSlide() {
                 stage: 'Pre-Launch Development',
                 timeline: `Month ${daysToMonths(developmentStartDays)} to ${daysToMonths(investmentDays)}`,
                 costs: employeeCosts.preLaunch,
-                color: 'border-gray-500',
-                textColor: 'text-gray-400',
+                color: 'border-slate-500',
+                textColor: 'text-slate-400',
                 description: 'Bootstrapped development phase'
               },
               {
                 stage: 'Post-Investment Setup',
                 timeline: `Month ${daysToMonths(investmentDays)} to ${daysToMonths(launchDays)}`,
                 costs: employeeCosts.postInvestment,
-                color: 'border-purple-500',
-                textColor: 'text-purple-400',
+                color: 'border-blue-500',
+                textColor: 'text-blue-400',
                 description: `After ${COMPUTED_VALUES.investmentAmountFormatted} investment received`
               },
               {
@@ -210,8 +210,8 @@ export function UnitEconomicsSlide() {
                 stage: 'Mature Operations',
                 timeline: `Month ${daysToMonths(seniorDevDays)}+`,
                 costs: employeeCosts.mature,
-                color: 'border-green-500',
-                textColor: 'text-green-400',
+                color: 'border-emerald-500',
+                textColor: 'text-emerald-400',
                 description: `At ${formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold / 1000)}k MRR milestone`
               }
             ].map((stage, index) => (
@@ -220,17 +220,17 @@ export function UnitEconomicsSlide() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
-                className={`border-l-4 ${stage.color} pl-6 pb-6`}
+                className={`border-l-2 ${stage.color} pl-6 pb-6`}
               >
                 <h3 className={`text-lg font-bold mb-2 ${stage.textColor}`}>
                   {stage.stage}
                 </h3>
-                <p className="text-sm text-gray-400 mb-4">{stage.timeline}</p>
-                <p className="text-xs text-gray-500 mb-4">{stage.description}</p>
+                <p className="text-sm text-slate-400 mb-4">{stage.timeline}</p>
+                <p className="text-xs text-slate-500 mb-4">{stage.description}</p>
                 
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-xs text-gray-400">Total Monthly:</span>
+                    <span className="text-xs text-slate-400">Total Monthly:</span>
                     <span className={`text-sm font-bold ${stage.textColor}`}>
                       {formatCurrency(stage.costs.totalCost / 1000)}k
                     </span>
@@ -238,8 +238,8 @@ export function UnitEconomicsSlide() {
                   <div className="space-y-1">
                     {stage.costs.activeEmployees.map((employee: Employee, empIndex: number) => (
                       <div key={empIndex} className="flex justify-between text-xs">
-                        <span className="text-gray-500">{employee.role}:</span>
-                        <span className="text-gray-400">{formatCurrency(employee.monthlyCost / 1000)}k</span>
+                        <span className="text-slate-500">{employee.role}:</span>
+                        <span className="text-slate-400">{formatCurrency(employee.monthlyCost / 1000)}k</span>
                       </div>
                     ))}
                   </div>
@@ -254,18 +254,18 @@ export function UnitEconomicsSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.0 }}
-          className="border-t-4 border-yellow-500 pt-8"
+          className="border-t border-slate-700 pt-8"
         >
-          <h2 className="text-3xl font-bold mb-8 text-yellow-400">COMPETITIVE UNIT ECONOMICS COMPARISON</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">COMPETITIVE UNIT ECONOMICS COMPARISON</h2>
           
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left py-4 px-6 text-gray-300">Metric</th>
+                <tr className="border-b border-slate-600">
+                  <th className="text-left py-4 px-6 text-slate-300">Metric</th>
                   <th className="text-center py-4 px-6 text-blue-400">VibeStartup</th>
-                  <th className="text-center py-4 px-6 text-gray-400">Industry Avg</th>
-                  <th className="text-center py-4 px-6 text-gray-400">Best in Class</th>
+                  <th className="text-center py-4 px-6 text-slate-400">Industry Avg</th>
+                  <th className="text-center py-4 px-6 text-slate-400">Best in Class</th>
                 </tr>
               </thead>
               <tbody>
@@ -306,12 +306,12 @@ export function UnitEconomicsSlide() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: 1.2 + index * 0.1 }}
-                    className="border-b border-gray-800 hover:bg-gray-900/30"
+                    className="border-b border-slate-700 hover:bg-slate-800/30"
                   >
-                    <td className="py-4 px-6 text-gray-300 font-medium">{row.metric}</td>
+                    <td className="py-4 px-6 text-slate-300 font-medium">{row.metric}</td>
                     <td className="py-4 px-6 text-center text-blue-400 font-bold">{row.vibestartup}</td>
-                    <td className="py-4 px-6 text-center text-gray-400">{row.industry}</td>
-                    <td className="py-4 px-6 text-center text-gray-400">{row.bestInClass}</td>
+                    <td className="py-4 px-6 text-center text-slate-400">{row.industry}</td>
+                    <td className="py-4 px-6 text-center text-slate-400">{row.bestInClass}</td>
                   </motion.tr>
                 ))}
               </tbody>
@@ -322,10 +322,10 @@ export function UnitEconomicsSlide() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.8 }}
-            className="mt-8 p-6 bg-yellow-900/20 border border-yellow-500/30 rounded-lg"
+            className="mt-8 p-6 bg-slate-800/20 border border-slate-600 rounded-lg"
           >
-            <h3 className="text-lg font-semibold text-yellow-300 mb-4">Why Our Unit Economics Break SaaS Norms</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-300">
+            <h3 className="text-lg font-semibold text-blue-300 mb-4">Why Our Unit Economics Break SaaS Norms</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-300">
               <div>
                 <p><strong>Viral Growth Engine:</strong> K-factor of {BASE_BUSINESS_PARAMS.viralCoefficient} means every 10 companies drive 4 additional companies organically. Each founder naturally showcases their new company, creating authentic viral loops that reduce CAC to near-zero over time.</p>
                 <p className="mt-3"><strong>Multi-Revenue Model:</strong> Formation fees ({formatCurrency(BASE_BUSINESS_PARAMS.formationFee)} one-time) + monthly subscriptions (${formatCurrency(BASE_BUSINESS_PARAMS.basicTierPrice * (1 - BASE_BUSINESS_PARAMS.proTierAdoptionRate) + BASE_BUSINESS_PARAMS.proTierPrice * BASE_BUSINESS_PARAMS.proTierAdoptionRate)} blended) create high LTV with multiple monetization points per customer relationship.</p>

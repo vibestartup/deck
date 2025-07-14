@@ -78,17 +78,17 @@ export function SuperAppSlide() {
   ]
 
   return (
-    <div className="w-full flex flex-col px-8 py-8">
+    <div className="w-full flex flex-col px-8 py-8 font-inter">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
+        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight text-white">
           Autonomous AI Company Platform
         </h1>
-        <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
+        <p className="text-2xl text-blue-500 mb-12 text-center font-medium">
           Prompt your company like you prompt ChatGPT
         </p>
 
@@ -100,7 +100,7 @@ export function SuperAppSlide() {
           className="relative h-96 mb-16 flex items-center justify-center"
         >
           {/* Center bubble - VibeStartup */}
-          <div className="absolute z-10 w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/20">
+          <div className="absolute z-10 w-32 h-32 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center shadow-2xl border-2 border-slate-600">
             <span className="text-white font-bold text-lg text-center">VibeStartup</span>
           </div>
 
@@ -120,7 +120,7 @@ export function SuperAppSlide() {
             >
               {/* Connection line */}
               <div 
-                className="absolute w-1 bg-gradient-to-r from-gray-500 to-gray-300 opacity-30"
+                className="absolute w-1 bg-gradient-to-r from-slate-500 to-slate-600 opacity-40"
                 style={{
                   height: Math.sqrt(agent.position.x ** 2 + agent.position.y ** 2),
                   transformOrigin: 'bottom',
@@ -132,7 +132,7 @@ export function SuperAppSlide() {
               />
               
               {/* Agent bubble */}
-              <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center shadow-xl border-2 border-white/20">
+              <div className="w-24 h-24 bg-gradient-to-br from-slate-600 to-slate-800 rounded-full flex items-center justify-center shadow-xl border border-slate-500">
                 <span className="text-white font-semibold text-xs text-center px-2">{agent.name}</span>
               </div>
               
@@ -141,15 +141,15 @@ export function SuperAppSlide() {
                 initial={{ opacity: 0, x: agent.tooltipPosition.x > 0 ? -20 : 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
-                className="absolute w-64 bg-gray-900 border border-gray-700 rounded-lg p-3 z-20"
+                className="absolute w-64 bg-slate-800 border border-slate-600 rounded-lg p-3 z-20"
                 style={{
                   left: `${agent.tooltipPosition.x}px`,
                   top: `${agent.tooltipPosition.y}px`,
                   transform: 'translate(-50%, -50%)'
                 }}
               >
-                <p className="text-sm font-semibold text-green-400 mb-1">{agent.desc}</p>
-                <p className="text-xs text-gray-400">{agent.technical}</p>
+                <p className="text-sm font-semibold text-blue-400 mb-1">{agent.desc}</p>
+                <p className="text-xs text-slate-400">{agent.technical}</p>
               </motion.div>
             </motion.div>
           ))}
@@ -161,9 +161,9 @@ export function SuperAppSlide() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="border-l-4 border-purple-500 pl-8"
+            className="border-l-2 border-blue-500 pl-8"
           >
-            <h2 className="text-3xl font-bold mb-8 text-purple-400">THE AI ADVANTAGE</h2>
+            <h2 className="text-3xl font-bold mb-8 text-blue-400">THE AI ADVANTAGE</h2>
             <div className="space-y-6">
               {growthMetrics.map((metric, index) => (
                 <motion.div
@@ -171,14 +171,14 @@ export function SuperAppSlide() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
-                  className="border-l-2 border-purple-500/30 pl-4"
+                  className="border-l border-slate-600 pl-4"
                 >
                   <div className="mb-2">
-                    <p className="text-sm font-semibold text-purple-400 mb-1">{metric.metric}</p>
-                    <p className="text-sm text-gray-300 mb-2">{metric.value}</p>
-                    <p className="text-xs text-gray-400 mb-2">{metric.detail}</p>
+                    <p className="text-sm font-semibold text-blue-400 mb-1">{metric.metric}</p>
+                    <p className="text-sm text-slate-300 mb-2">{metric.value}</p>
+                    <p className="text-xs text-slate-400 mb-2">{metric.detail}</p>
                   </div>
-                  <p className="text-xs text-gray-500 leading-relaxed">{metric.technical}</p>
+                  <p className="text-xs text-slate-500 leading-relaxed">{metric.technical}</p>
                 </motion.div>
               ))}
             </div>
@@ -188,7 +188,7 @@ export function SuperAppSlide() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="border-l-4 border-blue-500 pl-8"
+            className="border-l-2 border-blue-500 pl-8"
           >
             <h2 className="text-3xl font-bold mb-8 text-blue-400">TECHNICAL ARCHITECTURE</h2>
             <div className="space-y-4">
@@ -198,10 +198,10 @@ export function SuperAppSlide() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
-                  className="border-l-2 border-blue-500/30 pl-4"
+                  className="border-l border-slate-600 pl-4"
                 >
                   <p className="text-sm font-semibold text-blue-400 mb-2">{item.component}</p>
-                  <p className="text-xs text-gray-400">{item.detail}</p>
+                  <p className="text-xs text-slate-400">{item.detail}</p>
                 </motion.div>
               ))}
             </div>

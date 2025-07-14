@@ -94,17 +94,17 @@ export function WhyNowSlide() {
   ]
 
   return (
-    <div className="w-full flex flex-col px-8 py-8">
+    <div className="w-full flex flex-col px-8 py-8 font-inter">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
+        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight text-white">
           Why Now, Why Us
         </h1>
-        <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
+        <p className="text-2xl text-blue-500 mb-12 text-center font-medium">
           Perfect storm convergence
         </p>
 
@@ -113,7 +113,7 @@ export function WhyNowSlide() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="border-l-4 border-blue-500 pl-8"
+            className="border-l-2 border-blue-500 pl-8"
           >
             <h2 className="text-3xl font-bold mb-8 text-blue-400">MARKET TIMING</h2>
             <div className="space-y-6">

@@ -907,17 +907,17 @@ export function FinancialProjectionsSlide() {
   const day365EmployeeCosts = COMPUTED_VALUES.getEmployeeCostAtDate(day365Date, day365Revenue).totalCost;
 
   return (
-    <div className="w-full flex flex-col px-8 py-8">
+    <div className="w-full flex flex-col px-8 py-8 font-inter">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
+        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight text-white">
           Daily Financial Projections & Milestone Timeline
         </h1>
-        <p className="text-2xl text-blue-400 mb-12 text-center font-medium">
+        <p className="text-2xl text-blue-500 mb-12 text-center font-medium">
           {COMPUTED_VALUES.preLaunchBurnFormatted} pre-launch burn → $0 revenue at launch → ${(day365MRR / 1000000).toFixed(1)}M MRR by day 365
         </p>
 
@@ -936,7 +936,7 @@ export function FinancialProjectionsSlide() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="border-t-4 border-blue-500 pt-8 mb-16"
+          className="border-t border-slate-700 pt-8 mb-16"
         >
           <h2 className="text-3xl font-bold mb-8 text-blue-400">DAILY REVENUE TRAJECTORY WITH INVESTMENT & HIRING MILESTONES</h2>
           

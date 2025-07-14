@@ -111,17 +111,17 @@ export function TheAskSlide() {
   ];
 
   return (
-    <div className="w-full flex flex-col px-8 py-8">
+    <div className="w-full flex flex-col px-8 py-8 font-inter">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto"
       >
-        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight">
+        <h1 className="text-6xl font-bold mb-6 text-center tracking-tight text-white">
           The Ask & Return Potential
         </h1>
-        <p className="text-2xl text-purple-400 mb-12 text-center font-medium">
+        <p className="text-2xl text-blue-500 mb-12 text-center font-medium">
           {COMPUTED_VALUES.investmentAmountFormatted} SAFE → $100M+ valuation (conservative)
         </p>
 
@@ -132,12 +132,12 @@ export function TheAskSlide() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-purple-400">INVESTMENT TERMS & STRUCTURE</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">INVESTMENT TERMS & STRUCTURE</h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Terms Table */}
-            <div className="bg-gray-900/30 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-purple-300 mb-6">Term Sheet Overview</h3>
+            <div className="bg-slate-800/30 border border-slate-600 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-blue-300 mb-6">Term Sheet Overview</h3>
               <div className="space-y-4">
                 {investmentTerms.map((term, index) => (
                   <motion.div
