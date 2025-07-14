@@ -518,11 +518,6 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
     `${i === 0 ? 'M' : 'L'} ${scaleX(d.day)} ${scaleYPenetration(d.marketPenetration)}`
   ).join(' ');
 
-  // Market saturation curve (theoretical maximum)
-  const saturationPath = sampledData.map((d, i) => 
-    `${i === 0 ? 'M' : 'L'} ${scaleX(d.day)} ${scaleYPenetration(0.05)}` // 5% market penetration as theoretical max
-  ).join(' ');
-
   const zeroY = scaleY(0);
 
   return (
