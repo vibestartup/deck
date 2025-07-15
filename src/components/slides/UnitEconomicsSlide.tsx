@@ -56,7 +56,7 @@ export function UnitEconomicsSlide() {
       label: 'LTV/CAC Ratio',
       value: (baseLTV.blendedLtvPerCompany / baseCAC.cacPerCompany).toFixed(1) + 'x',
       color: 'blue',
-      description: 'Industry benchmark: 3-5x'
+      description: 'Industry benchmark: 3-5x <a href="https://www.capchase.com/blog/saas-company-benchmarks-ltv-cac-ratio" target="_blank" rel="noopener noreferrer" className="text-blue-400">[4]</a>'
     },
     {
       label: 'Payback Period',

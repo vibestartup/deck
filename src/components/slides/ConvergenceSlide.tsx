@@ -10,7 +10,7 @@ export function ConvergenceSlide() {
     { 
       title: "Human workforce becoming optional", 
       subtitle: "AI agents work 24/7 at scale without management overhead",
-      technical: "AI agents don't need salaries, benefits, management, or sleep. They can execute tasks continuously, learn from feedback, and coordinate autonomously. Single founder can operate multiple companies simultaneously."
+      technical: "AI agents don't need salaries, benefits, management, or sleep. They can execute tasks continuously, learn from feedback, and coordinate autonomously. Single founder can operate multiple companies simultaneously. <a href='https://www.kauffman.org/entrepreneurship/' target='_blank' rel='noopener noreferrer' className='text-blue-400'>[14]</a>"
     },
     { 
       title: "Company formation friction disappearing", 
@@ -21,7 +21,7 @@ export function ConvergenceSlide() {
 
   const brokenSystemData = [
     { 
-      point: "30M+ new businesses globally, but only 10% survive past first year",
+      point: "30M+ new businesses globally, but only 10% survive past first year <a href='https://blogs.worldbank.org/en/psd/global-entrepreneurship-trends-in-5-charts' target='_blank' rel='noopener noreferrer' className='text-blue-400'>[1]</a>",
       detail: "Founder burnout from operational complexity. 90% of startups fail due to execution challenges, not bad ideas. Most founders spend 80% of time on operations, 20% on vision."
     },
     { 

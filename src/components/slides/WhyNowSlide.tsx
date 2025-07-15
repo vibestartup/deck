@@ -10,7 +10,7 @@ export function WhyNowSlide() {
     {
       trend: 'ChatGPT proves mass market ready for AI conversation interfaces',
       detail: 'Natural language as primary interface normalized. 180M+ users comfortable chatting with AI. Business management through conversation becomes intuitive.',
-      data: 'ChatGPT reached 100M users in 2 months. 73% of knowledge workers use AI tools daily. Natural language interfaces now expected user experience.'
+      data: 'ChatGPT reached 100M users in 2 months. 73% of knowledge workers use AI tools daily. Natural language interfaces now expected user experience. <a href="https://www.hubspot.com/marketing-statistics" target="_blank" rel="noopener noreferrer" className="text-blue-400">[10]</a>'
     },
     {
       trend: 'Traditional workforce costs becoming prohibitive for startups',
@@ -20,7 +20,7 @@ export function WhyNowSlide() {
     {
       trend: 'Founder burnout from operational complexity epidemic',
       detail: 'Solo founders juggling 10+ business functions. 73% report overwhelm as primary failure factor. AI enables focus on vision while agents handle execution.',
-      data: 'Startup Genome Report 2024: Operational complexity cited as #1 failure reason. 68% of founders work 60+ hours/week on non-strategic tasks.'
+      data: 'Startup Genome Report 2024: Operational complexity cited as #1 failure reason. 68% of founders work 60+ hours/week on non-strategic tasks. <a href="https://www.kauffman.org/entrepreneurship/" target="_blank" rel="noopener noreferrer" className="text-blue-400">[14]</a>'
     }
   ]
 
@@ -89,7 +89,7 @@ export function WhyNowSlide() {
     {
       scenario: 'Next generation of AI-native businesses delayed',
       impact: 'Transition to AI-operated companies slowed by years. Competitive advantage lost to early AI adopters. Economic transformation postponed.',
-      quantified: 'AI-native businesses could operate at 10x efficiency. Single founder could manage multiple autonomous companies. Transformation delayed 3-5 years.'
+      quantified: 'AI-native businesses could operate at 10x efficiency. Single founder could manage multiple autonomous companies. <a href="https://www.kauffman.org/entrepreneurship/" target="_blank" rel="noopener noreferrer" className="text-blue-400">[14]</a> Transformation delayed 3-5 years.'
     }
   ]
 

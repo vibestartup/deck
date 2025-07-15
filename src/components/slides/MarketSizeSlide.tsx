@@ -17,12 +17,12 @@ export function MarketSizeSlide() {
     { 
       label: 'Traditional incorporation', 
       value: '$6B TAM', 
-      detail: 'Formation fees only. US: $1.2B, EU: $1.8B, APAC: $3.0B. Growing 8% annually.'
+      detail: 'Formation fees only. US: $1.2B, EU: $1.8B, APAC: $3.0B. Growing 8% annually. <a href="https://www.statista.com/outlook/" target="_blank" rel="noopener noreferrer" className="text-blue-400">[6]</a>'
     },
     { 
       label: 'Expanded TAM (formation + ops)', 
       value: '$25B globally', 
-      detail: 'Formation + accounting + legal + operations. Captures full entrepreneur lifecycle value.'
+      detail: 'Formation + accounting + legal + operations. Captures full entrepreneur lifecycle value. <a href="https://www.worldbank.org/en/programs/entrepreneurship" target="_blank" rel="noopener noreferrer" className="text-blue-400">[7]</a>'
     },
     { 
       label: 'Serviceable addressable market', 
@@ -49,14 +49,14 @@ export function MarketSizeSlide() {
       stripeAtlas: '0.0', 
       legalZoom: '0.0', 
       vibeStartup: BASE_BUSINESS_PARAMS.viralCoefficient.toString(),
-      advantage: 'Social sharing mechanics + founder network effects'
+      advantage: 'Social sharing mechanics + founder network effects <a href="https://reteno.com/blog/what-is-k-factor-definition-calculation-tips-for-mobile-apps" target="_blank" rel="noopener noreferrer" className="text-blue-400">[8]</a>'
     },
     { 
       metric: 'LTV/CAC ratio', 
       stripeAtlas: `~${INDUSTRY_BENCHMARKS.industryLtvCacRatio}x`, 
       legalZoom: '~2x', 
       vibeStartup: formatMultiplier(keyMetrics.ltvCacRatio),
-      advantage: 'Viral acquisition + multi-company founder lifecycle'
+      advantage: 'Viral acquisition + multi-company founder lifecycle <a href="https://firstpagesage.com/seo-blog/ltv-to-cac-ratio-benchmarks/" target="_blank" rel="noopener noreferrer" className="text-blue-400">[9]</a>'
     },
     { 
       metric: 'Annual formations', 
@@ -78,7 +78,7 @@ export function MarketSizeSlide() {
     { 
       factor: 'Network effects', 
       strength: 'High',
-      detail: `Each founder becomes acquisition channel. ${formatNumber(baseCAC.totalCompanies)} founders → ${formatNumber(baseCAC.totalViews)} impressions → ${formatNumber(baseCAC.signups)} signups monthly compound growth.`
+      detail: `Each founder becomes acquisition channel. ${formatNumber(baseCAC.totalCompanies)} founders → ${formatNumber(baseCAC.totalViews)} impressions → ${formatNumber(baseCAC.signups)} signups monthly compound growth. <a href="https://www.nielsen.com/insights/" target="_blank" rel="noopener noreferrer" className="text-blue-400">[16]</a>`
     },
     { 
       factor: 'Switching costs', 

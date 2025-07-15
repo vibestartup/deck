@@ -192,7 +192,9 @@ export function TheAskSlide() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="border-t border-slate-700 pt-8 mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-blue-400">RETURN ANALYSIS & EXIT SCENARIOS</h2>
+          <h2 className="text-3xl font-bold mb-8 text-blue-400">
+            RETURN ANALYSIS & EXIT SCENARIOS <a href="https://www.statista.com/statistics/320793/median-time-venture-capital-exit-usa/" target="_blank" rel="noopener noreferrer" className="text-blue-400 text-lg">[3]</a>
+          </h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {[

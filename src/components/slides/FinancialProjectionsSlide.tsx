@@ -5,9 +5,11 @@ import {
   baseLTV,
   formatCurrency,
   calculateInfrastructureCostPerCompany,
+  calculateGrowthProjections,
   BASE_BUSINESS_PARAMS,
   BASE_INFRASTRUCTURE_PARAMS,
   INFRASTRUCTURE_OPTIMIZATION,
+  GROWTH_STAGES,
   BASE_EMPLOYEE_PARAMS,
   TIMELINE_MARKER_PARAMS,
   BURN_RATE_CALCULATIONS,
@@ -69,24 +71,24 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
   const scaleY = (value: number) => 55 - ((value - minValue) / valueRange) * 50;
   const scaleX = (day: number) => ((day - minDay) / dayRange) * 87 + 8;
 
-  // Sample data for cleaner paths (every 5 days for smooth lines)
-  const sampledData = data.filter((d, i) => i % 5 === 0 || i === data.length - 1);
+  // Use all daily data for granular precision (no sampling)
+  const dailyData = data;
 
-  // Generate path strings
-  const revenuePath = sampledData.map((d, i) => 
+  // Generate path strings with daily granularity
+  const revenuePath = dailyData.map((d, i) => 
     `${i === 0 ? 'M' : 'L'} ${scaleX(d.day)} ${scaleY(d.revenue)}`
   ).join(' ');
   
-  const costsPath = sampledData.map((d, i) => 
+  const costsPath = dailyData.map((d, i) => 
     `${i === 0 ? 'M' : 'L'} ${scaleX(d.day)} ${scaleY(d.costs)}`
   ).join(' ');
 
-  const employeeCostsPath = sampledData.map((d, i) => 
+  const employeeCostsPath = dailyData.map((d, i) => 
     `${i === 0 ? 'M' : 'L'} ${scaleX(d.day)} ${scaleY(d.employeeCosts)}`
   ).join(' ');
 
   // Profit line (can be negative)
-  const profitPath = sampledData.map((d, i) => 
+  const profitPath = dailyData.map((d, i) => 
     `${i === 0 ? 'M' : 'L'} ${scaleX(d.day)} ${scaleY(d.profit)}`
   ).join(' ');
 
@@ -127,7 +129,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           />
           
           {/* Zero line */}
-          <motion.line
+          <line
             x1="8"
             y1={zeroY}
             x2="95"
@@ -135,26 +137,20 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
             stroke="rgb(156, 163, 175)"
             strokeWidth="0.1"
             strokeDasharray="1,1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
           />
           
           {/* Pareto frontier shaded area */}
           {paretoUpperPath && paretoLowerPath && (
-            <motion.path
+            <path
               d={`${paretoUpperPath} ${paretoLowerPath.split(' ').reverse().join(' ')} Z`}
               fill="rgba(255, 193, 7, 0.15)"
               stroke="none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1.5, delay: 0.5 }}
             />
           )}
           
           {/* Timeline markers - vertical lines */}
           {timelineMarkers.map((marker, index) => (
-            <motion.line
+            <line
               key={`marker-${index}`}
               x1={scaleX(marker.day)}
               y1="5"
@@ -168,15 +164,12 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               }
               strokeWidth="0.1"
               strokeDasharray={marker.type === 'launch' ? '0.5,0.5' : '1,1'}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 1.2 + index * 0.1 }}
             />
           ))}
           
           {/* Break-even vertical line */}
           {breakEvenDay >= minDay && breakEvenDay <= maxDay && (
-            <motion.line
+            <line
               x1={scaleX(breakEvenDay)}
               y1="5"
               x2={scaleX(breakEvenDay)}
@@ -184,90 +177,69 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
               stroke="rgb(59, 130, 246)"
               strokeWidth="0.15"
               strokeDasharray="1.5,1.5"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 1 }}
             />
           )}
           
           {/* Revenue line */}
-          <motion.path
+          <path
             d={revenuePath}
             fill="none"
             stroke="rgb(59, 130, 246)"
             strokeWidth="0.2"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
           />
           
           {/* Total costs line */}
-          <motion.path
+          <path
             d={costsPath}
             fill="none"
             stroke="rgb(148, 163, 184)"
             strokeWidth="0.2"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeInOut", delay: 0.3 }}
           />
 
           {/* Employee costs line */}
-          <motion.path
+          <path
             d={employeeCostsPath}
             fill="none"
             stroke="rgb(100, 116, 139)"
             strokeWidth="0.15"
             strokeDasharray="2,1"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeInOut", delay: 0.6 }}
           />
           
           {/* Profit line */}
-          <motion.path
+          <path
             d={profitPath}
             fill="none"
             stroke="rgb(16, 185, 129)"
             strokeWidth="0.2"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeInOut", delay: 0.9 }}
           />
           
           {/* Revenue data points (sample every 10 days for visibility) */}
           {data.filter((d, i) => i % 10 === 0 || i === data.length - 1).map((item, index) => (
-            <motion.circle
+            <circle
               key={`revenue-${index}`}
               cx={scaleX(item.day)}
               cy={scaleY(item.revenue)}
               r="0.3"
               fill="rgb(59, 130, 246)"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
             />
           ))}
           
           {/* Strategic decision threshold markers */}
           {decisionThresholds.map((threshold, index) => (
-            <motion.g key={index}>
-              <motion.circle
+            <g key={index}>
+              <circle
                 cx={scaleX(threshold.day)}
                 cy={scaleY(data.find(d => d.day === threshold.day)?.revenue || 0)}
                 r="0.5"
                 fill={threshold.type === 'optimal' ? 'rgb(59, 130, 246)' : 
                       threshold.type === 'conservative' ? 'rgb(100, 116, 139)' : 'rgb(148, 163, 184)'}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.4, delay: 1.5 + index * 0.2 }}
               />
-            </motion.g>
+            </g>
           ))}
 
           {/* Timeline marker points */}
           {timelineMarkers.map((marker, index) => (
-            <motion.circle
+            <circle
               key={`marker-point-${index}`}
               cx={scaleX(marker.day)}
               cy={scaleY(data.find(d => d.day === marker.day)?.revenue || data.find(d => d.day === marker.day)?.costs || 0)}
@@ -278,82 +250,9 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
                 marker.type === 'hire' ? 'rgb(148, 163, 184)' :
                 'rgb(156, 163, 175)'
               }
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.4, delay: 2 + index * 0.15 }}
             />
           ))}
-          {/* Y-axis grid lines and labels */}
-          {(() => {
-            // Calculate better Y-axis ticks (limit to 6-8 ticks)
-            const range = maxValue - minValue;
-            const targetTickCount = 6;
-            const roughStep = range / targetTickCount;
-            
-            // Find nice step size - always use millions for better readability
-            const stepSizeInMillions = Math.ceil(roughStep / 1000000);
-            
-            // Generate tick values starting from a clean number
-            const firstTickInMillions = Math.floor(minValue / 1000000);
-            const lastTickInMillions = Math.ceil(maxValue / 1000000);
-            
-            const ticks = [];
-            for (let millionValue = firstTickInMillions; millionValue <= lastTickInMillions; millionValue += Math.max(stepSizeInMillions, 1)) {
-              const tickValue = millionValue * 1000000;
-              if (tickValue >= minValue && tickValue <= maxValue) {
-                ticks.push(tickValue);
-              }
-            }
-            
-            // Ensure we always have zero line if it's in range
-            if (minValue <= 0 && maxValue >= 0 && !ticks.includes(0)) {
-              ticks.push(0);
-              ticks.sort((a, b) => a - b);
-            }
-            
-            return ticks.slice(0, 8).map((tickValue, index) => { // Limit to max 8 ticks
-              const yPos = scaleY(tickValue);
-              const millions = tickValue / 1000000;
-              const label = millions === 0 ? '$0' : 
-                           millions > 0 ? `$${millions.toFixed(millions < 1 ? 1 : 0)}M` :
-                           `-$${Math.abs(millions).toFixed(Math.abs(millions) < 1 ? 1 : 0)}M`;
-              
-              return (
-                <g key={index}>
-                  {/* Grid line */}
-                  <line
-                    x1="8"
-                    y1={yPos}
-                    x2="95"
-                    y2={yPos}
-                    stroke="rgba(156, 163, 175, 0.1)"
-                    strokeWidth="0.1"
-                    strokeDasharray="1,1"
-                  />
-                  {/* Y-axis tick mark */}
-                  <line
-                    x1="7.5"
-                    y1={yPos}
-                    x2="8.5"
-                    y2={yPos}
-                    stroke="rgb(156, 163, 175)"
-                    strokeWidth="0.1"
-                  />
-                  {/* Y-axis label */}
-                  <text
-                    x="6"
-                    y={yPos + 0.5}
-                    fontSize="1.5"
-                    fill="rgb(156, 163, 175)"
-                    textAnchor="end"
-                    dominantBaseline="middle"
-                  >
-                    {label}
-                  </text>
-                </g>
-              );
-            });
-          })()}
+
           
           {/* X-axis tick marks */}
           {[0, 30, 60, 90, 120, 180, 270, 365].map((day) => (
@@ -372,7 +271,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
         {/* Chart labels and axis */}
         <div className="absolute inset-0 pointer-events-none">
           
-          {/* X-axis labels (show key day markers) */}
+          {/* X-axis labels (show key day markers for daily granularity) */}
           <div className="absolute bottom-1 left-0 right-0 text-xs text-gray-500">
             {[0, 30, 60, 90, 120, 180, 270, 365].map((day) => (
               <span key={day} style={{ position: 'absolute', left: `${scaleX(day)}%`, transform: 'translateX(-50%)', fontSize: '10px' }}>
@@ -430,6 +329,7 @@ function AdvancedFinancialChart({ data, paretoData, decisionThresholds, timeline
           
           {/* Legend */}
           <div className="absolute top-2 right-2 bg-gray-800/90 border border-gray-600 rounded px-2 py-1" style={{ fontSize: '9px' }}>
+            <div className="text-slate-200 font-semibold mb-1 text-center">Daily Granularity</div>
             <div className="flex items-center mb-0.5">
               <div className="w-2 h-px bg-blue-400 mr-1"></div>
               <span className="text-slate-300">Revenue</span>
@@ -502,8 +402,8 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
   const scaleYPenetration = (value: number) => 55 - (value / penetrationRange) * 50;
   const scaleX = (day: number) => ((day - minDay) / dayRange) * 87 + 8;
 
-  // Sample data for cleaner paths (every 5 days for fine-grained detail)
-  const sampledData = data.filter((d, i) => i % 5 === 0 || i === data.length - 1);
+  // Sample data for 5-year view (every 7 days for manageable path complexity over 5 years)
+  const sampledData = data.filter((d, i) => i % 7 === 0 || i === data.length - 1);
 
   // Generate path strings
   const revenuePath = sampledData.map((d, i) => 
@@ -545,7 +445,7 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
           />
           
           {/* Zero line */}
-          <motion.line
+          <line
             x1="8"
             y1={zeroY}
             x2="95"
@@ -553,47 +453,35 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
             stroke="rgb(156, 163, 175)"
             strokeWidth="0.1"
             strokeDasharray="1,1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
           />
           
           {/* Revenue line */}
-          <motion.path
+          <path
             d={revenuePath}
             fill="none"
             stroke="rgb(59, 130, 246)"
             strokeWidth="0.2"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 3, ease: "easeInOut" }}
           />
           
           {/* Profit line */}
-          <motion.path
+          <path
             d={profitPath}
             fill="none"
             stroke="rgb(16, 185, 129)"
             strokeWidth="0.2"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 3, ease: "easeInOut", delay: 0.5 }}
           />
 
           {/* Market penetration line */}
-          <motion.path
+          <path
             d={penetrationPath}
             fill="none"
             stroke="rgb(147, 51, 234)"
             strokeWidth="0.2"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 3, ease: "easeInOut", delay: 1 }}
           />
           
           {/* Year markers */}
           {[365, 730, 1095, 1460, 1825].map((yearDay, index) => (
-            <motion.line
+            <line
               key={`year-${index}`}
               x1={scaleX(yearDay)}
               y1="5"
@@ -602,105 +490,10 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
               stroke="rgb(156, 163, 175)"
               strokeWidth="0.1"
               strokeDasharray="2,2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 1.5 + index * 0.1 }}
             />
           ))}
 
-                    {/* Y-axis grid lines and labels (financial data) */}
-          {(() => {
-            const range = maxValue - minValue;
-            const targetTickCount = 6;
-            const roughStep = range / targetTickCount;
-            const stepSizeInMillions = Math.ceil(roughStep / 1000000);
-            const firstTickInMillions = Math.floor(minValue / 1000000);
-            const lastTickInMillions = Math.ceil(maxValue / 1000000);
-            
-            const ticks = [];
-            for (let millionValue = firstTickInMillions; millionValue <= lastTickInMillions; millionValue += Math.max(stepSizeInMillions, 1)) {
-              const tickValue = millionValue * 1000000;
-              if (tickValue >= minValue && tickValue <= maxValue) {
-                ticks.push(tickValue);
-              }
-            }
-            
-            if (minValue <= 0 && maxValue >= 0 && !ticks.includes(0)) {
-              ticks.push(0);
-              ticks.sort((a, b) => a - b);
-            }
-            
-            return ticks.slice(0, 8).map((tickValue, index) => {
-              const yPos = scaleY(tickValue);
-              const millions = tickValue / 1000000;
-              const label = millions === 0 ? '$0' : 
-                           millions > 0 ? `$${millions.toFixed(millions < 1 ? 1 : 0)}M` :
-                           `-$${Math.abs(millions).toFixed(Math.abs(millions) < 1 ? 1 : 0)}M`;
-              
-              return (
-                <g key={index}>
-                  <line
-                    x1="8"
-                    y1={yPos}
-                    x2="95"
-                    y2={yPos}
-                    stroke="rgba(156, 163, 175, 0.1)"
-                    strokeWidth="0.1"
-                    strokeDasharray="1,1"
-                  />
-                  {/* Y-axis tick mark */}
-                  <line
-                    x1="7.5"
-                    y1={yPos}
-                    x2="8.5"
-                    y2={yPos}
-                    stroke="rgb(156, 163, 175)"
-                    strokeWidth="0.1"
-                  />
-                  <text
-                    x="6"
-                    y={yPos + 0.5}
-                    fontSize="1.5"
-                    fill="rgb(156, 163, 175)"
-                    textAnchor="end"
-                    dominantBaseline="middle"
-                  >
-                    {label}
-                  </text>
-                </g>
-              );
-            });
-          })()}
 
-          {/* Y-axis grid lines and labels (market penetration) */}
-          {[0.01, 0.02, 0.03, 0.04, 0.05].map((penetration, index) => {
-            const yPos = scaleYPenetration(penetration);
-            const label = `${(penetration * 100).toFixed(1)}%`;
-            
-            return (
-              <g key={`penetration-${index}`}>
-                {/* Y-axis tick mark (right side) */}
-                <line
-                  x1="94.5"
-                  y1={yPos}
-                  x2="95.5"
-                  y2={yPos}
-                  stroke="rgb(147, 51, 234)"
-                  strokeWidth="0.1"
-                />
-                <text
-                  x="97"
-                  y={yPos + 0.5}
-                  fontSize="1.5"
-                  fill="rgb(147, 51, 234)"
-                  textAnchor="end"
-                  dominantBaseline="middle"
-                >
-                  {label}
-                </text>
-              </g>
-            );
-          })}
           
           {/* X-axis tick marks */}
           {[0, 365, 730, 1095, 1460, 1825].map((day) => (
@@ -718,7 +511,7 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
         
         {/* Chart labels and axis */}
         <div className="absolute inset-0 pointer-events-none">
-          {/* X-axis labels (show yearly markers) */}
+          {/* X-axis labels (show yearly markers for 5-year span) */}
           <div className="absolute bottom-1 left-0 right-0 text-xs text-gray-500">
             {[0, 365, 730, 1095, 1460, 1825].map((day) => (
               <span key={day} style={{ position: 'absolute', left: `${scaleX(day)}%`, transform: 'translateX(-50%)', fontSize: '10px' }}>
@@ -728,28 +521,22 @@ function FiveYearProjectionsChart({ data, height = 500 }: FiveYearChartProps) {
           </div>
           
           {/* Legend */}
-          <div className="absolute top-2 right-2 bg-gray-800/90 border border-gray-600 rounded px-2 py-1" style={{ fontSize: '9px' }}>
+          <div className="absolute top-2 right-2 bg-purple-900/90 border border-purple-600 rounded px-2 py-1" style={{ fontSize: '9px' }}>
             <div className="flex items-center mb-0.5">
               <div className="w-2 h-px bg-blue-400 mr-1"></div>
-              <span className="text-gray-300">Revenue</span>
+              <span className="text-purple-100">Revenue (5-Year)</span>
             </div>
             <div className="flex items-center mb-0.5">
               <div className="w-2 h-px bg-emerald-400 mr-1"></div>
-              <span className="text-gray-300">Profit</span>
+              <span className="text-purple-100">Profit (5-Year)</span>
             </div>
             <div className="flex items-center mb-0.5">
-              <div className="w-2 h-px bg-slate-400 mr-1"></div>
-              <span className="text-gray-300">Market Penetration</span>
+              <div className="w-2 h-px bg-purple-400 mr-1"></div>
+              <span className="text-purple-100">Market Penetration</span>
             </div>
           </div>
           
-          {/* Y-axis labels */}
-          <div className="absolute left-1 top-2 text-gray-400" style={{ fontSize: '10px' }}>
-            Revenue/Profit
-          </div>
-          <div className="absolute right-1 top-2 text-slate-400" style={{ fontSize: '10px' }}>
-            Market %
-          </div>
+
         </div>
       </div>
     </div>
@@ -770,8 +557,18 @@ export function FinancialProjectionsSlide() {
   const prepPhaseDays = COMPUTED_VALUES.prepPhaseDays;
   const prepPhaseMonths = daysToMonths(prepPhaseDays);
   
-  // Use daily cohorts directly instead of converting to monthly
+  // Use daily cohorts for 1-year data
   const dailyCohorts = baseProjections.cohorts;
+  
+  // Generate 5-year projections separately 
+  const fiveYearProjections = calculateGrowthProjections(
+    BASE_BUSINESS_PARAMS,
+    BASE_INFRASTRUCTURE_PARAMS,
+    GROWTH_STAGES,
+    1825, // 5 years in days
+    BASE_EMPLOYEE_PARAMS,
+    -180 // Start from 6 months before today
+  );
   
   // Calculate daily financial data including costs and employee costs
   const dailyFinancialData = dailyCohorts.map((cohort) => {
@@ -804,8 +601,8 @@ export function FinancialProjectionsSlide() {
   // Filter daily data to start from D0 for the main graph
   const mainGraphData = dailyFinancialData.filter(d => d.day >= 0);
 
-  // Generate 5-year projections data (extend beyond 365 days)
-  const fiveYearData = dailyCohorts.filter(cohort => cohort.daysFromToday >= 0 && cohort.daysFromToday <= 365 * 5).map((cohort) => {
+  // Generate 5-year projections data from the 5-year calculation
+  const fiveYearData = fiveYearProjections.cohorts.filter(cohort => cohort.daysFromToday >= 0).map((cohort) => {
     const day = cohort.daysFromToday;
     const totalCompanies = cohort.totalCompanies;
     const infrastructureCost = calculateInfrastructureCostPerCompany(BASE_INFRASTRUCTURE_PARAMS);
@@ -964,9 +761,9 @@ export function FinancialProjectionsSlide() {
               <h3 className="text-lg font-semibold text-blue-400 mb-4">Revenue-Driven Hiring Strategy</h3>
               <div className="space-y-2 text-sm text-slate-300">
                 <p><strong>Day {Math.round(customerSuccessHireDays)}:</strong> Customer Success at {formatCurrency(TIMELINE_MARKER_PARAMS.customerSuccessHire.mrrThreshold)}</p>
-                <p><strong>Day {Math.round(marketingHireDays)}:</strong> Marketing Manager at {formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold)}</p>
-                <p><strong>Day {Math.round(seniorDevHireDays)}:</strong> Senior Developer at {formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold)}</p>
-                <p><strong>Day {Math.round(salesHireDays)}:</strong> Sales Manager at {formatCurrency(TIMELINE_MARKER_PARAMS.salesHire.mrrThreshold)}</p>
+                <p><strong>Day {Math.round(marketingHireDays)}:</strong> Marketing at {formatCurrency(TIMELINE_MARKER_PARAMS.marketingHire.mrrThreshold)}</p>
+                <p><strong>Day {Math.round(seniorDevHireDays)}:</strong> Dev at {formatCurrency(TIMELINE_MARKER_PARAMS.seniorDevHire.mrrThreshold)}</p>
+                <p><strong>Day {Math.round(salesHireDays)}:</strong> Sales at {formatCurrency(TIMELINE_MARKER_PARAMS.salesHire.mrrThreshold)}</p>
                 <p className="text-xs text-blue-300 mt-2">Each hire triggered by MRR milestones ensuring revenue can support increased payroll. Conservative hiring approach maintains positive cash flow throughout growth phase.</p>
               </div>
             </div>
